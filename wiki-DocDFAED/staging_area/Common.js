@@ -33,7 +33,8 @@
             'EditPage',
             'components/Accordion',
             'components/Alert',
-            'components/Badge'
+            'components/Badge',
+            'components/Card'
         ];
 
         console.log('[DSFR] Loading modules from:', apiPath);
