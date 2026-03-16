@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(cp:*)",
-      "WebFetch(domain:www.systeme-de-design.gouv.fr)"
-    ]
-  }
-}
