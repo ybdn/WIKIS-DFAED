@@ -117,11 +117,12 @@ Le wiki DFAED-NG est en cours de transformation DSFR. L'environnement de dévelo
 
 ## Chantier DocDFAED (actif)
 
-Le dossier `wiki-DocDFAED/` est initialisé avec la même architecture que DFAED-NG.
+Le wiki DocDFAED suit la même architecture que DFAED-NG. `Config.js` est configuré avec le branding et la navigation propres à DocDFAED.
 
 - **Port local** : 8081 (8080 est réservé à DFAED-NG)
 - **Volume DB** : `db_data_docdfa`
-- Le `staging_area/` est identique à DFAED-NG — adapter `dsfr/Config.js` pour la navigation et le branding propres à DocDFAED.
+- **Navigation configurée** : Accueil, Documentation (ASQ, Veille professionnelle), Formation, Planning, OCE, Historique, Application FAED
+- **49 stubs** de composants DSFR présents dans `staging_area/dsfr/components/`
 
 **Pour les règles techniques détaillées, voir [`wiki-DocDFAED/CLAUDE.md`](wiki-DocDFAED/CLAUDE.md).**
 

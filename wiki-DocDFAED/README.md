@@ -2,7 +2,7 @@
 
 Environnement de développement local Dockerisé pour concevoir et tester les scripts (JS) et styles (CSS) du wiki **DocDFAED** en production.
 
-DocDFAED est la plateforme de recensement des processus internes du Département du Fichier Automatisé des Empreintes Digitales (DFAED — Gendarmerie nationale). Accès restreint aux agents du département, hébergé par le BSII / Pôle judiciaire.
+DocDFAED est la plateforme de documentation interne du Département du Fichier Automatisé des Empreintes Digitales (DFAED — Gendarmerie nationale). Accès restreint aux agents du département, hébergé par le BSII / Pôle judiciaire.
 
 ## Stack
 
@@ -39,64 +39,60 @@ DocDFAED est la plateforme de recensement des processus internes du Département
 
 Toute l'édition se fait dans le dossier local `/staging_area`.
 
-### 1. Développement
-
-Éditez ces fichiers dans votre IDE préféré (VS Code).
-
 > **CONTRAINTE TECHNIQUE — Compatibilité prod (MediaWiki 1.31)**
 > Le Wiki de production ne supporte pas le JavaScript moderne dans son minifier.
-> - **INTERDIT** : `const`, `let`, les backticks `` ` `` pour les chaînes multi-lignes, les fonctions fléchées `=>`.
-> - **OBLIGATOIRE** : Utilisez `var`, la concaténation `'a' + 'b'`, et `function() {}` classique.
+> - **INTERDIT** : `const`, `let`, les backticks `` ` ``, les fonctions fléchées `=>`.
+> - **OBLIGATOIRE** : `var`, la concaténation `'a' + 'b'`, et `function() {}` classique.
 
-> **RÈGLE IMPORTANTE** : Chaque fichier doit commencer par un commentaire d'en-tête indiquant :
-> - Le nom de la page cible en production (ex: `MediaWiki:Layout.js`)
-> - La logique de chargement est gérée par `Common.js` de manière universelle.
+> **RÈGLE IMPORTANTE** : Chaque fichier doit commencer par `/* SOURCE FILE FOR: [[MediaWiki:NomDeLaPage]] */`
 
-Fichiers principaux :
+### Déploiement en Production (Copy-Paste)
 
-- `staging_area/Common.css` : Styles globaux.
-- `staging_area/Common.js` : **Script Maître**. Il injecte le Loader, détecte l'environnement (Local/Prod) et charge les modules.
-- `staging_area/dsfr/` : Dossier contenant les composants DSFR (Header, Layout, etc.).
+Le Wiki de production n'a pas accès à ce dépôt Git. Mise à jour via l'interface web uniquement.
 
-### 2. Test
-
-Rafraîchissez simplement votre navigateur local.
-
-### 3. Déploiement en Production (Le "Copy-Paste System")
-
-Le Wiki de production **n'a pas** accès à ce dépôt Git. Vous devez mettre à jour les pages via l'interface web.
-
-> **ATTENTION** : Commencer par `Common.js` assure que tout le monde voit l'écran de chargement dès la mise à jour.
-
-| Fichier Local | Page Wiki de Production (Destination) | Rôle |
-|--------------|--------------------------------------|------|
+| Fichier local | Page Wiki de production | Rôle |
+|--------------|-------------------------|------|
 | `Common.css` | `MediaWiki:Common.css` | Styles de base |
-| `Common.js` | `MediaWiki:Common.js` | **Loader & Chef d'orchestre** (À copier en priorité) |
-| `dsfr/Config.js` | `MediaWiki:Dsfr/Config.js` | Textes & Logos |
-| `dsfr/Layout.js` | `MediaWiki:Dsfr/Layout.js` | Nettoyage DOM & CSS Fallback |
-| `dsfr/Header.js` | `MediaWiki:Dsfr/Header.js` | Header DSFR avec logique résiliente |
+| `Common.js` | `MediaWiki:Common.js` | Loader & chef d'orchestre |
+| `dsfr/Config.js` | `MediaWiki:Dsfr/Config.js` | Branding, navigation, footer DocDFAED |
+| `dsfr/Layout.js` | `MediaWiki:Dsfr/Layout.js` | Nettoyage DOM & CSS fallback |
+| `dsfr/Header.js` | `MediaWiki:Dsfr/Header.js` | Header DSFR |
 | `dsfr/Footer.js` | `MediaWiki:Dsfr/Footer.js` | Pied de page |
 | `dsfr/EditPage.js` | `MediaWiki:Dsfr/EditPage.js` | Barre d'édition DSFR custom |
-| `dsfr/Style.css` | `MediaWiki:Dsfr/Style.css` | Styles DSFR & Overrides |
-| `dsfr/components/Accordion.js` | `MediaWiki:Dsfr/components/Accordion.js` | Composant Accordéon |
-| `dsfr/components/Alert.js` | `MediaWiki:Dsfr/components/Alert.js` | Composant Alerte |
-| `dsfr/components/Badge.js` | `MediaWiki:Dsfr/components/Badge.js` | Composant Badge |
+| `dsfr/Style.css` | `MediaWiki:Dsfr/Style.css` | Styles DSFR & overrides |
+| `dsfr/components/*.js` | `MediaWiki:Dsfr/components/*.js` | Composants DSFR (voir liste ci-dessous) |
+
+### Navigation configurée (Config.js)
+
+| Entrée | Type | Sous-éléments |
+|--------|------|---------------|
+| Accueil | Lien | — |
+| Documentation | Menu | ASQ, Veille professionnelle |
+| Formation | Menu | Formations internes, Formations externes |
+| Planning | Menu | Consultation, Gestion |
+| OCE | Menu | Consultation, Gestion |
+| Historique | Lien | — |
+| Application FAED | Lien | — |
+
+### Composants DSFR (stubs)
+
+49 composants présents dans `staging_area/dsfr/components/` — tous structurés, à implémenter selon les besoins :
+
+Accordion, Alert, Badge, Breadcrumb, Button, Callout, Card, Checkbox, Combobox, Composition, Connect, Consent, Content, Display, Download, Dropdown, Follow, Form, Highlight, Input, Link, Logo, Modal, Navigation, Notice, Pagination, Password, Quote, Radio, Range, Search, Segmented, Select, Share, Sidemenu, Skiplink, Stepper, Summary, Tab, Tabnav, Table, Tag, Tile, Toggle, Tooltip, Transcription, Translate, Upload, User
 
 ---
 
 ## Architecture "Zéro FOUC"
 
-Pour éviter les clignotements (FOUC) et garantir la stabilité :
+1. **Loader immédiat** : `Common.js` injecte un overlay blanc dès la première milliseconde.
+2. **CSS préchargé** : `LocalSettings.php` injecte le CSS DSFR côté serveur via `addHeadItem`.
+3. **Header résilient** : `Header.js` attend que MediaWiki soit prêt avant de s'afficher et retirer l'overlay.
 
-1. **Loader Immédiat** : `Common.js` injecte un overlay blanc dès la première milliseconde.
-2. **CSS Préchargé** (Local) : `LocalSettings.php` injecte le CSS DSFR côté serveur via `addHeadItem`.
-3. **Header Résilient** : `Header.js` attend sagement que MediaWiki soit prêt avant de s'afficher et de retirer l'overlay.
-
-Si vous ajoutez un nouveau fichier `MagicButton.js`, ajoutez-le simplement à la liste `dsfrModules` dans `Common.js`.
+Ordre de chargement : `Config → Layout → Header → Footer → EditPage → components`
 
 ## Semantic MediaWiki
 
-L'environnement local embarque Semantic MediaWiki 3.2.3, identique à la version de production. Cela permet de tester les requêtes `{{#ask:}}`, les propriétés SMW et les templates sémantiques directement en local.
+L'environnement local embarque SMW 3.2.3, identique à la version de production. Permet de tester les requêtes `{{#ask:}}`, propriétés SMW et templates sémantiques directement en local.
 
 ## Commandes utiles
 
