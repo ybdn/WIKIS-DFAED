@@ -45,9 +45,12 @@
     //   data-detail-icon  [opt]     Classe DSFR d'icône pour le détail (ex: fr-icon-map-pin-2-line)
     //   data-badge        [opt]     Texte du badge
     //   data-badge-type   [opt]     Type : new (défaut), info, success, warning, error
-    //   data-image        [opt]     URL de l'image d'illustration
+    //   data-image        [opt]     URL de l'image — chemin direct, URL absolue,
+    //                               ou fichier wiki : "File:Image.png" / "Fichier:Image.png"
     //   data-image-alt    [opt]     Texte alternatif de l'image (défaut: vide)
-    //   data-horizontal   [opt]     "true" → disposition horizontale (image à droite)
+    //   data-image-ratio  [opt]     Ratio de l'image : 32x9, 16x9, 3x4, 2x3, 4x3, 1x1
+    //   data-horizontal   [opt]     "true" → horizontal (défaut) | "tier" → 1/3-2/3
+    //                               | "half" → 50-50
     //   data-shadow       [opt]     "true" → ombre portée
     //   data-grey         [opt]     "true" → fond gris
     //   data-no-arrow     [opt]     "true" → masque la flèche (fr-card--no-arrow)
@@ -89,6 +92,25 @@
         },
 
         /**
+         * Résout une URL d'image.
+         * File:/Fichier: → Special:FilePath (redirecte vers l'URL réelle du fichier).
+         * URL absolue ou chemin absolu : passthrough.
+         */
+        resolveImageUrl: function(raw) {
+            if (!raw) return '';
+            if (raw.indexOf('http') === 0 || raw.indexOf('/') === 0) {
+                return raw;
+            }
+            if (raw.indexOf('File:') === 0) {
+                return mw.util.getUrl('Special:FilePath/' + raw.substring(5));
+            }
+            if (raw.indexOf('Fichier:') === 0) {
+                return mw.util.getUrl('Special:FilePath/' + raw.substring(8));
+            }
+            return raw;
+        },
+
+        /**
          * Construit un élément jQuery .fr-card à partir d'un élément source.
          */
         buildCard: function($el) {
@@ -99,9 +121,11 @@
             var detailIcon   = $el.attr('data-detail-icon') || '';
             var badge        = $el.attr('data-badge') || '';
             var badgeType    = $el.attr('data-badge-type') || 'new';
-            var image        = $el.attr('data-image') || '';
+            var image        = this.resolveImageUrl($el.attr('data-image') || '');
             var imageAlt     = $el.attr('data-image-alt') || '';
-            var isHorizontal = $el.attr('data-horizontal') === 'true';
+            var imageRatio   = $el.attr('data-image-ratio') || '';
+            var hValue       = $el.attr('data-horizontal') || '';
+            var isHorizontal = (hValue === 'true' || hValue === 'tier' || hValue === 'half');
             var hasShadow    = $el.attr('data-shadow') === 'true';
             var isGrey       = $el.attr('data-grey') === 'true';
             var noArrow      = $el.attr('data-no-arrow') === 'true';
@@ -111,8 +135,10 @@
             // --- Conteneur principal ---
             var cardClasses = 'fr-card';
             if (resolvedUrl)   cardClasses += ' fr-enlarge-link';
-            if (isHorizontal)  cardClasses += ' fr-card--horizontal';
-            if (hasShadow)     cardClasses += ' fr-card--shadow';
+            if (isHorizontal)      cardClasses += ' fr-card--horizontal';
+            if (hValue === 'tier') cardClasses += ' fr-card--horizontal-tier';
+            if (hValue === 'half') cardClasses += ' fr-card--horizontal-half';
+            if (hasShadow)         cardClasses += ' fr-card--shadow';
             if (isGrey)        cardClasses += ' fr-card--grey';
             if (noArrow)       cardClasses += ' fr-card--no-arrow';
 
@@ -168,7 +194,8 @@
             // Image (header — après le body dans le DOM)
             if (image) {
                 var $header     = $('<div>').addClass('fr-card__header');
-                var $imgWrapper = $('<div>').addClass('fr-card__img');
+                var imgWrapperClass = 'fr-card__img' + (imageRatio ? ' fr-ratio-' + imageRatio : '');
+                var $imgWrapper = $('<div>').addClass(imgWrapperClass);
                 $imgWrapper.append(
                     $('<img>').addClass('fr-responsive-img')
                               .attr('src', image)
