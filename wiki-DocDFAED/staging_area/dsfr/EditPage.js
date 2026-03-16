@@ -284,7 +284,12 @@
             { label: "Badge (Succès)", open: '<span data-dsfr-badge="success">', close: '</span>', sample: "Nouveau" },
             { label: "Badge (Info)", open: '<span data-dsfr-badge="info">', close: '</span>', sample: "Brouillon" },
             { label: "Mise en avant (Callout)", open: '<div class="fr-callout">\n  <h3 class="fr-callout__title">Titre mise en avant</h3>\n  <p class="fr-callout__text">\n', close: "\n  </p>\n</div>", sample: "Texte important" },
-            { label: "Citation", open: '<div class="fr-quote">\n  <blockquote>\n    <p>« ', close: ' »</p>\n  </blockquote>\n  <figcaption>\n    <p class="fr-quote__author">Auteur</p>\n  </figcaption>\n</div>', sample: "Citation" }
+            { label: "Citation", open: '<div class="fr-quote">\n  <blockquote>\n    <p>« ', close: ' »</p>\n  </blockquote>\n  <figcaption>\n    <p class="fr-quote__author">Auteur</p>\n  </figcaption>\n</div>', sample: "Citation" },
+            { label: "Carte (simple)", open: '<div class="dsfr-card" data-title="Titre de la carte" data-url="Nom_Page_Wiki">\n', close: '\n</div>', sample: 'Description de la carte.' },
+            { label: "Carte (avec badge et détail)", open: '<div class="dsfr-card" data-title="Titre de la carte" data-url="Nom_Page_Wiki" data-badge="Nouveau" data-badge-type="new" data-detail="Catégorie">\n', close: '\n</div>', sample: 'Description de la carte.' },
+            { label: "Grille de cartes (2 colonnes)", open: '<div class="dsfr-card-grid" data-cols="2">\n<div class="dsfr-card-item" data-title="Carte 1" data-url="Page_1">Description 1</div>\n<div class="dsfr-card-item" data-title="Carte 2" data-url="Page_2">Description 2</div>\n</div>', close: '', sample: '' },
+            { label: "Grille de cartes (3 colonnes)", open: '<div class="dsfr-card-grid" data-cols="3">\n<div class="dsfr-card-item" data-title="Carte 1" data-url="Page_1">Description 1</div>\n<div class="dsfr-card-item" data-title="Carte 2" data-url="Page_2">Description 2</div>\n<div class="dsfr-card-item" data-title="Carte 3" data-url="Page_3">Description 3</div>\n</div>', close: '', sample: '' },
+            { label: "Grille de cartes (4 colonnes)", open: '<div class="dsfr-card-grid" data-cols="4">\n<div class="dsfr-card-item" data-title="Carte 1" data-url="Page_1">Description 1</div>\n<div class="dsfr-card-item" data-title="Carte 2" data-url="Page_2">Description 2</div>\n<div class="dsfr-card-item" data-title="Carte 3" data-url="Page_3">Description 3</div>\n<div class="dsfr-card-item" data-title="Carte 4" data-url="Page_4">Description 4</div>\n</div>', close: '', sample: '' }
         ];
 
         $.each(components, function(i, c) {
