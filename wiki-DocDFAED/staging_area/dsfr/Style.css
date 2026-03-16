@@ -661,7 +661,7 @@ body.action-submit textarea:focus {
 /* Main edit textarea */
 body.action-edit #wpTextbox1,
 body.action-submit #wpTextbox1,
-body.action-edit .wikiEditor-ui-text textarea {
+body.action-edit .wikiEditor-ui-text > textarea {
   width: 100% !important;
   min-height: 500px !important;
   font-family: "Courier New", Consolas, monospace !important;
@@ -677,7 +677,7 @@ body.action-edit .wikiEditor-ui-text textarea {
 
 body.action-edit #wpTextbox1:focus,
 body.action-submit #wpTextbox1:focus,
-body.action-edit .wikiEditor-ui-text textarea:focus {
+body.action-edit .wikiEditor-ui-text > textarea:focus {
   background-color: #ffffff !important;
   border-color: #000091 !important;
   box-shadow: 0 0 0 2px rgba(0, 0, 145, 0.2) !important;
