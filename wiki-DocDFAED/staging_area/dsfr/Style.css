@@ -260,6 +260,55 @@ h1.firstHeading,
   display: none !important;
 }
 
+/* Masquer la numérotation automatique des sections (1, 1.1, 2...) */
+.mw-headline-number {
+  display: none !important;
+}
+
+/* Typographie des titres de contenu (hiérarchie DSFR)
+   Le H1 est le titre de la page (firstHeading) — les sections wiki commencent en H2.
+   On applique les échelles de la typographie DSFR en décalant d'un niveau. */
+.mw-parser-output h2 {
+  font-size: 1.75rem !important;
+  line-height: 2.25rem !important;
+  font-weight: 700 !important;
+  margin-top: 2rem !important;
+  margin-bottom: 1rem !important;
+  color: #161616 !important;
+}
+.mw-parser-output h3 {
+  font-size: 1.375rem !important;
+  line-height: 1.75rem !important;
+  font-weight: 700 !important;
+  margin-top: 1.5rem !important;
+  margin-bottom: 0.75rem !important;
+  color: #161616 !important;
+}
+.mw-parser-output h4 {
+  font-size: 1.125rem !important;
+  line-height: 1.75rem !important;
+  font-weight: 700 !important;
+  margin-top: 1.25rem !important;
+  margin-bottom: 0.5rem !important;
+  color: #161616 !important;
+}
+.mw-parser-output h5 {
+  font-size: 1rem !important;
+  line-height: 1.5rem !important;
+  font-weight: 700 !important;
+  margin-top: 1rem !important;
+  margin-bottom: 0.5rem !important;
+  color: #161616 !important;
+}
+.mw-parser-output h6 {
+  font-size: 0.875rem !important;
+  line-height: 1.5rem !important;
+  font-weight: 700 !important;
+  margin-top: 1rem !important;
+  margin-bottom: 0.5rem !important;
+  color: #161616 !important;
+}
+
 /* --------------------------------------------------------
    4b. BREADCRUMB (Fil d'Ariane DSFR)
    -------------------------------------------------------- */
