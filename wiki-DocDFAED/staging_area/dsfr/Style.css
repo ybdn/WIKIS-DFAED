@@ -623,9 +623,7 @@ body.action-submit input[type="email"],
 body.action-edit input[type="url"],
 body.action-submit input[type="url"],
 body.action-edit input[type="number"],
-body.action-submit input[type="number"],
-body.action-edit textarea,
-body.action-submit textarea {
+body.action-submit input[type="number"] {
   display: block !important;
   width: 100% !important;
   padding: 0.5rem 1rem !important;
@@ -650,9 +648,7 @@ body.action-submit textarea {
 body.action-edit input[type="text"]:focus,
 body.action-submit input[type="text"]:focus,
 body.action-edit input[type="search"]:focus,
-body.action-submit input[type="search"]:focus,
-body.action-edit textarea:focus,
-body.action-submit textarea:focus {
+body.action-submit input[type="search"]:focus {
   background-color: #ffffff !important;
   border-bottom-color: #000091 !important; /* Bleu DSFR */
   outline: none !important;
