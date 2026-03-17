@@ -130,7 +130,7 @@
 
         if ($('#dsfr-editor-toolbar').length) $('#dsfr-editor-toolbar').remove();
         
-        var $dsfrToolbar = $('<div id="dsfr-editor-toolbar" style="display:flex;flex-direction:column;align-items:center;width:2.5rem;background:#f6f6f6;border:1px solid #ddd;border-right:none;border-radius:4px 0 0 4px;padding:0.25rem 0;flex-shrink:0;overflow-y:auto;overflow-x:visible;"></div>');
+        var $dsfrToolbar = $('<div id="dsfr-editor-toolbar" style="display:flex;flex-direction:column;align-items:center;width:2.5rem;background:#f6f6f6;border:1px solid #ddd;border-right:none;border-radius:4px 0 0 4px;padding:0.25rem 0;flex-shrink:0;overflow-y:auto;overflow-x:visible;position:relative;z-index:10;"></div>');
         
         // --- Standard Tools ---
         // --- Palette colors for pickers ---
@@ -439,7 +439,9 @@
             // Close all color pickers too
             $('.dsfr-color-picker').removeClass('dsfr-color-picker--open');
         });
-        $grp.append($compLi); $dsfrToolbar.append($grp);
+        $grp.prepend($('<li style="border-top:1px solid #ddd; margin:0.35rem auto; width:1.5rem;"></li>'));
+        $grp.prepend($compLi);
+        $dsfrToolbar.append($grp);
 
         // Insérer la toolbar avant CodeMirror (éditeur actif).
         // Polling court car CodeMirror peut s'initialiser après notre script.
