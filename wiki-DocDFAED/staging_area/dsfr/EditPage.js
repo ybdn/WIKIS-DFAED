@@ -65,12 +65,15 @@
         var pickerCss =
             '#dsfr-editor-toolbar .fr-btns-group{flex-wrap:nowrap !important;}' +
             '#dsfr-editor-toolbar .fr-btn{padding:0.25rem !important;min-height:0 !important;height:2rem !important;width:2rem !important;}' +
-            '#dsfr-editor-toolbar .fr-btn.fr-btn--secondary{width:auto !important;height:auto !important;padding:0.125rem 2rem 0.125rem 0.75rem !important;font-size:0.8125rem !important;}' +
             '.dsfr-color-tool{position:relative;display:inline-flex;align-items:center;}' +
             '.dsfr-color-tool__main{border-top-right-radius:0 !important;border-bottom-right-radius:0 !important;margin-right:0 !important;}' +
             '.dsfr-color-tool__toggle{border-top-left-radius:0 !important;border-bottom-left-radius:0 !important;margin-left:0 !important;padding:0.25rem 0.25rem !important;min-width:1.25rem !important;width:auto !important;}' +
             '.dsfr-color-tool__toggle::before{content:"";display:inline-block;width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid currentColor;}' +
-            '.dsfr-color-picker{display:none;position:absolute;top:100%;left:0;z-index:2001;background:#fff;border:1px solid #ddd;border-radius:4px;box-shadow:0 4px 12px rgba(0,0,0,.12);padding:0.5rem;min-width:180px;}' +
+            '#dsfr-editor-toolbar .dsfr-color-tool{flex-direction:column !important;align-items:center;}' +
+            '#dsfr-editor-toolbar .dsfr-color-tool__main{border-radius:4px 4px 0 0 !important;border-bottom-left-radius:0 !important;border-bottom-right-radius:0 !important;margin-right:0 !important;}' +
+            '#dsfr-editor-toolbar .dsfr-color-tool__toggle{border-radius:0 0 4px 4px !important;border-top-left-radius:0 !important;border-top-right-radius:0 !important;width:2rem !important;min-width:0 !important;padding:0.125rem 0 !important;margin-left:0 !important;}' +
+            '#dsfr-editor-toolbar .dsfr-color-tool__toggle::before{border-top:4px solid transparent !important;border-bottom:4px solid transparent !important;border-left:5px solid currentColor !important;border-right:none !important;}' +
+            '.dsfr-color-picker{display:none;position:absolute;top:0;left:calc(100% + 0.25rem);z-index:2001;background:#fff;border:1px solid #ddd;border-radius:4px;box-shadow:0 4px 12px rgba(0,0,0,.12);padding:0.5rem;min-width:180px;}' +
             '.dsfr-color-picker.dsfr-color-picker--open{display:block;}' +
             '.dsfr-color-picker__grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;}' +
             '.dsfr-color-swatch{width:24px;height:24px;border-radius:50% !important;border:2px solid transparent;cursor:pointer;padding:0 !important;transition:transform .1s,border-color .1s;box-shadow:none !important;outline:none !important;min-height:0 !important;}' +
@@ -87,7 +90,9 @@
             '.dsfr-comp-sub-link{display:block;padding:0.45rem 1rem 0.45rem 1.75rem;color:#161616;text-decoration:none;border-bottom:1px solid #f0f0f0;font-size:0.8125rem;}' +
             '.dsfr-comp-sub-link:hover{background:#f0f0ff;color:#000091;}' +
             '.dsfr-comp-direct-lk{display:block;padding:0.6rem 1rem;color:#161616;text-decoration:none;border-bottom:1px solid #eee;font-size:0.875rem;}' +
-            '.dsfr-comp-direct-lk:hover{background:#f6f6f6;color:#000091;}';
+            '.dsfr-comp-direct-lk:hover{background:#f6f6f6;color:#000091;}' +
+            '#dsfr-editor-wrap{display:flex;align-items:stretch;position:relative;}' +
+            '#dsfr-editor-wrap .CodeMirror{flex:1;min-width:0;border-radius:0 4px 4px 0;}';
 
         $('head').append('<style>' + customIconsCss + pickerCss + '</style>');
 
@@ -125,7 +130,7 @@
 
         if ($('#dsfr-editor-toolbar').length) $('#dsfr-editor-toolbar').remove();
         
-        var $dsfrToolbar = $('<div class="fr-grid-row fr-grid-row--middle fr-px-1w fr-background-alt--grey fr-mb-0" id="dsfr-editor-toolbar" style="border: 1px solid #ddd; border-bottom: none; border-radius: 4px 4px 0 0; padding-top:0.25rem; padding-bottom:0.25rem;"></div>');
+        var $dsfrToolbar = $('<div id="dsfr-editor-toolbar" style="display:flex;flex-direction:column;align-items:center;width:2.5rem;background:#f6f6f6;border:1px solid #ddd;border-right:none;border-radius:4px 0 0 4px;padding:0.25rem 0;flex-shrink:0;overflow-y:auto;overflow-x:visible;"></div>');
         
         // --- Standard Tools ---
         // --- Palette colors for pickers ---
@@ -241,11 +246,11 @@
             { type: 'sep' }
         ];
 
-        var $grp = $('<ul class="fr-btns-group fr-btns-group--inline fr-btns-group--sm" style="flex-wrap:nowrap !important; align-items:center;"></ul>');
+        var $grp = $('<ul class="fr-btns-group" style="flex-direction:column !important;flex-wrap:nowrap !important;align-items:center;margin:0;padding:0;list-style:none;width:100%;"></ul>');
         
         $.each(basicTools, function(i, tool) {
             if (tool.type === 'sep') {
-                $grp.append('<li style="border-left:1px solid #ddd; margin:0 0.5rem; height:1.5rem; align-self:center;"></li>');
+                $grp.append('<li style="border-top:1px solid #ddd; margin:0.35rem auto; width:1.5rem;"></li>');
             } else if (tool.type === 'color-font') {
                 var $li = $('<li></li>');
                 $li.append(buildColorTool(
@@ -281,9 +286,9 @@
 
         // --- BUTTTON "Ajouter un composant DSFR" ---
         var $compLi = $('<li style="position:relative;"></li>');
-        var $compBtn = $('<button type="button" class="fr-btn fr-btn--secondary fr-btn--icon-right fr-icon-arrow-down-s-line" aria-expanded="false" style="width: auto !important; max-width: none !important; padding: 0.25rem 2.5rem 0.25rem 1rem !important; margin-left: 0.5rem !important;">Composants DSFR</button>');
-        
-        var $menu = $('<div class="fr-menu" style="display:none; position:absolute; top:100%; left:0; z-index:2000; background:white; border:1px solid #ddd; box-shadow:0 4px 12px rgba(0,0,0,0.1); min-width:300px;"></div>');
+        var $compBtn = $('<button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-icon-layout-grid-line" aria-expanded="false" title="Composants DSFR"></button>');
+
+        var $menu = $('<div class="fr-menu" style="display:none; position:absolute; top:0; left:100%; z-index:2000; background:white; border:1px solid #ddd; border-radius:4px; box-shadow:0 4px 12px rgba(0,0,0,0.1); min-width:280px; max-height:80vh; overflow-y:auto;"></div>');
         var $menuList = $('<ul class="fr-menu__list" style="margin:0; padding:0; list-style:none;"></ul>');
 
         var componentGroups = [
@@ -385,7 +390,8 @@
             if (group.items) {
                 var $hd = $('<div class="dsfr-comp-group-hd">' + group.label + '<span class="dsfr-comp-group-arrow">&#9658;</span></div>');
                 var $body = $('<ul class="dsfr-comp-group-body" style="margin:0;padding:0;list-style:none;"></ul>');
-                $hd.on('click', function() {
+                $hd.on('click', function(e) {
+                    e.stopPropagation();
                     $(this).toggleClass('is-open');
                     $body.toggleClass('is-open');
                 });
@@ -441,7 +447,8 @@
         var cmToolbarInterval = setInterval(function() {
             var $cm = $('.CodeMirror').first();
             if ($cm.length) {
-                $cm.before($dsfrToolbar);
+                $cm.wrap('<div id="dsfr-editor-wrap"></div>');
+                $('#dsfr-editor-wrap').prepend($dsfrToolbar);
                 clearInterval(cmToolbarInterval);
             } else if (cmToolbarAttempts >= 20) {
                 // Fallback : CodeMirror absent (désactivé par l'utilisateur)
