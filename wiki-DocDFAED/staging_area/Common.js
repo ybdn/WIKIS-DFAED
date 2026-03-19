@@ -2,28 +2,29 @@
  * -------------------------------------------------------------------------
  * SOURCE FILE FOR: MediaWiki:Common.js (AUTO-DETECT PATH)
  * -------------------------------------------------------------------------
+ * Pattern : base commune + configuration d'instance
+ *   — Config.js     : navigation propre à cette instance (staging_area/dsfr/)
+ *   — Autres modules : base commune partagée (shared/dsfr/ en local)
+ *
+ * Anti-FOUC : deux failsafes garantissent que le contenu devient visible.
+ *   — JS  : setTimeout 5000ms ci-dessous
+ *   — CSS : animation différée 4s dans Common.css
+ * -------------------------------------------------------------------------
  */
 
 (function () {
-
-    // -------------------------------------------------------------------------
-    // CHARGEMENT DES MODULES + RÉVÉLATION ANTI-FOUC
-    // -------------------------------------------------------------------------
-    // Les modules sont chargés en parallèle. Un compteur onload surveille
-    // leur chargement. Quand tous sont prêts, html.dsfr-ready est ajouté,
-    // déclenchant la révélation CSS (transition opacity dans Common.css).
-    //
-    // Deux failsafes garantissent que le contenu devient toujours visible :
-    //   — JS  : setTimeout 5000ms ci-dessous
-    //   — CSS : animation différée 4s dans Common.css
-    // -------------------------------------------------------------------------
 
     $(function () {
         var apiPath = mw.config.get('wgScript');
         var isLocal = window.location.hostname === 'localhost';
 
-        var dsfrModules = [
-            'Config',
+        // Config est spécifique à cette instance — toujours chargé depuis staging_area/dsfr/
+        var localModules = [
+            'Config'
+        ];
+
+        // Modules de la base commune — shared/dsfr/ en local, MediaWiki:Dsfr/ en prod
+        var sharedModules = [
             'Layout',
             'Header',
             'Footer',
@@ -41,7 +42,8 @@
             'components/Summary'
         ];
 
-        var total    = dsfrModules.length;
+        var allModules = localModules.concat(sharedModules);
+        var total    = allModules.length;
         var loaded   = 0;
         var revealed = false;
 
@@ -52,7 +54,6 @@
             console.log('[DSFR] Ready — all modules loaded (' + total + ')');
         }
 
-        // Failsafe JS : révéler après 5s si les onload ne se déclenchent pas
         var failsafe = setTimeout(function() {
             console.warn('[DSFR] Failsafe triggered — revealing after timeout');
             reveal();
@@ -69,23 +70,32 @@
         console.log('[DSFR] Loading ' + total + ' modules — env: ' + (isLocal ? 'local' : 'prod'));
 
         if (isLocal) {
-            dsfrModules.forEach(function(m) {
+            // Config : depuis staging_area/dsfr/ (spécifique à cette instance)
+            localModules.forEach(function(m) {
                 var s = document.createElement('script');
                 s.src = '/staging_area/dsfr/' + m + '.js?v=' + Date.now();
                 s.onload  = onModuleLoaded;
-                s.onerror = onModuleLoaded; // Compter même en cas d'erreur
+                s.onerror = onModuleLoaded;
+                document.head.appendChild(s);
+            });
+            // Base commune : depuis shared/dsfr/
+            sharedModules.forEach(function(m) {
+                var s = document.createElement('script');
+                s.src = '/shared/dsfr/' + m + '.js?v=' + Date.now();
+                s.onload  = onModuleLoaded;
+                s.onerror = onModuleLoaded;
                 document.head.appendChild(s);
             });
         } else {
-            // PROD : charger le CSS de personnalisation
+            // PROD : CSS de personnalisation
             var cssLink = document.createElement('link');
             cssLink.rel  = 'stylesheet';
             cssLink.type = 'text/css';
             cssLink.href = apiPath + '?title=MediaWiki:Dsfr/Style.css&action=raw&ctype=text/css';
             document.head.appendChild(cssLink);
 
-            // PROD : charger les modules JS
-            dsfrModules.forEach(function(m) {
+            // PROD : tous les modules depuis MediaWiki:Dsfr/ (inchangé)
+            allModules.forEach(function(m) {
                 var s = document.createElement('script');
                 s.type = 'text/javascript';
                 s.src  = apiPath + '?title=MediaWiki:Dsfr/' + m + '.js&action=raw&ctype=text/javascript';
