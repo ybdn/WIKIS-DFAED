@@ -31,6 +31,9 @@ $(function() {
     // Remove useless MW chrome
     $('#mw-page-base, #mw-head-base, .mw-editTools, .limitreport').remove();
 
+    // Supprimer le sommaire automatique MediaWiki (remplacé par le composant Summary.js)
+    $('#toc').remove();
+
     // 4. BREADCRUMB — Replaces the H1 page title with a DSFR fil d'Ariane
     var pageName = mw.config.get('wgPageName') || '';
     var pageTitle = mw.config.get('wgTitle') || '';
