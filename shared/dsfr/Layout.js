@@ -34,6 +34,16 @@ $(function() {
     // Supprimer le sommaire automatique MediaWiki (remplacé par le composant Summary.js)
     $('#toc').remove();
 
+    // Supprimer les artefacts MW résiduels
+    $('#siteSub').remove();
+    $('#contentSub, #contentSub2').remove();
+    $('#catlinks').remove();
+    $('.mw-jump-link, #jump-to-nav').remove();
+    $('#mw-data-after-content').remove();
+    $('#filetoc').remove();
+    $('.mw-indicators').remove();
+    $('#f-poweredbyico, #f-copyrightico').remove();
+
     // 4. BREADCRUMB — Replaces the H1 page title with a DSFR fil d'Ariane
     var pageName = mw.config.get('wgPageName') || '';
     var pageTitle = mw.config.get('wgTitle') || '';
