@@ -996,6 +996,53 @@ body.action-submit .wikiEditor-ui-toolbar .tool:hover {
     border-radius: 0 0 0.25rem 0.25rem !important;
 }
 
+/* 10.3b Editor wrap — flex row : toolbar gauche + CodeMirror droite
+   Déclaré ici en plus du pickerCss JS pour garantir la priorité CSS. */
+body.action-edit #dsfr-editor-wrap,
+body.action-submit #dsfr-editor-wrap {
+    display: flex !important;
+    align-items: stretch !important;
+    position: relative !important;
+}
+body.action-edit #dsfr-editor-wrap .CodeMirror,
+body.action-submit #dsfr-editor-wrap .CodeMirror {
+    flex: 1 !important;
+    min-width: 0 !important;
+    border-radius: 0 0.25rem 0.25rem 0 !important;
+    border-top: 1px solid #dddddd !important;
+    border-left: none !important;
+}
+
+/* 10.3c Toolbar li — reset explicite pour neutraliser la règle globale
+   #mw-content-text li:not([class*="fr-"]) qui s'applique aux <li> sans classe. */
+body.action-edit #dsfr-editor-toolbar ul,
+body.action-submit #dsfr-editor-toolbar ul,
+body.action-edit #dsfr-edit-bar ul.fr-btns-group,
+body.action-submit #dsfr-edit-bar ul.fr-btns-group {
+    list-style: none !important;
+    background-image: none !important;
+    padding-left: 0 !important;
+    margin: 0 !important;
+}
+body.action-edit #dsfr-editor-toolbar li,
+body.action-submit #dsfr-editor-toolbar li {
+    list-style: none !important;
+    background-image: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+}
+body.action-edit #dsfr-edit-bar li,
+body.action-submit #dsfr-edit-bar li {
+    list-style: none !important;
+    background-image: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
 /* 10.4 Sticky Action Bar */
 #dsfr-edit-bar {
     position: sticky !important;

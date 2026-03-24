@@ -81,18 +81,34 @@
             '.dsfr-color-swatch:hover{transform:scale(1.2);border-color:#000091;}' +
             '.dsfr-color-swatch--active{border-color:#000091;box-shadow:0 0 0 2px #000091;}' +
             '.dsfr-color-preview{width:100%;height:4px;border-radius:0 0 2px 2px;position:absolute;bottom:2px;left:0;}' +
-            '.dsfr-comp-group-hd{display:flex;align-items:center;justify-content:space-between;padding:0.55rem 1rem;cursor:pointer;background:#f6f6f6;border-bottom:1px solid #eee;font-weight:600;font-size:0.875rem;color:#3a3a3a;}' +
-            '.dsfr-comp-group-hd:hover{background:#ececec;}' +
-            '.dsfr-comp-group-arrow{font-size:0.6rem;transition:transform 0.15s;display:inline-block;margin-left:0.5rem;}' +
-            '.dsfr-comp-group-hd.is-open .dsfr-comp-group-arrow{transform:rotate(90deg);}' +
-            '.dsfr-comp-group-body{display:none;background:#fff;}' +
+            /* --- Component Picker: Search header --- */
+            '.dsfr-comp-search-wrap{position:sticky;top:0;z-index:1;background:#fff;padding:0.5rem 0.75rem;border-bottom:2px solid #000091;}' +
+            '.dsfr-comp-search-wrap .fr-label{font-size:0.75rem;color:#666;margin-bottom:0.25rem;display:block;}' +
+            '.dsfr-comp-search{width:100%;border:1px solid #ddd;border-radius:0.25rem;padding:0.4rem 0.5rem 0.4rem 1.75rem;font-size:0.8125rem;font-family:"Marianne",arial,sans-serif;outline:none;background:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23999\' stroke-width=\'2\'%3E%3Ccircle cx=\'11\' cy=\'11\' r=\'7\'/%3E%3Cline x1=\'16.65\' y1=\'16.65\' x2=\'22\' y2=\'22\'/%3E%3C/svg%3E") no-repeat 0.4rem center;background-size:0.875rem;}' +
+            '.dsfr-comp-search:focus{border-color:#000091;box-shadow:0 0 0 2px rgba(0,0,145,.15);}' +
+            '.dsfr-comp-no-results{padding:1.5rem 1rem;text-align:center;color:#666;font-size:0.8125rem;font-style:italic;}' +
+            /* --- Component Picker: Category headers --- */
+            '.dsfr-comp-cat{padding:0.35rem 0.75rem;background:#f5f5fe;color:#000091;font-size:0.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid #e3e3fd;margin-top:0;}' +
+            '.dsfr-comp-cat:first-child{margin-top:0;}' +
+            /* --- Component Picker: Group accordion header --- */
+            '.dsfr-comp-group-hd{display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0.75rem;cursor:pointer;background:#fff;border-bottom:1px solid #f0f0f0;font-weight:500;font-size:0.8125rem;color:#161616;transition:background 0.1s;}' +
+            '.dsfr-comp-group-hd:hover{background:#f5f5fe;}' +
+            '.dsfr-comp-group-hd .dsfr-comp-icon{width:1rem;height:1rem;flex-shrink:0;color:#000091;}' +
+            '.dsfr-comp-group-hd .dsfr-comp-label{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
+            '.dsfr-comp-group-hd .dsfr-comp-count{background:#e3e3fd;color:#000091;font-size:0.625rem;font-weight:700;padding:0.1rem 0.35rem;border-radius:999px;min-width:1.1rem;text-align:center;flex-shrink:0;}' +
+            '.dsfr-comp-group-arrow{font-size:0.5rem;transition:transform 0.15s;display:inline-block;flex-shrink:0;color:#999;}' +
+            '.dsfr-comp-group-hd.is-open .dsfr-comp-group-arrow{transform:rotate(90deg);color:#000091;}' +
+            /* --- Component Picker: Sub-items body --- */
+            '.dsfr-comp-group-body{display:none;background:#fafafa;}' +
             '.dsfr-comp-group-body.is-open{display:block;}' +
-            '.dsfr-comp-sub-link{display:block;padding:0.45rem 1rem 0.45rem 1.75rem;color:#161616;text-decoration:none;border-bottom:1px solid #f0f0f0;font-size:0.8125rem;}' +
-            '.dsfr-comp-sub-link:hover{background:#f0f0ff;color:#000091;}' +
-            '.dsfr-comp-direct-lk{display:block;padding:0.6rem 1rem;color:#161616;text-decoration:none;border-bottom:1px solid #eee;font-size:0.875rem;}' +
-            '.dsfr-comp-direct-lk:hover{background:#f6f6f6;color:#000091;}' +
-            '#dsfr-editor-wrap{display:flex;align-items:stretch;position:relative;}' +
-            '#dsfr-editor-wrap .CodeMirror{flex:1;min-width:0;border-radius:0 4px 4px 0;}';
+            '.dsfr-comp-sub-link{display:block;padding:0.3rem 0.75rem 0.3rem 2.25rem;color:#3a3a3a;text-decoration:none;border-bottom:1px solid #f5f5f5;font-size:0.75rem;transition:background 0.1s,color 0.1s;}' +
+            '.dsfr-comp-sub-link:hover{background:#e3e3fd;color:#000091;}' +
+            /* --- Component Picker: Direct link (no sub-items) --- */
+            '.dsfr-comp-direct-lk{display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0.75rem;color:#161616;text-decoration:none;border-bottom:1px solid #f0f0f0;font-size:0.8125rem;transition:background 0.1s;}' +
+            '.dsfr-comp-direct-lk:hover{background:#f5f5fe;color:#000091;}' +
+            '.dsfr-comp-direct-lk .dsfr-comp-icon{width:1rem;height:1rem;flex-shrink:0;color:#000091;}' +
+            '#dsfr-editor-wrap{display:flex !important;align-items:stretch !important;position:relative !important;}' +
+            '#dsfr-editor-wrap .CodeMirror{flex:1 !important;min-width:0 !important;border-radius:0 0.25rem 0.25rem 0 !important;}';
 
         $('head').append('<style>' + customIconsCss + pickerCss + '</style>');
 
@@ -284,12 +300,16 @@
             }
         });
 
-        // --- BUTTTON "Ajouter un composant DSFR" ---
+        // --- BUTTON "Ajouter un composant DSFR" ---
         var $compLi = $('<li></li>');
         var $compBtn = $('<button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-icon-layout-grid-line" aria-expanded="false" title="Composants DSFR"></button>');
 
-        var $menu = $('<div class="fr-menu" style="display:none; position:fixed; z-index:9999; background:white; border:1px solid #ddd; border-radius:4px; box-shadow:0 4px 12px rgba(0,0,0,0.15); min-width:280px; max-height:80vh; overflow-y:auto;"></div>');
+        var $menu = $('<div class="fr-menu" style="display:none; position:fixed; z-index:9999; background:white; border:1px solid #ddd; border-radius:0.375rem; box-shadow:0 8px 24px rgba(0,0,0,0.18); width:310px; max-height:75vh; overflow:hidden; display:none;"></div>');
+        // Search header
+        var $searchWrap = $('<div class="dsfr-comp-search-wrap"><label class="fr-label" for="dsfr-comp-search-input">Rechercher un composant</label><input class="dsfr-comp-search" type="text" id="dsfr-comp-search-input" placeholder="Ex: carte, alerte, bouton…" autocomplete="off"></div>');
+        var $menuScroll = $('<div style="overflow-y:auto; max-height:calc(75vh - 4rem);"></div>');
         var $menuList = $('<ul class="fr-menu__list" style="margin:0; padding:0; list-style:none;"></ul>');
+        var $noResults = $('<li class="dsfr-comp-no-results" style="display:none;">Aucun composant trouvé</li>');
 
         var componentGroups = [
             {
@@ -303,14 +323,38 @@
                 items: [
                     { label: "Info", open: '<div class="dsfr-alert" data-type="info" data-title="Information">\n', close: "\n</div>", sample: "Contenu de l'alerte" },
                     { label: "Succès", open: '<div class="dsfr-alert" data-type="success" data-title="Succès">\n', close: "\n</div>", sample: "Opération réussie" },
-                    { label: "Erreur", open: '<div class="dsfr-alert" data-type="error" data-title="Erreur">\n', close: "\n</div>", sample: "Une erreur est survenue" }
+                    { label: "Avertissement", open: '<div class="dsfr-alert" data-type="warning" data-title="Attention">\n', close: "\n</div>", sample: "Point de vigilance" },
+                    { label: "Erreur", open: '<div class="dsfr-alert" data-type="error" data-title="Erreur">\n', close: "\n</div>", sample: "Une erreur est survenue" },
+                    { label: "Fermable", open: '<div class="dsfr-alert" data-type="info" data-title="Information" data-closable="true">\n', close: "\n</div>", sample: "Ce message peut être fermé" }
                 ]
             },
             {
                 label: "Badge",
                 items: [
-                    { label: "Succès", open: '<span data-dsfr-badge="success">', close: '</span>', sample: "Nouveau" },
-                    { label: "Info", open: '<span data-dsfr-badge="info">', close: '</span>', sample: "Brouillon" }
+                    { label: "Succès", open: '<span data-dsfr-badge="success">', close: '</span>', sample: "Validé" },
+                    { label: "Erreur", open: '<span data-dsfr-badge="error">', close: '</span>', sample: "Erreur" },
+                    { label: "Info", open: '<span data-dsfr-badge="info">', close: '</span>', sample: "Brouillon" },
+                    { label: "Avertissement", open: '<span data-dsfr-badge="warning">', close: '</span>', sample: "Attention" },
+                    { label: "Nouveau", open: '<span data-dsfr-badge="new">', close: '</span>', sample: "Nouveau" },
+                    { label: "Petit (sm)", open: '<span data-dsfr-badge="info" data-dsfr-sm>', close: '</span>', sample: "Petit badge" }
+                ]
+            },
+            {
+                label: "Bandeau (Notice)",
+                items: [
+                    { label: "Info", open: '<div class="dsfr-notice" data-type="info" data-title="Titre du bandeau">\n', close: "\n</div>", sample: "Message du bandeau" },
+                    { label: "Avertissement", open: '<div class="dsfr-notice" data-type="warning" data-title="Attention">\n', close: "\n</div>", sample: "Message d'avertissement" }
+                ]
+            },
+            {
+                label: "Bouton",
+                items: [
+                    { label: "Primaire", open: '<span class="dsfr-btn" data-href="Nom_Page_Wiki">', close: '</span>', sample: "Action principale" },
+                    { label: "Secondaire", open: '<span class="dsfr-btn" data-href="Nom_Page_Wiki" data-variant="secondary">', close: '</span>', sample: "Action secondaire" },
+                    { label: "Tertiaire", open: '<span class="dsfr-btn" data-href="Nom_Page_Wiki" data-variant="tertiary">', close: '</span>', sample: "Action tertiaire" },
+                    { label: "Avec icône", open: '<span class="dsfr-btn" data-href="Nom_Page_Wiki" data-icon="fr-icon-download-line">', close: '</span>', sample: "Télécharger" },
+                    { label: "Icône à droite", open: '<span class="dsfr-btn" data-href="Nom_Page_Wiki" data-icon="fr-icon-arrow-right-line" data-icon-position="right">', close: '</span>', sample: "Suivant" },
+                    { label: "Petit (sm)", open: '<span class="dsfr-btn" data-href="Nom_Page_Wiki" data-size="sm">', close: '</span>', sample: "Petit bouton" }
                 ]
             },
             {
@@ -318,16 +362,49 @@
                 items: [
                     { label: "Simple", open: '<div class="dsfr-card" data-title="Titre de la carte" data-url="Nom_Page_Wiki">\n', close: '\n</div>', sample: 'Description de la carte.' },
                     { label: "Avec badge et détail", open: '<div class="dsfr-card" data-title="Titre de la carte" data-url="Nom_Page_Wiki" data-badge="Nouveau" data-badge-type="new" data-detail="Catégorie">\n', close: '\n</div>', sample: 'Description de la carte.' },
+                    { label: "Horizontale", open: '<div class="dsfr-card" data-title="Titre" data-url="Page" data-horizontal="true">\n', close: '\n</div>', sample: 'Description de la carte horizontale.' },
+                    { label: "Avec image", open: '<div class="dsfr-card" data-title="Titre" data-url="Page" data-image="Fichier:Image.jpg" data-image-alt="Description">\n', close: '\n</div>', sample: 'Description de la carte.' },
                     { label: "Grille 2 colonnes", open: '<div class="dsfr-card-grid" data-cols="2">\n<div class="dsfr-card-item" data-title="Carte 1" data-url="Page_1">Description 1</div>\n<div class="dsfr-card-item" data-title="Carte 2" data-url="Page_2">Description 2</div>\n</div>', close: '', sample: '' },
                     { label: "Grille 3 colonnes", open: '<div class="dsfr-card-grid" data-cols="3">\n<div class="dsfr-card-item" data-title="Carte 1" data-url="Page_1">Description 1</div>\n<div class="dsfr-card-item" data-title="Carte 2" data-url="Page_2">Description 2</div>\n<div class="dsfr-card-item" data-title="Carte 3" data-url="Page_3">Description 3</div>\n</div>', close: '', sample: '' },
                     { label: "Grille 4 colonnes", open: '<div class="dsfr-card-grid" data-cols="4">\n<div class="dsfr-card-item" data-title="Carte 1" data-url="Page_1">Description 1</div>\n<div class="dsfr-card-item" data-title="Carte 2" data-url="Page_2">Description 2</div>\n<div class="dsfr-card-item" data-title="Carte 3" data-url="Page_3">Description 3</div>\n<div class="dsfr-card-item" data-title="Carte 4" data-url="Page_4">Description 4</div>\n</div>', close: '', sample: '' }
                 ]
             },
             {
-                label: "Citation",
-                open: '<div class="fr-quote">\n  <blockquote>\n    <p>« ',
-                close: ' »</p>\n  </blockquote>\n  <figcaption>\n    <p class="fr-quote__author">Auteur</p>\n  </figcaption>\n</div>',
-                sample: "Citation"
+                label: "Case à cocher",
+                items: [
+                    { label: "Simple", open: '<div class="dsfr-checkbox" data-label="Libellé de la case" data-name="choix" data-value="oui"></div>', close: '', sample: '' },
+                    { label: "Avec aide", open: '<div class="dsfr-checkbox" data-label="Libellé" data-name="choix" data-value="oui" data-hint="Texte d\'aide"></div>', close: '', sample: '' },
+                    { label: "Groupe", open: '<div class="dsfr-checkbox-group" data-legend="Vos choix" data-name="choix">\n  <div class="dsfr-checkbox" data-label="Option A" data-value="a"></div>\n  <div class="dsfr-checkbox" data-label="Option B" data-value="b"></div>\n  <div class="dsfr-checkbox" data-label="Option C" data-value="c"></div>\n</div>', close: '', sample: '' }
+                ]
+            },
+            {
+                label: "Bouton radio",
+                items: [
+                    { label: "Groupe simple", open: '<div class="dsfr-radio-group" data-legend="Votre choix" data-name="choix">\n  <div class="dsfr-radio" data-label="Option A" data-value="a"></div>\n  <div class="dsfr-radio" data-label="Option B" data-value="b"></div>\n  <div class="dsfr-radio" data-label="Option C" data-value="c"></div>\n</div>', close: '', sample: '' },
+                    { label: "Avec aide", open: '<div class="dsfr-radio-group" data-legend="Votre choix" data-name="choix">\n  <div class="dsfr-radio" data-label="Option A" data-value="a" data-hint="Description de A"></div>\n  <div class="dsfr-radio" data-label="Option B" data-value="b" data-hint="Description de B"></div>\n</div>', close: '', sample: '' }
+                ]
+            },
+            {
+                label: "Champ de saisie",
+                items: [
+                    { label: "Texte", open: '<div class="dsfr-input" data-label="Libellé du champ" data-name="champ"></div>', close: '', sample: '' },
+                    { label: "Avec aide", open: '<div class="dsfr-input" data-label="Libellé" data-name="champ" data-hint="Texte d\'aide" data-placeholder="Saisir ici..."></div>', close: '', sample: '' },
+                    { label: "Zone de texte", open: '<div class="dsfr-input" data-label="Description" data-name="desc" data-type="textarea"></div>', close: '', sample: '' }
+                ]
+            },
+            {
+                label: "Citation enrichie",
+                items: [
+                    { label: "Simple", open: '<div class="dsfr-quote">\n  <div class="dsfr-quote-text">« Texte de la citation »</div>\n  <div class="dsfr-quote-author">Nom de l\'auteur</div>\n</div>', close: '', sample: '' },
+                    { label: "Avec source", open: '<div class="dsfr-quote">\n  <div class="dsfr-quote-text">« Texte de la citation »</div>\n  <div class="dsfr-quote-author">Nom de l\'auteur</div>\n  <div class="dsfr-quote-source">Titre de l\'ouvrage</div>\n  <div class="dsfr-quote-source">Détail complémentaire</div>\n</div>', close: '', sample: '' },
+                    { label: "Avec lien et image", open: '<div class="dsfr-quote">\n  <div class="dsfr-quote-text">« Texte de la citation »</div>\n  <div class="dsfr-quote-author">Nom de l\'auteur</div>\n  <div class="dsfr-quote-source">Titre de l\'ouvrage</div>\n  <div class="dsfr-quote-link" data-href="https://lien.fr">Lire la source</div>\n  <div class="dsfr-quote-image" data-src="/chemin/image.jpg"></div>\n</div>', close: '', sample: '' }
+                ]
+            },
+            {
+                label: "Contrôle segmenté",
+                open: '<div class="dsfr-segmented" data-legend="Mode d\'affichage" data-name="mode">\n  <div class="dsfr-segment" data-label="Liste" data-value="list" data-icon="fr-icon-list-unordered" data-active="true"></div>\n  <div class="dsfr-segment" data-label="Grille" data-value="grid" data-icon="fr-icon-layout-grid-line"></div>\n</div>',
+                close: '',
+                sample: ''
             },
             {
                 label: "Indicateur d'étapes",
@@ -344,10 +421,54 @@
                 ]
             },
             {
-                label: "Mise en avant",
-                open: '<div class="fr-callout">\n  <h3 class="fr-callout__title">Titre mise en avant</h3>\n  <p class="fr-callout__text">\n',
-                close: "\n  </p>\n</div>",
-                sample: "Texte important"
+                label: "Interrupteur (Toggle)",
+                open: '<div class="dsfr-toggle" data-label="Activer l\'option" data-name="option" data-hint="Texte d\'aide"></div>',
+                close: '',
+                sample: ''
+            },
+            {
+                label: "Lien DSFR",
+                items: [
+                    { label: "Lien externe", open: '<span class="dsfr-link" data-type="external" data-href="https://exemple.fr">', close: '</span>', sample: "Texte du lien" },
+                    { label: "Lien de téléchargement", open: '<span class="dsfr-link" data-type="download" data-href="Fichier:Document.pdf">', close: '</span>', sample: "Télécharger le document" },
+                    { label: "Lien retour", open: '<span class="dsfr-link" data-type="back" data-href="Nom_Page_Wiki">', close: '</span>', sample: "Retour" }
+                ]
+            },
+            {
+                label: "Liste déroulante (Select)",
+                open: '<div class="dsfr-select" data-label="Choisir une option" data-name="choix" data-placeholder="Sélectionner..." data-options="Option A|Option B|Option C"></div>',
+                close: '',
+                sample: ''
+            },
+            {
+                label: "Menu déroulant (Dropdown)",
+                open: '<div class="dsfr-dropdown" data-label="Actions">\n  <a href="Page_1">Action 1</a>\n  <a href="Page_2">Action 2</a>\n  <a href="Page_3">Action 3</a>\n</div>',
+                close: '',
+                sample: ''
+            },
+            {
+                label: "Mise en avant (Callout)",
+                items: [
+                    { label: "Simple", open: '<div class="dsfr-callout">\n  <div class="dsfr-callout-title">Titre mise en avant</div>\n  <div class="dsfr-callout-text">\n', close: '\n  </div>\n</div>', sample: "Texte important" },
+                    { label: "Avec couleur", open: '<div class="dsfr-callout" data-color="green-menthe" data-icon="fr-icon-information-line">\n  <div class="dsfr-callout-title">Information</div>\n  <div class="dsfr-callout-text">\n', close: '\n  </div>\n</div>', sample: "Texte mis en avant" },
+                    { label: "Avec bouton", open: '<div class="dsfr-callout">\n  <div class="dsfr-callout-title">Titre</div>\n  <div class="dsfr-callout-text">Texte descriptif</div>\n  <div class="dsfr-callout-link"><a href="Nom_Page_Wiki">Bouton action</a></div>\n</div>', close: '', sample: '' }
+                ]
+            },
+            {
+                label: "Mise en exergue (Highlight)",
+                items: [
+                    { label: "Standard", open: '<div class="dsfr-highlight">\n', close: '\n</div>', sample: "Texte mis en exergue" },
+                    { label: "Avec couleur", open: '<div class="dsfr-highlight" data-color="green-menthe">\n', close: '\n</div>', sample: "Texte mis en exergue" },
+                    { label: "Petit texte", open: '<div class="dsfr-highlight" data-size="sm">\n', close: '\n</div>', sample: "Texte en petit" },
+                    { label: "Grand texte", open: '<div class="dsfr-highlight" data-size="lg">\n', close: '\n</div>', sample: "Texte en grand" }
+                ]
+            },
+            {
+                label: "Modale",
+                items: [
+                    { label: "Bouton + Modale", open: '<span class="dsfr-modal-trigger" data-target="mon-modal">Ouvrir la modale</span>\n\n<div class="dsfr-modal-dialog" id="mon-modal">\n  <div class="dsfr-modal-title">Titre de la modale</div>\n  <div class="dsfr-modal-content">\n', close: '\n  </div>\n</div>', sample: "Contenu de la modale" },
+                    { label: "Déclencheur seul", open: '<span class="dsfr-modal-trigger" data-target="id-modal">', close: '</span>', sample: "Ouvrir la modale" }
+                ]
             },
             {
                 label: "Onglets",
@@ -355,6 +476,24 @@
                     { label: "2 onglets", open: '<div class="dsfr-tabs">\n  <div class="dsfr-tab" data-title="Premier onglet">Contenu du premier onglet</div>\n  <div class="dsfr-tab" data-title="Deuxième onglet">Contenu du deuxième onglet</div>\n</div>', close: '', sample: '' },
                     { label: "3 onglets", open: '<div class="dsfr-tabs">\n  <div class="dsfr-tab" data-title="Onglet 1">Contenu 1</div>\n  <div class="dsfr-tab" data-title="Onglet 2">Contenu 2</div>\n  <div class="dsfr-tab" data-title="Onglet 3">Contenu 3</div>\n</div>', close: '', sample: '' }
                 ]
+            },
+            {
+                label: "Pagination",
+                open: '<div class="dsfr-pagination" data-current="1" data-total="5" data-base-url="Nom_Page_Wiki" data-param="page"></div>',
+                close: '',
+                sample: ''
+            },
+            {
+                label: "Partage",
+                open: '<div class="dsfr-share" data-title="Partager cette page"></div>',
+                close: '',
+                sample: ''
+            },
+            {
+                label: "Groupe de formulaire",
+                open: '<div class="dsfr-form-group" data-legend="Informations">\n',
+                close: '\n</div>',
+                sample: '  <!-- Insérez ici vos champs : dsfr-input, dsfr-select, dsfr-checkbox... -->'
             },
             {
                 label: "Sommaire automatique",
@@ -374,7 +513,7 @@
                 items: [
                     { label: "Simple", open: '<span data-dsfr-tag>', close: '</span>', sample: 'Étiquette' },
                     { label: "Avec icône", open: '<span data-dsfr-tag data-icon="fr-icon-check-line">', close: '</span>', sample: 'Validé' },
-                    { label: "Groupe de tags", open: '<span class="dsfr-tags-group"><span data-dsfr-tag>Tag 1</span> <span data-dsfr-tag>Tag 2</span></span>', close: '', sample: '' }
+                    { label: "Groupe de tags", open: '<span class="dsfr-tags-group"><span data-dsfr-tag>Tag 1</span> <span data-dsfr-tag>Tag 2</span> <span data-dsfr-tag>Tag 3</span></span>', close: '', sample: '' }
                 ]
             },
             {
@@ -382,54 +521,211 @@
                 open: '<span class="dsfr-download" data-href="Fichier:Nom-du-fichier.pdf" data-label="Nom du document" data-detail="PDF — Taille"></span>',
                 close: '',
                 sample: ''
+            },
+            {
+                label: "Téléversement (Upload)",
+                open: '<div class="dsfr-upload" data-label="Ajouter un fichier" data-hint="Taille maximale : 10 Mo. Formats acceptés : PDF, JPG, PNG"></div>',
+                close: '',
+                sample: ''
+            },
+            {
+                label: "Transcription",
+                open: '<div class="dsfr-transcription">\n  <div class="dsfr-transcription-title">Transcription</div>\n  <div class="dsfr-transcription-content">\n',
+                close: '\n  </div>\n</div>',
+                sample: 'Texte de la transcription...'
+            },
+            {
+                label: "Tuile",
+                items: [
+                    { label: "Seule", open: '<div class="dsfr-tile-item">\n  <div class="dsfr-tile-title"><a href="Nom_Page_Wiki">Titre de la tuile</a></div>\n  <div class="dsfr-tile-desc">Description de la tuile</div>\n</div>', close: '', sample: '' },
+                    { label: "Grille 2 colonnes", open: '<div class="dsfr-tiles" data-cols="2">\n  <div class="dsfr-tile-item">\n    <div class="dsfr-tile-title"><a href="Page_1">Tuile 1</a></div>\n    <div class="dsfr-tile-desc">Description 1</div>\n  </div>\n  <div class="dsfr-tile-item">\n    <div class="dsfr-tile-title"><a href="Page_2">Tuile 2</a></div>\n    <div class="dsfr-tile-desc">Description 2</div>\n  </div>\n</div>', close: '', sample: '' },
+                    { label: "Grille 3 colonnes", open: '<div class="dsfr-tiles" data-cols="3">\n  <div class="dsfr-tile-item">\n    <div class="dsfr-tile-title"><a href="Page_1">Tuile 1</a></div>\n    <div class="dsfr-tile-desc">Description 1</div>\n  </div>\n  <div class="dsfr-tile-item">\n    <div class="dsfr-tile-title"><a href="Page_2">Tuile 2</a></div>\n    <div class="dsfr-tile-desc">Description 2</div>\n  </div>\n  <div class="dsfr-tile-item">\n    <div class="dsfr-tile-title"><a href="Page_3">Tuile 3</a></div>\n    <div class="dsfr-tile-desc">Description 3</div>\n  </div>\n</div>', close: '', sample: '' },
+                    { label: "Avec image", open: '<div class="dsfr-tile-item">\n  <div class="dsfr-tile-title"><a href="Page">Titre</a></div>\n  <div class="dsfr-tile-desc">Description</div>\n  <div class="dsfr-tile-img">https://url/image.jpg</div>\n</div>', close: '', sample: '' }
+                ]
             }
         ];
 
-        $.each(componentGroups, function(idx, group) {
-            var $item = $('<li></li>');
-            if (group.items) {
-                var $hd = $('<div class="dsfr-comp-group-hd">' + group.label + '<span class="dsfr-comp-group-arrow">&#9658;</span></div>');
-                var $body = $('<ul class="dsfr-comp-group-body" style="margin:0;padding:0;list-style:none;"></ul>');
-                $hd.on('click', function(e) {
-                    e.stopPropagation();
-                    $(this).toggleClass('is-open');
-                    $body.toggleClass('is-open');
-                });
-                $.each(group.items, function(jdx, subItem) {
-                    var $subLi = $('<li></li>');
-                    var $subLink = $('<a href="#" class="dsfr-comp-sub-link">' + subItem.label + '</a>');
-                    (function(si) {
-                        $subLink.on('click', function(e) {
+        // --- CATEGORY ORGANISATION ---
+        // Group components into categories for better UX
+        var categories = [
+            {
+                catLabel: 'Contenu',
+                components: ['Accordéon', 'Citation enrichie', 'Mise en avant (Callout)', 'Mise en exergue (Highlight)', 'Sommaire automatique', 'Transcription']
+            },
+            {
+                catLabel: 'Mise en page',
+                components: ['Carte', 'Tuile', 'Tableau', 'Onglets', 'Modale']
+            },
+            {
+                catLabel: 'Formulaires',
+                components: ['Bouton', 'Champ de saisie', 'Liste déroulante (Select)', 'Case à cocher', 'Bouton radio', 'Contrôle segmenté', 'Interrupteur (Toggle)', 'Téléversement (Upload)', 'Groupe de formulaire']
+            },
+            {
+                catLabel: 'Feedback & Info',
+                components: ['Alerte', 'Badge', 'Bandeau (Notice)', 'Indicateur d\'étapes', 'Infobulle', 'Tag / Étiquette']
+            },
+            {
+                catLabel: 'Navigation & Liens',
+                components: ['Lien DSFR', 'Menu déroulant (Dropdown)', 'Pagination', 'Téléchargement']
+            },
+            {
+                catLabel: 'Social',
+                components: ['Partage']
+            }
+        ];
+
+        // Icon mapping for each component
+        var componentIcons = {
+            'Accordéon': 'fr-icon-arrow-down-s-line',
+            'Alerte': 'fr-icon-alert-line',
+            'Badge': 'fr-icon-price-tag-3-line',
+            'Bandeau (Notice)': 'fr-icon-information-line',
+            'Bouton': 'fr-icon-cursor-line',
+            'Bouton radio': 'fr-icon-radio-button-line',
+            'Carte': 'fr-icon-layout-grid-line',
+            'Case à cocher': 'fr-icon-checkbox-line',
+            'Champ de saisie': 'fr-icon-edit-line',
+            'Citation enrichie': 'fr-icon-quote-line',
+            'Contrôle segmenté': 'fr-icon-menu-line',
+            'Groupe de formulaire': 'fr-icon-file-list-line',
+            'Indicateur d\'étapes': 'fr-icon-flag-line',
+            'Infobulle': 'fr-icon-question-line',
+            'Interrupteur (Toggle)': 'fr-icon-toggle-line',
+            'Lien DSFR': 'fr-icon-link',
+            'Liste déroulante (Select)': 'fr-icon-arrow-down-s-line',
+            'Menu déroulant (Dropdown)': 'fr-icon-menu-2-line',
+            'Mise en avant (Callout)': 'fr-icon-lightbulb-line',
+            'Mise en exergue (Highlight)': 'fr-icon-mark-pen-line',
+            'Modale': 'fr-icon-window-line',
+            'Onglets': 'fr-icon-tab-line',
+            'Pagination': 'fr-icon-skip-forward-line',
+            'Partage': 'fr-icon-share-line',
+            'Sommaire automatique': 'fr-icon-list-ordered',
+            'Tableau': 'fr-icon-table-line',
+            'Tag / Étiquette': 'fr-icon-price-tag-3-line',
+            'Téléchargement': 'fr-icon-download-line',
+            'Téléversement (Upload)': 'fr-icon-upload-line',
+            'Transcription': 'fr-icon-file-text-line',
+            'Tuile': 'fr-icon-dashboard-line'
+        };
+
+        // Build a lookup: label → group data
+        var groupLookup = {};
+        $.each(componentGroups, function(i, g) { groupLookup[g.label] = g; });
+
+        // Build menu with category sections
+        $.each(categories, function(ci, cat) {
+            // Category header
+            $menuList.append($('<li class="dsfr-comp-cat" data-cat></li>').text(cat.catLabel));
+
+            $.each(cat.components, function(cj, compLabel) {
+                var group = groupLookup[compLabel];
+                if (!group) return; // safety
+
+                var icon = componentIcons[compLabel] || 'fr-icon-apps-line';
+                var $item = $('<li data-comp-label="' + compLabel.toLowerCase() + '"></li>');
+
+                if (group.items) {
+                    // Accordion header with icon + count badge
+                    var $hd = $('<div class="dsfr-comp-group-hd">' +
+                        '<span class="dsfr-comp-icon ' + icon + '" aria-hidden="true"></span>' +
+                        '<span class="dsfr-comp-label">' + group.label + '</span>' +
+                        '<span class="dsfr-comp-count">' + group.items.length + '</span>' +
+                        '<span class="dsfr-comp-group-arrow">&#9658;</span>' +
+                    '</div>');
+                    var $body = $('<ul class="dsfr-comp-group-body" style="margin:0;padding:0;list-style:none;"></ul>');
+                    $hd.on('click', function(e) {
+                        e.stopPropagation();
+                        $(this).toggleClass('is-open');
+                        $body.toggleClass('is-open');
+                    });
+                    $.each(group.items, function(jdx, subItem) {
+                        var $subLi = $('<li></li>');
+                        var $subLink = $('<a href="#" class="dsfr-comp-sub-link">' + subItem.label + '</a>');
+                        (function(si) {
+                            $subLink.on('click', function(e) {
+                                e.preventDefault();
+                                insertTags(si.open, si.close, si.sample);
+                                $menu.hide();
+                                $compBtn.attr('aria-expanded', 'false');
+                            });
+                        })(subItem);
+                        $subLi.append($subLink);
+                        $body.append($subLi);
+                    });
+                    $item.append($hd).append($body);
+                } else {
+                    var $link = $('<a href="#" class="dsfr-comp-direct-lk">' +
+                        '<span class="dsfr-comp-icon ' + icon + '" aria-hidden="true"></span>' +
+                        group.label +
+                    '</a>');
+                    (function(g) {
+                        $link.on('click', function(e) {
                             e.preventDefault();
-                            insertTags(si.open, si.close, si.sample);
+                            insertTags(g.open, g.close, g.sample);
                             $menu.hide();
                             $compBtn.attr('aria-expanded', 'false');
                         });
-                    })(subItem);
-                    $subLi.append($subLink);
-                    $body.append($subLi);
-                });
-                $item.append($hd).append($body);
-            } else {
-                var $link = $('<a href="#" class="dsfr-comp-direct-lk">' + group.label + '</a>');
-                (function(g) {
-                    $link.on('click', function(e) {
-                        e.preventDefault();
-                        insertTags(g.open, g.close, g.sample);
-                        $menu.hide();
-                        $compBtn.attr('aria-expanded', 'false');
-                    });
-                })(group);
-                $item.append($link);
-            }
-            $menuList.append($item);
+                    })(group);
+                    $item.append($link);
+                }
+                $menuList.append($item);
+            });
         });
-        
-        var $docItem = $('<li><a href="https://www.systeme-de-design.gouv.fr/version-courante/fr/composants" target="_blank" style="display:block; padding:0.75rem 1rem; color:#000091; font-weight:bold; text-decoration:none; background:#f5f5fe;">Voir la documentation officielle ↗</a></li>');
+
+        // "No results" message
+        $menuList.append($noResults);
+
+        // Documentation link footer
+        var $docItem = $('<li style="position:sticky;bottom:0;"><a href="https://www.systeme-de-design.gouv.fr/version-courante/fr/composants" target="_blank" style="display:flex;align-items:center;gap:0.35rem;padding:0.5rem 0.75rem;color:#000091;font-weight:600;text-decoration:none;background:#f5f5fe;border-top:1px solid #e3e3fd;font-size:0.75rem;"><span class="fr-icon-external-link-line" aria-hidden="true" style="width:0.875rem;height:0.875rem;"></span>Documentation officielle</a></li>');
         $menuList.append($docItem);
-        $menu.append($menuList);
+
+        // Assemble menu
+        $menuScroll.append($menuList);
+        $menu.append($searchWrap).append($menuScroll);
         $compLi.append($compBtn);
         $(document.body).append($menu);
+
+        // --- LIVE SEARCH ---
+        $searchWrap.find('.dsfr-comp-search').on('input', function() {
+            var query = $(this).val().toLowerCase().trim();
+            var hasVisible = false;
+
+            if (!query) {
+                // Show all
+                $menuList.find('[data-comp-label]').show();
+                $menuList.find('[data-cat]').show();
+                $noResults.hide();
+                // Collapse all groups
+                $menuList.find('.dsfr-comp-group-hd').removeClass('is-open');
+                $menuList.find('.dsfr-comp-group-body').removeClass('is-open');
+                return;
+            }
+
+            // Filter components
+            $menuList.find('[data-comp-label]').each(function() {
+                var label = $(this).attr('data-comp-label');
+                if (label.indexOf(query) !== -1) {
+                    $(this).show();
+                    // Auto-expand matching groups
+                    $(this).find('.dsfr-comp-group-hd').addClass('is-open');
+                    $(this).find('.dsfr-comp-group-body').addClass('is-open');
+                    hasVisible = true;
+                } else {
+                    $(this).hide();
+                }
+            });
+
+            // Show/hide category headers based on visible children
+            $menuList.find('[data-cat]').each(function() {
+                var $cat = $(this);
+                var $next = $cat.nextUntil('[data-cat]');
+                var anyVisible = $next.filter(':visible').length > 0;
+                $cat.toggle(anyVisible);
+            });
+
+            $noResults.toggle(!hasVisible);
+        });
 
         $compBtn.click(function(e) {
             e.stopPropagation();
@@ -459,6 +755,15 @@
             if ($cm.length) {
                 $cm.wrap('<div id="dsfr-editor-wrap"></div>');
                 $('#dsfr-editor-wrap').prepend($dsfrToolbar);
+                // Forcer un recalcul du layout CodeMirror après le changement de DOM.
+                // Sans ça, CodeMirror a des positions de curseur périmées (saut au 1er caractère).
+                var cmInstance = $cm[0] && $cm[0].CodeMirror;
+                if (cmInstance) {
+                    setTimeout(function() {
+                        cmInstance.refresh();
+                        cmInstance.on('focus', function() { cmInstance.refresh(); });
+                    }, 100);
+                }
                 clearInterval(cmToolbarInterval);
             } else if (cmToolbarAttempts >= 20) {
                 // Fallback : CodeMirror absent (désactivé par l'utilisateur)
