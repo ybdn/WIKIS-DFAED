@@ -7,6 +7,15 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
 ## [Non publié]
 
+### Anti-FOUC — Loader complet
+
+- **`shared/Common.css`** : refonte de la section anti-FOUC.
+  - Avant : seul `.mw-parser-output` était masqué — le chrome Vector (header, sidebar, footer) restait visible pendant 1-2s.
+  - Maintenant : `body` entier masqué (`opacity: 0`) + overlay fond bleu clair (`#f5f5fe`) + spinner DSFR (`#000091`) via `html::before` / `html::after`.
+  - Révélation en 0.3s quand `html.dsfr-ready` est ajouté par `Common.js`.
+  - Failsafe CSS à 4s (animation) + failsafe JS à 5s (setTimeout) inchangés.
+- **`LocalSettings.php`** : chemin CSS corrigé de `/staging_area/Common.css` vers `/shared/Common.css`.
+
 ### Architecture — Refonte en base commune partagée
 
 - **Dossier `shared/`** (à la racine du dépôt) : nouvelle base de code commune aux deux wikis.

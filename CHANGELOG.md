@@ -18,6 +18,7 @@ Les journaux détaillés se trouvent dans chaque sous-projet.
 
 ### [Non publié] — 2.2.0
 
+- **Loader anti-FOUC complet** : `shared/Common.css` masque tout le body + overlay spinner DSFR (#000091) pendant le chargement. Failsafe CSS 4s + JS 5s.
 - **Architecture `shared/`** : base de code commune aux deux wikis. `staging_area/` réduit à `Config.js` + `Common.js`.
 - Composant **Stepper** opérationnel (indicateur d'étapes avec syntaxe `data-*`).
 - Composant **Card** opérationnel (carte simple + grille 2/3/4 colonnes, badge, détail, image, variantes).
@@ -50,6 +51,7 @@ Les journaux détaillés se trouvent dans chaque sous-projet.
 
 ### [Non publié] — 1.1.0
 
+- **Loader anti-FOUC complet** : `shared/Common.css` masque tout le body + overlay spinner DSFR pendant le chargement.
 - **Architecture `shared/`** : base de code commune aux deux wikis.
 - Composants **Card** et **Stepper** opérationnels.
 - **6 composants supplémentaires actifs** : Download, Summary, Tab, Table, Tag, Tooltip.

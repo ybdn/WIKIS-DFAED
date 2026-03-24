@@ -7,6 +7,13 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
 ## [Non publié]
 
+### Anti-FOUC — Loader complet
+
+- **`shared/Common.css`** : refonte de la section anti-FOUC.
+  - `body` entier masqué + overlay fond bleu clair + spinner DSFR via `html::before` / `html::after`.
+  - Révélation en 0.3s via `html.dsfr-ready`. Failsafe CSS 4s + JS 5s.
+- **`LocalSettings.php`** : chemin CSS corrigé vers `/shared/Common.css`.
+
 ### Architecture — Refonte en base commune partagée
 
 - **Dossier `shared/`** (à la racine du dépôt) : nouvelle base de code commune aux deux wikis.
