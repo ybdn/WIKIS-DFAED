@@ -129,9 +129,24 @@ th {
 /* Reset liste pour tous les composants DSFR
    MediaWiki applique list-style:disc sur tous les <ul>,
    ce qui pollue les nav, grilles, groupes de boutons, etc.
-   On neutralise sur tout élément portant une classe fr-* */
+   On neutralise :
+   1. Tout élément portant directement une classe fr-*
+   2. Tous les ul/li descendants de conteneurs DSFR (header, nav, footer, menu…)
+      même s'ils n'ont pas eux-mêmes de classe fr-* */
 ul[class*="fr-"],
-li[class*="fr-"] {
+li[class*="fr-"],
+.fr-header ul, .fr-header li,
+.fr-nav ul, .fr-nav li,
+.fr-footer ul, .fr-footer li,
+.fr-menu ul, .fr-menu li,
+.fr-btns-group ul, .fr-btns-group li,
+.fr-links-group ul, .fr-links-group li,
+.fr-breadcrumb ul, .fr-breadcrumb li,
+.fr-sidemenu ul, .fr-sidemenu li,
+.fr-tabs ul, .fr-tabs li,
+.fr-modal ul, .fr-modal li,
+[class*="fr-"] > ul,
+[class*="fr-"] > ul > li {
   list-style: none !important;
   padding-left: 0 !important;
   margin-left: 0 !important;
@@ -1843,23 +1858,25 @@ table.wikitable caption {
   color: #3a3a3a !important;
 }
 
-/* Listes non ordonnées et ordonnées dans le contenu MW */
-.mw-parser-output ul,
-#mw-content-text ul {
+/* Listes non ordonnées et ordonnées dans le contenu MW
+   IMPORTANT : on exclut les listes à l'intérieur des composants DSFR
+   pour éviter les pastilles parasites (bullets) sur la nav, le footer, etc. */
+.mw-parser-output ul:not([class*="fr-"]):not(.fr-menu__list):not(.fr-nav__list):not(.fr-btns-group):not(.fr-links-group):not(.fr-breadcrumb__list),
+#mw-content-text ul:not([class*="fr-"]):not(.fr-menu__list):not(.fr-nav__list):not(.fr-btns-group):not(.fr-links-group):not(.fr-breadcrumb__list) {
   list-style: disc !important;
   padding-left: 1.5rem !important;
   margin-bottom: 1rem !important;
 }
 
-.mw-parser-output ol,
-#mw-content-text ol {
+.mw-parser-output ol:not([class*="fr-"]),
+#mw-content-text ol:not([class*="fr-"]) {
   list-style: decimal !important;
   padding-left: 1.5rem !important;
   margin-bottom: 1rem !important;
 }
 
-.mw-parser-output li,
-#mw-content-text li {
+.mw-parser-output li:not([class*="fr-"]):not(.fr-nav__item):not(.fr-footer__content-item):not(.fr-footer__bottom-item),
+#mw-content-text li:not([class*="fr-"]):not(.fr-nav__item):not(.fr-footer__content-item):not(.fr-footer__bottom-item) {
   margin-bottom: 0.25rem !important;
   list-style: inherit !important;
 }
