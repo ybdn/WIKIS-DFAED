@@ -25,6 +25,8 @@ Les journaux détaillés se trouvent dans chaque sous-projet.
 - **36 composants implémentés** dans `shared/dsfr/components/` — 5 actifs, 31 disponibles à l'activation.
 - **36 docs Markdown** dans `docs/composants/` — un par composant.
 - Fix : race condition `Header.js`, artefacts MW dans `Layout.js`, reset `list-style` DSFR.
+- **Fix pastilles bleues** : reset `list-style` étendu aux descendants des conteneurs DSFR + restriction `:not()` sur les règles de contenu MediaWiki.
+- **Sélecteur de composants DSFR** : refonte complète — 29 composants (13 → 29), 6 catégories, recherche live, icônes emoji, badges compteurs, design compact.
 
 ### [2.1.0] — 2026-02-26
 
@@ -59,6 +61,8 @@ Les journaux détaillés se trouvent dans chaque sous-projet.
 - **36 docs Markdown** dans `docs/composants/` — un par composant.
 - `Common.css` enrichi de styles custom (tableaux, infoboxes, formulaires).
 - Fix : race condition `Header.js`, artefacts MW, barre d'outils `EditPage.js` (3 corrections).
+- **Fix pastilles bleues** : reset `list-style` étendu aux descendants des conteneurs DSFR + restriction `:not()` sur les règles MediaWiki.
+- **Sélecteur de composants DSFR** : refonte complète — 29 composants (13 → 29), 6 catégories, recherche live, icônes emoji, badges compteurs, design compact.
 
 ### [1.0.0] — 2026-03-16
 

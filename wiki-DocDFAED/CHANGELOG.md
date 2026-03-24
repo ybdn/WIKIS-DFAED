@@ -55,11 +55,27 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
 ### Corrections
 
-- **`dsfr/Style.css`** : fix pastilles bleues sur les listes DSFR. MediaWiki applique `list-style: disc` sur tous les `<ul>`, polluant les composants `.fr-nav__list`, `.fr-grid-row`, `.fr-btns-group`, `.fr-menu__list`, etc. Ajout d'un reset `list-style: none !important` ciblant tous les éléments `ul[class*="fr-"]` et `li[class*="fr-"]`.
+- **`dsfr/Style.css`** : fix pastilles bleues sur les listes DSFR.
+  - **Cause** : conflit entre les styles MediaWiki (`list-style: disc` global) et un reset DSFR trop restreint (ciblant uniquement les éléments portant directement une classe `fr-*`).
+  - **Reset étendu** : ciblage de tous les `ul`/`li` descendants des conteneurs DSFR (`.fr-header`, `.fr-nav`, `.fr-footer`, `.fr-menu`, `.fr-grid-row`, `.fr-btns-group`, `.fr-badges-group`, `.fr-tags-group`, `.fr-links-group`, etc.).
+  - **Restriction MediaWiki** : ajout de sélecteurs `:not()` pour empêcher l'application de `list-style: disc` aux listes dans les composants DSFR.
+  - **Toolbar éditeur** : ajout de règles explicites pour les `ul`/`li` de `#dsfr-editor-toolbar` et `#dsfr-edit-bar` neutralisant le background-image indésirable.
 - **`dsfr/Style.css`** : masquage de la numérotation automatique des sections et application de la typographie DSFR aux titres de contenu (`h1`–`h6`).
 - **`dsfr/Header.js`** : fix race condition — attente explicite de `DsfrConfig` avant le montage du header, évitant un affichage avec une navigation vide.
 - **`dsfr/Layout.js`** : suppression du sommaire automatique MediaWiki (`.toc`) et nettoyage des artefacts natifs MW résiduels dans l'interface DSFR.
 - **`dsfr/EditPage.js`** : 3 corrections successives — affichage de la barre d'outils et du volet "Composants DSFR".
+
+### Améliorations
+
+- **`dsfr/EditPage.js`** — Refonte complète du sélecteur de composants DSFR :
+  - **29 composants** disponibles (auparavant 13) couvrant l'intégralité de `shared/dsfr/components/`.
+  - **16 nouveaux composants** ajoutés : Bandeau (Notice), Bouton (6 variantes), Bouton radio, Case à cocher, Champ de saisie, Citation enrichie, Contrôle segmenté, Groupe de formulaire, Interrupteur (Toggle), Lien DSFR, Liste déroulante (Select), Menu déroulant (Dropdown), Mise en exergue (Highlight), Modale, Pagination, Partage, Téléversement (Upload), Transcription, Tuile.
+  - **Composants existants enrichis** : Alerte (+avertissement, +fermable), Badge (+erreur, +avertissement, +nouveau, +petit), Carte (+horizontale, +avec image), Mise en avant (migration vers `dsfr-callout` transformable, +couleur, +bouton).
+  - **6 catégories** visuelles : Contenu, Mise en page, Formulaires, Feedback & Info, Navigation & Liens, Social.
+  - **Recherche live** : barre sticky en haut du menu filtrant en temps réel, auto-expansion des résultats, message « Aucun composant trouvé ».
+  - **Icônes emoji Unicode** : remplacement des classes `fr-icon-*` (risque d'affichage en carrés bleus) par des emojis universels.
+  - **Badge compteur** : pastille bleue indiquant le nombre de variantes sur les composants avec sous-menu.
+  - **Design compact** : espacement réduit (~30%), meilleure densité d'information, lien Documentation officielle sticky en footer.
 
 ---
 
