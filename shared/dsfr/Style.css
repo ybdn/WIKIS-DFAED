@@ -730,38 +730,9 @@ body.action-submit input[type="search"]:focus {
   outline: none !important;
 }
 
-/* Protéger le textarea curseur interne de CodeMirror contre les styles DSFR globaux */
-/* Ce textarea (1px) gère la saisie clavier — ne pas le redimensionner */
-body.action-edit .CodeMirror textarea,
-body.action-submit .CodeMirror textarea {
-  width: 1px !important;
-  min-height: 0 !important;
-  height: 1em !important;
-  padding: 0 !important;
-  border: none !important;
-  border-bottom: none !important;
-  background-color: transparent !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-  transition: none !important;
-}
-
-/* CodeMirror — intégration visuelle DSFR */
-/* CodeMirror est l'éditeur actif ; le textarea #wpTextbox1 est caché derrière */
-body.action-edit .CodeMirror,
-body.action-submit .CodeMirror {
-  border: 1px solid #dddddd !important;
-  border-top: none !important;
-  border-radius: 0 0 0.5rem 0.5rem !important;
-  min-height: 60vh !important;
-  font-family: "Courier New", Consolas, monospace !important;
-  font-size: 0.95rem !important;
-  line-height: 1.6 !important;
-}
-
-/* Fallback : textarea #wpTextbox1 visible si CodeMirror est désactivé */
-body.action-edit #wpTextbox1:not([style*="display: none"]),
-body.action-submit #wpTextbox1:not([style*="display: none"]) {
+/* Textarea #wpTextbox1 — éditeur principal */
+body.action-edit #wpTextbox1,
+body.action-submit #wpTextbox1 {
   width: 100% !important;
   min-height: 60vh !important;
   font-family: "Courier New", Consolas, monospace !important;
@@ -996,7 +967,7 @@ body.action-submit .wikiEditor-ui-toolbar .tool:hover {
     border-radius: 0 0 0.25rem 0.25rem !important;
 }
 
-/* 10.3b Editor wrap — flex row : toolbar gauche + CodeMirror droite
+/* 10.3b Editor wrap — flex row : toolbar gauche + textarea droite
    Déclaré ici en plus du pickerCss JS pour garantir la priorité CSS. */
 body.action-edit #dsfr-editor-wrap,
 body.action-submit #dsfr-editor-wrap {
@@ -1004,8 +975,8 @@ body.action-submit #dsfr-editor-wrap {
     align-items: stretch !important;
     position: relative !important;
 }
-body.action-edit #dsfr-editor-wrap .CodeMirror,
-body.action-submit #dsfr-editor-wrap .CodeMirror {
+body.action-edit #dsfr-editor-wrap #wpTextbox1,
+body.action-submit #dsfr-editor-wrap #wpTextbox1 {
     flex: 1 !important;
     min-width: 0 !important;
     border-radius: 0 0.25rem 0.25rem 0 !important;
