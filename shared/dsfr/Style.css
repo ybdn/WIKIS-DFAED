@@ -527,6 +527,17 @@ body {
   z-index: 1002 !important;
 }
 
+/* Reset paddings des menus nav (évite l'héritage des règles accordéon) */
+.fr-nav .fr-collapse--expanded,
+.fr-nav .fr-menu.fr-collapse--expanded {
+  padding-bottom: 0;
+}
+
+.fr-nav .fr-collapse > *,
+.fr-nav .fr-menu > * {
+  padding: 0;
+}
+
 /* Align simple nav links (like Accueil) with dropdown buttons */
 .fr-nav__item > .fr-nav__link {
   /* Match the button height and padding */
