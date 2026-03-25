@@ -539,13 +539,13 @@ body {
   padding: 0;
 }
 
-/* Padding du panneau dropdown lui-même (breathing room haut/bas) */
-.fr-nav .fr-menu.fr-collapse--expanded {
-  padding-top: 0.5rem !important;
-  padding-bottom: 0.5rem !important;
+/* Restaure le padding vertical du ul.fr-menu__list (écrasé par .fr-nav ul reset) */
+.fr-nav .fr-menu__list {
+  padding: 0.5rem 0 !important;
+  margin: 0 !important;
 }
 
-/* Padding des liens dans les volets nav — corrige l'absence de padding DSFR natif */
+/* Padding des liens dans les volets nav */
 .fr-nav .fr-menu .fr-nav__link,
 .fr-nav .fr-menu__list .fr-nav__link {
   display: block !important;
@@ -554,10 +554,9 @@ body {
   width: 100% !important;
 }
 
-/* Corrige le padding-left: 0 !important hérité de la règle .fr-nav li générale */
-.fr-nav .fr-menu__list li,
-.fr-nav .fr-menu li {
-  padding-left: 0 !important; /* Le padding est sur le <a>, pas le <li> */
+/* Les <li> dans les volets : pas de padding propre (c'est le <a> qui indent) */
+.fr-nav .fr-menu__list li {
+  padding: 0 !important;
   margin: 0 !important;
 }
 
