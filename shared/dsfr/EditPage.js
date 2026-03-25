@@ -903,6 +903,18 @@
 
             $editOptions.append($bottomBtns);
 
+            // 4e. REORDER — Ensure correct DOM order inside the card
+            var $summaryGrp = $('#dsfr-summary-group');
+            var $chkboxes = $('#dsfr-edit-checkboxes');
+            var $copyNotice = $('#dsfr-copy-notice');
+            var $copyWarnOrig = $('#editpage-copywarn');
+            var reorderTargets = [$summaryGrp, $chkboxes, $copyNotice, $copyWarnOrig, $bottomBtns];
+            for (var r = 0; r < reorderTargets.length; r++) {
+                if (reorderTargets[r].length) {
+                    $editOptions.append(reorderTargets[r]);
+                }
+            }
+
             $bottomBtns.find('#dsfr-bottom-cancel').on('click', function() {
                 var $c = $('#mw-editformCancel');
                 if ($c.length && $c.attr('href')) window.location.href = $c.attr('href');

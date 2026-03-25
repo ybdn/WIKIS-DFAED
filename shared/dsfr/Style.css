@@ -1045,13 +1045,15 @@ body.action-submit #dsfr-edit-bar li {
 /* 10.5 Edit Options Section */
 #dsfr-edit-options {
     margin-top: 2rem !important;
-    padding-top: 1.5rem !important;
-    border-top: 1px solid #e5e5e5 !important;
+    padding: 1.5rem !important;
+    border: 1px solid #e5e5e5 !important;
+    border-radius: 0.5rem !important;
+    background: #ffffff !important;
 }
 
 /* Summary input group */
 #dsfr-summary-group {
-    margin-bottom: 1.5rem !important;
+    margin-bottom: 1rem !important;
 }
 #dsfr-summary-group .fr-label {
     display: block !important;
@@ -1077,9 +1079,9 @@ body.action-submit #dsfr-edit-bar li {
 }
 #dsfr-edit-checkboxes .fr-fieldset__content {
     display: flex !important;
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 0.75rem !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 1.5rem !important;
 }
 #dsfr-edit-checkboxes .fr-checkbox-group {
     display: inline-flex !important;
@@ -1159,7 +1161,7 @@ body.action-submit #dsfr-edit-bar li {
 /* 10.5b Bottom action buttons */
 #dsfr-edit-bottom-actions {
     margin-top: 1.5rem !important;
-    padding-top: 1.5rem !important;
+    padding-top: 1rem !important;
     border-top: 1px solid #e5e5e5 !important;
 }
 #dsfr-edit-bottom-actions .fr-btns-group--right {
