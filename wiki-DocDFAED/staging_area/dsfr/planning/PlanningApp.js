@@ -44,6 +44,10 @@
     /* ================================================================= */
 
     function mountApp() {
+        /* --- Ne pas monter en mode edition/historique --- */
+        var action = mw.config.get('wgAction');
+        if (action !== 'view') return;
+
         /* --- Detect page --- */
         var pageName = mw.config.get('wgPageName');
         var isConsultation = (pageName === 'Planning:Consultation');
