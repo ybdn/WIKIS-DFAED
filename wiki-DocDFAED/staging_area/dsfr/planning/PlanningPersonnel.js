@@ -59,6 +59,8 @@
         /* ============================================================= */
 
         _render: function () {
+            var wasOpen = !!$('#personnel-details').prop('open');
+
             var actifs = [];
             var partis = [];
             for (var i = 0; i < this._personnel.length; i++) {
@@ -70,7 +72,8 @@
             }
 
             var h = '<div class="planning-personnel">';
-            h += '<h3>Gestion du personnel</h3>';
+            h += '<details id="personnel-details">';
+            h += '<summary class="planning-personnel-summary">Gestion du personnel (' + actifs.length + ' actif' + (actifs.length > 1 ? 's' : '') + ')</summary>';
 
             /* Save bar */
             h += '<div class="planning-save-bar" id="perso-save-bar">';
@@ -150,8 +153,12 @@
                 h += '</details>';
             }
 
+            h += '</details>';
             h += '</div>';
             this._$el.html(h);
+            if (wasOpen) {
+                $('#personnel-details').prop('open', true);
+            }
             this._bindEvents();
         },
 
