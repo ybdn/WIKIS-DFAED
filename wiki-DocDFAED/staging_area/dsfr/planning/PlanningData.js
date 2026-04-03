@@ -187,6 +187,26 @@
         saveJournalier: function (year, month, day, data, cb) {
             var key = year + '-' + pad(month) + '-' + pad(day);
             writePage(BASE_PATH + 'Journalier/' + key, data, 'Journalier ' + key, cb);
+        },
+
+        /* Commentaires P4S mensuel */
+        loadCommentsP4S: function (year, month, cb) {
+            var key = year + '-' + pad(month);
+            readPage(BASE_PATH + 'CommentsP4S/' + key, cb);
+        },
+        saveCommentsP4S: function (year, month, data, cb) {
+            var key = year + '-' + pad(month);
+            writePage(BASE_PATH + 'CommentsP4S/' + key, data, 'Commentaires P4S ' + key, cb);
+        },
+
+        /* Commentaires journalier */
+        loadCommentsJournalier: function (year, month, day, cb) {
+            var key = year + '-' + pad(month) + '-' + pad(day);
+            readPage(BASE_PATH + 'CommentsJournalier/' + key, cb);
+        },
+        saveCommentsJournalier: function (year, month, day, data, cb) {
+            var key = year + '-' + pad(month) + '-' + pad(day);
+            writePage(BASE_PATH + 'CommentsJournalier/' + key, data, 'Commentaires journalier ' + key, cb);
         }
     };
 

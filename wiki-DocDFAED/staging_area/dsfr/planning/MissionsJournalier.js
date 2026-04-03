@@ -14,5 +14,7 @@ window.PlanningMissionsJournalier = [
     { code: "MMO", label: "MetaMorpho",                bg: "#E8EDFF", fg: "#000091" },
     { code: "T41", label: "Alphanu",                   bg: "#FFE8D4", fg: "#716043" },
     { code: "PO",  label: "Permanence Operationnelle", bg: "#FFD4D8", fg: "#CE0500" },
-    { code: "ID",  label: "Identification",            bg: "#D2E9F7", fg: "#0063CB" }
+    { code: "ID",  label: "Identification",            bg: "#D2E9F7", fg: "#0063CB" },
+    { code: "J",   label: "Mission particulière",      bg: "#FFFFFF", fg: "#000000" }
+
 ];

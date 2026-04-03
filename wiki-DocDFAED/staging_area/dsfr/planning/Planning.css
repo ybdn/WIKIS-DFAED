@@ -285,6 +285,70 @@
     background: #f6f6f6;
 }
 
+/* --- Wrapper scroll du tableau compteurs --- */
+.planning-counters-scroll {
+    overflow-x: auto;
+    margin-top: 0.75rem;
+    border: 3px solid #666;
+    border-radius: 0.25rem;
+}
+
+/* Supprime le double-bord haut (wrapper + cellule) */
+.planning-counters-table thead tr:first-child th {
+    border-top: none;
+}
+
+/* En-tête Agent (rowspan 2) */
+.planning-cth-agent {
+    vertical-align: middle;
+    min-width: 140px;
+    text-align: left !important;
+    padding-left: 0.75rem !important;
+    background: #e5e5e5 !important;
+    border-right: 3px solid #666 !important;
+}
+
+/* En-tête code mission (colspan 2, coloré via inline style) */
+.planning-cth-code {
+    text-align: center;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    border-bottom: none !important;
+}
+
+/* Sous-en-têtes Mois / Année */
+.planning-cth-sub {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: #555;
+    background: #f4f4f4 !important;
+    padding-top: 0.25rem !important;
+    padding-bottom: 0.25rem !important;
+    border-top: 1px solid #ddd !important;
+}
+
+/* Sous-en-tête colonne Année */
+.planning-cth-year {
+    background: #e8eaf6 !important;
+    color: #000091 !important;
+    border-left: 1px solid #c5caf5 !important;
+    border-right: 3px solid #666 !important;
+}
+
+/* Bordure épaisse gauche — début de chaque groupe de colonnes */
+.planning-col-month {
+    border-left: 3px solid #666 !important;
+}
+
+/* Cellule données — colonne Année */
+.planning-counters-table tbody td.planning-ctd-year {
+    background: #f5f5fc;
+    color: #1e1e8c;
+    border-left: 1px solid #e0e0f0;
+    border-right: 3px solid #666 !important;
+}
+
+
 /* --- Personnel management --- */
 .planning-personnel {
     margin-top: 2rem;
@@ -324,6 +388,72 @@
 .planning-personnel-add .fr-input {
     flex: 1;
     min-width: 120px;
+}
+
+/* --- Commentaires sur cellules --- */
+
+/* Indicateur de commentaire (point coin sup. droit) */
+.planning-cell.has-comment {
+    position: relative;
+}
+.planning-cell.has-comment::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #000091;
+    pointer-events: none;
+}
+
+/* Tooltip flottant au survol */
+.planning-cell-tooltip {
+    position: absolute;
+    z-index: 1000;
+    max-width: 260px;
+    padding: 6px 10px;
+    background: #1a1a2e;
+    color: #fff;
+    font-size: 0.75rem;
+    border-radius: 4px;
+    pointer-events: none;
+    white-space: pre-wrap;
+    word-break: break-word;
+    transform: translateY(-100%);
+    margin-top: -6px;
+}
+
+/* Modale commentaire (clic droit) */
+.planning-comment-modal {
+    position: absolute;
+    z-index: 1010;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    padding: 12px;
+    width: 260px;
+}
+.planning-comment-modal-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #3a3a3a;
+    margin-bottom: 6px;
+}
+.planning-comment-input {
+    width: 100%;
+    resize: vertical;
+    min-height: 60px;
+    font-size: 0.8rem;
+    box-sizing: border-box;
+}
+.planning-comment-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 8px;
 }
 
 /* --- Print styles --- */

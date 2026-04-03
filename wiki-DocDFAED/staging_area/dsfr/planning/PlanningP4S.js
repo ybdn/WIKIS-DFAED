@@ -15,9 +15,13 @@
         _month: 0,
         _personnel: [],
         _data: {},
+        _yearlyData: {},
+        _comments: {},
         _isDirty: false,
         _missions: [],
         _$dropdown: null,
+        _$tooltip: null,
+        _$commentModal: null,
         _activeAgentId: null,
         _activeDay: null,
 
@@ -37,6 +41,7 @@
             this._month = now.getMonth() + 1;
 
             this._createDropdown();
+            if (isGestion) this._createCommentUI();
             this.loadAndRender();
         },
 
@@ -46,11 +51,80 @@
 
         loadAndRender: function () {
             var self = this;
+            var monthDone = false;
+            var yearDone = !self._isGestion; // si pas gestion, pas besoin des données annuelles
+            var commentsDone = !self._isGestion; // idem pour les commentaires
+            var pendingMonthData = {};
+            var pendingComments = {};
+
+            function tryRender() {
+                if (monthDone && yearDone && commentsDone) {
+                    self._data = pendingMonthData;
+                    self._comments = pendingComments;
+                    self._isDirty = false;
+                    self._render();
+                }
+            }
+
             D.loadP4S(self._year, self._month, function (err, data) {
-                self._data = data || {};
-                self._isDirty = false;
-                self._render();
+                pendingMonthData = data || {};
+                monthDone = true;
+                tryRender();
             });
+
+            if (self._isGestion) {
+                self._loadYearlyData(function () {
+                    yearDone = true;
+                    tryRender();
+                });
+                D.loadCommentsP4S(self._year, self._month, function (err, data) {
+                    pendingComments = data || {};
+                    commentsDone = true;
+                    tryRender();
+                });
+            }
+        },
+
+        _loadYearlyData: function (callback) {
+            var self = this;
+            var year = self._year;
+            var totalMonths = self._month; // janvier → mois courant inclus
+            var loaded = 0;
+            var allMonthsData = {};
+
+            function onMonthLoaded(mo, data) {
+                allMonthsData[mo] = data || {};
+                loaded++;
+                if (loaded < totalMonths) return;
+
+                // Agréger les compteurs par agent et par code
+                var yearly = {};
+                for (var m = 1; m <= totalMonths; m++) {
+                    var monthData = allMonthsData[m];
+                    var days = D.getDaysInMonth(year, m);
+                    for (var agentId in monthData) {
+                        if (!monthData.hasOwnProperty(agentId)) continue;
+                        if (!yearly[agentId]) yearly[agentId] = {};
+                        var agentDays = monthData[agentId];
+                        for (var d = 1; d <= days; d++) {
+                            var code = agentDays['' + d] || '';
+                            if (code) {
+                                yearly[agentId][code] = (yearly[agentId][code] || 0) + 1;
+                            }
+                        }
+                    }
+                }
+                self._yearlyData = yearly;
+                callback();
+            }
+
+            for (var mo = 1; mo <= totalMonths; mo++) {
+                (function (m) {
+                    D.loadP4S(year, m, function (err, data) {
+                        onMonthLoaded(m, data);
+                    });
+                }(mo));
+            }
         },
 
         save: function () {
@@ -60,13 +134,20 @@
                 if (err) {
                     alert('Erreur de sauvegarde : ' + err);
                     self._setSaveState('dirty');
-                } else {
-                    self._isDirty = false;
-                    self._setSaveState('saved');
-                    setTimeout(function () {
-                        if (!self._isDirty) self._setSaveState('clean');
-                    }, 2500);
+                    return;
                 }
+                D.saveCommentsP4S(self._year, self._month, self._comments, function (errC) {
+                    if (errC) {
+                        alert('Erreur de sauvegarde commentaires : ' + errC);
+                        self._setSaveState('dirty');
+                    } else {
+                        self._isDirty = false;
+                        self._setSaveState('saved');
+                        setTimeout(function () {
+                            if (!self._isDirty) self._setSaveState('clean');
+                        }, 2500);
+                    }
+                });
             });
         },
 
@@ -82,6 +163,8 @@
         /* ============================================================= */
 
         _render: function () {
+            if (this._$commentModal) this._$commentModal.hide();
+            if (this._$tooltip) this._$tooltip.hide();
             var h = '';
             h += this._buildNav();
             if (this._isGestion) h += this._buildSaveBar();
@@ -169,11 +252,14 @@
                     if (D.isWeekend(y, m, d2)) cellCls += ' planning-col-weekend';
                     if (D.isHoliday(y, m, d2)) cellCls += ' planning-col-holiday';
                     if (this._isGestion) cellCls += ' editable';
+                    var comment = (this._isGestion && this._comments[agent.id] && this._comments[agent.id]['' + d2]) ? this._comments[agent.id]['' + d2] : '';
+                    if (comment) cellCls += ' has-comment';
                     var bg = code ? mission.bg : '';
                     var fg = code ? mission.fg : '';
                     var style = bg ? 'background-color:' + bg + ';color:' + fg + ';' : '';
+                    var commentAttr = comment ? ' data-comment="' + comment.replace(/"/g, '&quot;') + '"' : '';
                     h += '<td class="' + cellCls + '" data-agent="' + agent.id + '" data-day="' + d2 + '"' +
-                         (style ? ' style="' + style + '"' : '') + '>' +
+                         (style ? ' style="' + style + '"' : '') + commentAttr + '>' +
                          code + '</td>';
                 }
                 h += '</tr>';
@@ -204,29 +290,46 @@
 
             var h = '<details class="planning-counters" open>';
             h += '<summary>Compteurs par personnel</summary>';
-            h += '<table class="planning-counters-table"><thead><tr><th>Agent</th>';
+            h += '<div class="planning-counters-scroll">';
+            h += '<table class="planning-counters-table"><thead>';
+
+            /* Ligne 1 : codes missions (colspan 2) */
+            h += '<tr>';
+            h += '<th rowspan="2" class="planning-cth-agent">Agent</th>';
             for (var c = 0; c < activeCodes.length; c++) {
-                h += '<th style="background:' + activeCodes[c].bg + ';color:' + activeCodes[c].fg + ';">' + activeCodes[c].code + '</th>';
+                var mc = activeCodes[c];
+                h += '<th colspan="2" class="planning-cth-code planning-col-month" style="background:' + mc.bg + ';color:' + mc.fg + ';">' + mc.code + '</th>';
             }
-            h += '<th>Total</th></tr></thead><tbody>';
+            h += '</tr>';
+
+            /* Ligne 2 : Mois / Année pour chaque code */
+            h += '<tr>';
+            for (var c3 = 0; c3 < activeCodes.length; c3++) {
+                h += '<th class="planning-cth-sub planning-col-month">Mois</th>';
+                h += '<th class="planning-cth-sub planning-cth-year">Ann\u00e9e</th>';
+            }
+            h += '</tr>';
+
+            h += '</thead><tbody>';
 
             var days = D.getDaysInMonth(this._year, this._month);
             for (var p = 0; p < this._personnel.length; p++) {
                 var agent = this._personnel[p];
                 var agentData = this._data[agent.id] || {};
-                var total = 0;
+                var yearAgentData = (this._yearlyData && this._yearlyData[agent.id]) || {};
                 h += '<tr><td>' + agent.nom + '</td>';
                 for (var c2 = 0; c2 < activeCodes.length; c2++) {
                     var count = 0;
                     for (var d = 1; d <= days; d++) {
                         if ((agentData['' + d] || '') === activeCodes[c2].code) count++;
                     }
-                    total += count;
-                    h += '<td>' + count + '</td>';
+                    var countYear = yearAgentData[activeCodes[c2].code] || 0;
+                    h += '<td class="planning-col-month">' + count + '</td>';
+                    h += '<td class="planning-ctd-year">' + countYear + '</td>';
                 }
-                h += '<td><strong>' + total + '</strong></td></tr>';
+                h += '</tr>';
             }
-            h += '</tbody></table></details>';
+            h += '</tbody></table></div></details>';
             return h;
         },
 
@@ -245,11 +348,51 @@
             if (this._isGestion) {
                 this._$el.on('click', '.planning-cell.editable', function (e) {
                     e.stopPropagation();
+                    if (self._$commentModal && self._$commentModal.is(':visible')) {
+                        self._$commentModal.hide();
+                    }
                     var $cell = $(this);
                     self._activeAgentId = $cell.data('agent');
                     self._activeDay = '' + $cell.data('day');
                     self._showDropdown($cell);
                 });
+
+                this._$el.off('.p4sComment')
+                    .on('mouseenter.p4sComment', '.has-comment', function () {
+                        var comment = $(this).data('comment');
+                        var rect = this.getBoundingClientRect();
+                        self._$tooltip.text(comment).css({
+                            top: rect.top + window.scrollY - 4,
+                            left: rect.left + window.scrollX
+                        }).show();
+                    })
+                    .on('mouseleave.p4sComment', '.has-comment', function () {
+                        self._$tooltip.hide();
+                    })
+                    .on('contextmenu.p4sComment', '.planning-cell.editable', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        self._$tooltip.hide();
+                        var $cell = $(this);
+                        var agentId = $cell.data('agent');
+                        var day = '' + $cell.data('day');
+                        var agentNom = '';
+                        for (var i = 0; i < self._personnel.length; i++) {
+                            if (self._personnel[i].id === agentId) {
+                                agentNom = self._personnel[i].nom;
+                                break;
+                            }
+                        }
+                        var existing = (self._comments[agentId] && self._comments[agentId][day]) ? self._comments[agentId][day] : '';
+                        var rect = $cell[0].getBoundingClientRect();
+                        self._$commentModal
+                            .find('.planning-comment-modal-title').text('Commentaire \u2014 ' + agentNom + ' \u2014 Jour ' + day).end()
+                            .find('.planning-comment-input').val(existing).end()
+                            .css({ top: rect.bottom + window.scrollY + 2, left: rect.left + window.scrollX })
+                            .data('agentId', agentId).data('key', day)
+                            .show();
+                        self._$commentModal.find('.planning-comment-input').focus();
+                    });
             }
         },
 
@@ -290,6 +433,60 @@
             $(document).on('click.p4sDropdown', function () {
                 if (self._$dropdown) self._$dropdown.hide();
             });
+        },
+
+        _createCommentUI: function () {
+            var self = this;
+
+            /* Tooltip flottant */
+            if (!this._$tooltip) {
+                this._$tooltip = $('<div class="planning-cell-tooltip" role="tooltip"></div>').appendTo('body').hide();
+            }
+
+            /* Modale commentaire (clic droit) */
+            if (!this._$commentModal) {
+                this._$commentModal = $(
+                    '<div class="planning-comment-modal">' +
+                        '<div class="planning-comment-modal-title"></div>' +
+                        '<textarea class="planning-comment-input" rows="3" placeholder="Ajouter un commentaire..."></textarea>' +
+                        '<div class="planning-comment-modal-actions">' +
+                            '<button class="fr-btn fr-btn--secondary planning-comment-cancel">Annuler</button>' +
+                            '<button class="fr-btn planning-comment-ok">OK</button>' +
+                        '</div>' +
+                    '</div>'
+                ).appendTo('body').hide();
+
+                this._$commentModal.on('click', '.planning-comment-ok', function () {
+                    var agentId = self._$commentModal.data('agentId');
+                    var key = self._$commentModal.data('key');
+                    var text = self._$commentModal.find('.planning-comment-input').val().trim();
+                    if (!self._comments[agentId]) self._comments[agentId] = {};
+                    if (text) {
+                        self._comments[agentId][key] = text;
+                    } else {
+                        delete self._comments[agentId][key];
+                    }
+                    var $cell = self._$el.find('.planning-cell[data-agent="' + agentId + '"][data-day="' + key + '"]');
+                    if (text) {
+                        $cell.addClass('has-comment').attr('data-comment', text);
+                    } else {
+                        $cell.removeClass('has-comment').removeAttr('data-comment');
+                    }
+                    self._isDirty = true;
+                    self._setSaveState('dirty');
+                    self._$commentModal.hide();
+                });
+
+                this._$commentModal.on('click', '.planning-comment-cancel', function () {
+                    self._$commentModal.hide();
+                });
+
+                $(document).off('mousedown.p4sCommentModal').on('mousedown.p4sCommentModal', function (e) {
+                    if (self._$commentModal.is(':visible') && !self._$commentModal[0].contains(e.target)) {
+                        self._$commentModal.hide();
+                    }
+                });
+            }
         },
 
         _showDropdown: function ($cell) {

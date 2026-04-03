@@ -18,9 +18,12 @@
         _day: 0,
         _personnel: [],
         _data: {},
+        _comments: {},
         _isDirty: false,
         _missions: [],
         _$dropdown: null,
+        _$tooltip: null,
+        _$commentModal: null,
         _activeAgentId: null,
         _activeHour: null,
 
@@ -41,6 +44,7 @@
             this._day = now.getDate();
 
             this._createDropdown();
+            if (isGestion) this._createCommentUI();
             this.loadAndRender();
         },
 
@@ -50,11 +54,33 @@
 
         loadAndRender: function () {
             var self = this;
+            var dataDone = false;
+            var commentsDone = !self._isGestion;
+            var pendingData = {};
+            var pendingComments = {};
+
+            function tryRender() {
+                if (dataDone && commentsDone) {
+                    self._data = pendingData;
+                    self._comments = pendingComments;
+                    self._isDirty = false;
+                    self._render();
+                }
+            }
+
             D.loadJournalier(self._year, self._month, self._day, function (err, data) {
-                self._data = data || {};
-                self._isDirty = false;
-                self._render();
+                pendingData = data || {};
+                dataDone = true;
+                tryRender();
             });
+
+            if (self._isGestion) {
+                D.loadCommentsJournalier(self._year, self._month, self._day, function (err, data) {
+                    pendingComments = data || {};
+                    commentsDone = true;
+                    tryRender();
+                });
+            }
         },
 
         save: function () {
@@ -64,13 +90,20 @@
                 if (err) {
                     alert('Erreur de sauvegarde : ' + err);
                     self._setSaveState('dirty');
-                } else {
-                    self._isDirty = false;
-                    self._setSaveState('saved');
-                    setTimeout(function () {
-                        if (!self._isDirty) self._setSaveState('clean');
-                    }, 2500);
+                    return;
                 }
+                D.saveCommentsJournalier(self._year, self._month, self._day, self._comments, function (errC) {
+                    if (errC) {
+                        alert('Erreur de sauvegarde commentaires : ' + errC);
+                        self._setSaveState('dirty');
+                    } else {
+                        self._isDirty = false;
+                        self._setSaveState('saved');
+                        setTimeout(function () {
+                            if (!self._isDirty) self._setSaveState('clean');
+                        }, 2500);
+                    }
+                });
             });
         },
 
@@ -86,6 +119,8 @@
         /* ============================================================= */
 
         _render: function () {
+            if (this._$commentModal) this._$commentModal.hide();
+            if (this._$tooltip) this._$tooltip.hide();
             var h = '';
             h += this._buildNav();
             if (this._isGestion) h += this._buildSaveBar();
@@ -167,11 +202,14 @@
                     var mission = this._getMission(code);
                     var cellCls = 'planning-cell';
                     if (this._isGestion) cellCls += ' editable';
+                    var comment = (this._isGestion && this._comments[agent.id] && this._comments[agent.id][hKey]) ? this._comments[agent.id][hKey] : '';
+                    if (comment) cellCls += ' has-comment';
                     var bg = code ? mission.bg : '';
                     var fg = code ? mission.fg : '';
                     var style = bg ? 'background-color:' + bg + ';color:' + fg + ';' : '';
+                    var commentAttr = comment ? ' data-comment="' + comment.replace(/"/g, '&quot;') + '"' : '';
                     h += '<td class="' + cellCls + '" data-agent="' + agent.id + '" data-hour="' + hKey + '"' +
-                         (style ? ' style="' + style + '"' : '') + '>' +
+                         (style ? ' style="' + style + '"' : '') + commentAttr + '>' +
                          code + '</td>';
                 }
                 h += '</tr>';
@@ -243,11 +281,51 @@
             if (this._isGestion) {
                 this._$el.on('click', '.planning-cell.editable', function (e) {
                     e.stopPropagation();
+                    if (self._$commentModal && self._$commentModal.is(':visible')) {
+                        self._$commentModal.hide();
+                    }
                     var $cell = $(this);
                     self._activeAgentId = $cell.data('agent');
                     self._activeHour = '' + $cell.data('hour');
                     self._showDropdown($cell);
                 });
+
+                this._$el.off('.jourComment')
+                    .on('mouseenter.jourComment', '.has-comment', function () {
+                        var comment = $(this).data('comment');
+                        var rect = this.getBoundingClientRect();
+                        self._$tooltip.text(comment).css({
+                            top: rect.top + window.scrollY - 4,
+                            left: rect.left + window.scrollX
+                        }).show();
+                    })
+                    .on('mouseleave.jourComment', '.has-comment', function () {
+                        self._$tooltip.hide();
+                    })
+                    .on('contextmenu.jourComment', '.planning-cell.editable', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        self._$tooltip.hide();
+                        var $cell = $(this);
+                        var agentId = $cell.data('agent');
+                        var hour = '' + $cell.data('hour');
+                        var agentNom = '';
+                        for (var i = 0; i < self._personnel.length; i++) {
+                            if (self._personnel[i].id === agentId) {
+                                agentNom = self._personnel[i].nom;
+                                break;
+                            }
+                        }
+                        var existing = (self._comments[agentId] && self._comments[agentId][hour]) ? self._comments[agentId][hour] : '';
+                        var rect = $cell[0].getBoundingClientRect();
+                        self._$commentModal
+                            .find('.planning-comment-modal-title').text('Commentaire \u2014 ' + agentNom + ' \u2014 ' + hour + 'h').end()
+                            .find('.planning-comment-input').val(existing).end()
+                            .css({ top: rect.bottom + window.scrollY + 2, left: rect.left + window.scrollX })
+                            .data('agentId', agentId).data('key', hour)
+                            .show();
+                        self._$commentModal.find('.planning-comment-input').focus();
+                    });
             }
         },
 
@@ -289,6 +367,60 @@
             $(document).on('click.jourDropdown', function () {
                 if (self._$dropdown) self._$dropdown.hide();
             });
+        },
+
+        _createCommentUI: function () {
+            var self = this;
+
+            /* Tooltip flottant */
+            if (!this._$tooltip) {
+                this._$tooltip = $('<div class="planning-cell-tooltip" role="tooltip"></div>').appendTo('body').hide();
+            }
+
+            /* Modale commentaire (clic droit) */
+            if (!this._$commentModal) {
+                this._$commentModal = $(
+                    '<div class="planning-comment-modal">' +
+                        '<div class="planning-comment-modal-title"></div>' +
+                        '<textarea class="planning-comment-input" rows="3" placeholder="Ajouter un commentaire..."></textarea>' +
+                        '<div class="planning-comment-modal-actions">' +
+                            '<button class="fr-btn fr-btn--secondary planning-comment-cancel">Annuler</button>' +
+                            '<button class="fr-btn planning-comment-ok">OK</button>' +
+                        '</div>' +
+                    '</div>'
+                ).appendTo('body').hide();
+
+                this._$commentModal.on('click', '.planning-comment-ok', function () {
+                    var agentId = self._$commentModal.data('agentId');
+                    var key = self._$commentModal.data('key');
+                    var text = self._$commentModal.find('.planning-comment-input').val().trim();
+                    if (!self._comments[agentId]) self._comments[agentId] = {};
+                    if (text) {
+                        self._comments[agentId][key] = text;
+                    } else {
+                        delete self._comments[agentId][key];
+                    }
+                    var $cell = self._$el.find('.planning-cell[data-agent="' + agentId + '"][data-hour="' + key + '"]');
+                    if (text) {
+                        $cell.addClass('has-comment').attr('data-comment', text);
+                    } else {
+                        $cell.removeClass('has-comment').removeAttr('data-comment');
+                    }
+                    self._isDirty = true;
+                    self._setSaveState('dirty');
+                    self._$commentModal.hide();
+                });
+
+                this._$commentModal.on('click', '.planning-comment-cancel', function () {
+                    self._$commentModal.hide();
+                });
+
+                $(document).off('mousedown.jourCommentModal').on('mousedown.jourCommentModal', function (e) {
+                    if (self._$commentModal.is(':visible') && !self._$commentModal[0].contains(e.target)) {
+                        self._$commentModal.hide();
+                    }
+                });
+            }
         },
 
         _showDropdown: function ($cell) {
