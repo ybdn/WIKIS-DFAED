@@ -92,8 +92,8 @@
                 var idx = $(this).closest('tr').data('index');
                 if (confirm('Supprimer ' + self._personnel[idx].nom + ' ?')) {
                     self._personnel.splice(idx, 1);
-                    self._markDirty();
                     self._render();
+                    self._markDirty();
                 }
             });
 
@@ -103,8 +103,8 @@
                     var tmp = self._personnel[idx];
                     self._personnel[idx] = self._personnel[idx - 1];
                     self._personnel[idx - 1] = tmp;
-                    self._markDirty();
                     self._render();
+                    self._markDirty();
                 }
             });
 
@@ -114,8 +114,8 @@
                     var tmp = self._personnel[idx];
                     self._personnel[idx] = self._personnel[idx + 1];
                     self._personnel[idx + 1] = tmp;
-                    self._markDirty();
                     self._render();
+                    self._markDirty();
                 }
             });
         },
@@ -136,8 +136,8 @@
                 }
             }
             this._personnel.push({ id: id, nom: nom, grade: grade });
-            this._markDirty();
             this._render();
+            this._markDirty();
         },
 
         _markDirty: function () {

@@ -59,7 +59,9 @@
         var userGroups = mw.config.get('wgUserGroups') || [];
         var isBureaucrat = false;
         for (var i = 0; i < userGroups.length; i++) {
-            if (userGroups[i] === 'bureaucrat') { isBureaucrat = true; break; }
+            if (userGroups[i] === 'bureaucrat' || userGroups[i] === 'sysop') {
+                isBureaucrat = true; break;
+            }
         }
 
         if (isGestion && !isBureaucrat) {
