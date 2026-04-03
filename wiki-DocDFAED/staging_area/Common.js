@@ -129,6 +129,32 @@
                 console.log('[DSFR] Loading module:', m);
             });
         }
+        /* ----------------------------------------------------------- */
+        /*  PLANNING — chargement conditionnel (pages Planning:*)       */
+        /* ----------------------------------------------------------- */
+        var currentPage = mw.config.get('wgPageName') || '';
+        if (currentPage.indexOf('Planning:') === 0) {
+            var planningModules = [
+                'planning/MissionsP4S',
+                'planning/MissionsJournalier',
+                'planning/PlanningData',
+                'planning/PlanningP4S',
+                'planning/PlanningJournalier',
+                'planning/PlanningPersonnel',
+                'planning/PlanningApp'
+            ];
+            console.log('[DSFR] Loading Planning modules (' + planningModules.length + ')');
+            planningModules.forEach(function(m) {
+                var s = document.createElement('script');
+                if (isLocal) {
+                    s.src = '/staging_area/dsfr/' + m + '.js?v=' + Date.now();
+                } else {
+                    s.type = 'text/javascript';
+                    s.src = apiPath + '?title=MediaWiki:Dsfr/' + m + '.js&action=raw&ctype=text/javascript';
+                }
+                document.head.appendChild(s);
+            });
+        }
     });
 
 }());

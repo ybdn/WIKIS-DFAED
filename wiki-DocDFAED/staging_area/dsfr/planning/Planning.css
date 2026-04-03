@@ -1,0 +1,355 @@
+/* SOURCE FILE FOR: [[MediaWiki:Dsfr/planning/Style.css]] */
+
+/* ================================================================
+   PLANNING APP — DSFR-compatible styles
+   ================================================================ */
+
+/* --- Container --- */
+.planning-app {
+    max-width: 100%;
+    margin: 0;
+    font-family: 'Marianne', arial, sans-serif;
+}
+
+/* --- Tabs --- */
+.planning-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid #e5e5e5;
+    margin-bottom: 1.5rem;
+}
+.planning-tab {
+    padding: 0.75rem 1.5rem;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.planning-tab:hover {
+    color: #000091;
+    background: #f6f6f6;
+}
+.planning-tab.active {
+    color: #000091;
+    border-bottom-color: #000091;
+    font-weight: 700;
+}
+.planning-panel {
+    display: none;
+}
+.planning-panel.active {
+    display: block;
+}
+
+/* --- Navigation mois/jour --- */
+.planning-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem 0;
+}
+.planning-nav-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #161616;
+    min-width: 220px;
+    text-align: center;
+}
+
+/* --- Save bar --- */
+.planning-save-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0.25rem;
+    background: #f6f6f6;
+    border-left: 4px solid #e5e5e5;
+    transition: all 0.3s;
+}
+.planning-save-bar.dirty {
+    background: #FEF7DA;
+    border-left-color: #D64D00;
+}
+.planning-save-bar.saved {
+    background: #B8FEC9;
+    border-left-color: #18753C;
+}
+.planning-save-status {
+    flex: 1;
+    font-size: 0.875rem;
+    color: #666;
+}
+.planning-save-bar.dirty .planning-save-status {
+    color: #D64D00;
+    font-weight: 600;
+}
+.planning-save-bar.saved .planning-save-status {
+    color: #18753C;
+    font-weight: 600;
+}
+
+/* --- Table wrapper (scroll horizontal) --- */
+.planning-table-wrapper {
+    overflow-x: auto;
+    overflow-y: visible;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e5e5e5;
+    border-radius: 0.25rem;
+}
+
+/* --- Table --- */
+.planning-table {
+    width: max-content;
+    min-width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+}
+.planning-table th,
+.planning-table td {
+    border: 1px solid #e5e5e5;
+    padding: 0.35rem 0.5rem;
+    text-align: center;
+    white-space: nowrap;
+    min-width: 42px;
+    height: 36px;
+    vertical-align: middle;
+}
+
+/* Header row */
+.planning-table thead th {
+    background: #f0f0f0;
+    color: #161616;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+.planning-table thead .planning-day-name {
+    display: block;
+    font-size: 0.6875rem;
+    font-weight: 400;
+    color: #666;
+}
+
+/* Agent name column (sticky) */
+.planning-table .planning-col-agent {
+    position: sticky;
+    left: 0;
+    z-index: 5;
+    background: #f6f6f6;
+    font-weight: 600;
+    text-align: left;
+    min-width: 140px;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    color: #161616;
+}
+.planning-table thead .planning-col-agent {
+    z-index: 15;
+    background: #e5e5e5;
+}
+
+/* Weekend columns */
+.planning-col-weekend {
+    background-color: #f0f0f0 !important;
+}
+.planning-table thead .planning-col-weekend {
+    background-color: #ddd !important;
+}
+
+/* Holiday columns */
+.planning-col-holiday {
+    background-color: #E8EDFF !important;
+}
+.planning-table thead .planning-col-holiday {
+    background-color: #C5D1FF !important;
+}
+
+/* --- Cells (data) --- */
+.planning-cell {
+    cursor: default;
+    font-weight: 700;
+    font-size: 0.8125rem;
+    transition: box-shadow 0.15s;
+    position: relative;
+}
+.planning-cell.editable {
+    cursor: pointer;
+}
+.planning-cell.editable:hover {
+    box-shadow: inset 0 0 0 2px #000091;
+    z-index: 2;
+}
+
+/* --- Dropdown (mission selector) --- */
+.planning-dropdown {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 0.25rem;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.16);
+    min-width: 200px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 0.25rem 0;
+}
+.planning-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    font-size: 0.8125rem;
+    transition: background 0.15s;
+}
+.planning-dropdown-item:hover {
+    filter: brightness(0.95);
+}
+.planning-dropdown-swatch {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-radius: 2px;
+    border: 1px solid rgba(0,0,0,0.15);
+    flex-shrink: 0;
+}
+.planning-dropdown-code {
+    font-weight: 700;
+    min-width: 28px;
+}
+.planning-dropdown-label {
+    color: #3a3a3a;
+}
+
+/* --- Legend --- */
+.planning-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 1rem;
+    background: #f6f6f6;
+    border-radius: 0.25rem;
+}
+.planning-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.25rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+/* --- Counters --- */
+.planning-counters {
+    margin-bottom: 1.5rem;
+}
+.planning-counters summary {
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #161616;
+    padding: 0.5rem 0;
+}
+.planning-counters-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+    margin-top: 0.5rem;
+}
+.planning-counters-table th,
+.planning-counters-table td {
+    border: 1px solid #e5e5e5;
+    padding: 0.35rem 0.5rem;
+    text-align: center;
+}
+.planning-counters-table th {
+    background: #f0f0f0;
+    font-weight: 600;
+}
+.planning-counters-table td:first-child {
+    text-align: left;
+    font-weight: 600;
+    background: #f6f6f6;
+}
+
+/* --- Personnel management --- */
+.planning-personnel {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid #e5e5e5;
+}
+.planning-personnel h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #161616;
+    margin-bottom: 1rem;
+}
+.planning-personnel-table {
+    width: 100%;
+    max-width: 600px;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+}
+.planning-personnel-table th,
+.planning-personnel-table td {
+    border: 1px solid #e5e5e5;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+}
+.planning-personnel-table th {
+    background: #f0f0f0;
+    font-weight: 600;
+}
+.planning-personnel-add {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+    max-width: 600px;
+}
+.planning-personnel-add .fr-input {
+    flex: 1;
+    min-width: 120px;
+}
+
+/* --- Print styles --- */
+@media print {
+    .planning-tabs,
+    .planning-save-bar,
+    .planning-personnel,
+    .planning-dropdown {
+        display: none !important;
+    }
+    .planning-nav {
+        justify-content: flex-start;
+    }
+    .planning-table-wrapper {
+        overflow: visible;
+        border: none;
+    }
+    .planning-table {
+        font-size: 9pt;
+    }
+    .planning-table th,
+    .planning-table td {
+        padding: 2px 4px;
+        min-width: 24px;
+    }
+    .planning-cell.editable:hover {
+        box-shadow: none;
+    }
+}

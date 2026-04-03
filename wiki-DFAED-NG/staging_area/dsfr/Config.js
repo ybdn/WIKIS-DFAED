@@ -95,7 +95,7 @@ window.DsfrConfig = {
     ],
     
     footer: {
-        desc: "Ce wiki est la plateforme de documentation interne du FAED.",
+        desc: "Ce wiki est la plateforme de documentation du DFAED à destination des utilisateurs du FAED.",
         links: [
             { label: "legifrance.gouv.fr", href: "https://legifrance.gouv.fr" },
             { label: "gouvernement.fr", href: "https://gouvernement.fr" },
