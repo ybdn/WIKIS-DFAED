@@ -18,16 +18,16 @@
         var apiPath = mw.config.get('wgScript');
         var isLocal = window.location.hostname === 'localhost';
 
-        // Config est spécifique à cette instance — toujours chargé depuis staging_area/dsfr/
+        // Modules spécifiques à cette instance — toujours chargés depuis staging_area/dsfr/
         var localModules = [
-            'Config'
+            'Config',
+            'Header',
+            'Footer'
         ];
 
         // Modules de la base commune — shared/dsfr/ en local, MediaWiki:Dsfr/ en prod
         var sharedModules = [
             'Layout',
-            'Header',
-            'Footer',
             'EditPage',
             'components/Accordion',
             'components/Alert',
