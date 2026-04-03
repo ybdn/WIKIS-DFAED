@@ -26,6 +26,7 @@
         _$commentModal: null,
         _activeAgentId: null,
         _activeHour: null,
+        _commentaireJour: '',
 
         /* ============================================================= */
         /*  INIT                                                          */
@@ -56,13 +57,16 @@
             var self = this;
             var dataDone = false;
             var commentsDone = !self._isGestion;
+            var commentaireJourDone = false;
             var pendingData = {};
             var pendingComments = {};
+            var pendingCommentaireJour = '';
 
             function tryRender() {
-                if (dataDone && commentsDone) {
+                if (dataDone && commentsDone && commentaireJourDone) {
                     self._data = pendingData;
                     self._comments = pendingComments;
+                    self._commentaireJour = pendingCommentaireJour;
                     self._isDirty = false;
                     self._render();
                 }
@@ -81,6 +85,12 @@
                     tryRender();
                 });
             }
+
+            D.loadCommentaireJour(self._year, self._month, self._day, function (err, data) {
+                pendingCommentaireJour = (data && data.text) ? data.text : '';
+                commentaireJourDone = true;
+                tryRender();
+            });
         },
 
         save: function () {
@@ -96,13 +106,20 @@
                     if (errC) {
                         alert('Erreur de sauvegarde commentaires : ' + errC);
                         self._setSaveState('dirty');
-                    } else {
-                        self._isDirty = false;
-                        self._setSaveState('saved');
-                        setTimeout(function () {
-                            if (!self._isDirty) self._setSaveState('clean');
-                        }, 2500);
+                        return;
                     }
+                    D.saveCommentaireJour(self._year, self._month, self._day, { text: self._commentaireJour }, function (errCJ) {
+                        if (errCJ) {
+                            alert('Erreur de sauvegarde commentaire journee : ' + errCJ);
+                            self._setSaveState('dirty');
+                        } else {
+                            self._isDirty = false;
+                            self._setSaveState('saved');
+                            setTimeout(function () {
+                                if (!self._isDirty) self._setSaveState('clean');
+                            }, 2500);
+                        }
+                    });
                 });
             });
         },
@@ -131,6 +148,7 @@
             h += this._buildTable();
             h += '</div>';
             h += this._buildLegend();
+            h += this._buildCommentaireJour();
             if (this._isGestion) h += this._buildCounters();
             this._$el.html(h);
             this._bindEvents();
@@ -231,6 +249,28 @@
             return h;
         },
 
+        /* --- Commentaire global de journee --- */
+        _buildCommentaireJour: function () {
+            var h = '<div class="planning-commentaire-jour">';
+            h += '<div class="planning-commentaire-jour-header">';
+            h += '<span class="planning-commentaire-jour-title">Commentaires</span>';
+            h += '</div>';
+            if (this._isGestion) {
+                var escaped = (this._commentaireJour || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                h += '<textarea class="planning-commentaire-jour-input" id="jour-commentaire-input" rows="4" placeholder="Ajouter un commentaire pour cette journee...">' + escaped + '</textarea>';
+            } else {
+                var txt = this._commentaireJour || '';
+                if (txt) {
+                    var display = txt.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+                    h += '<div class="planning-commentaire-jour-text">' + display + '</div>';
+                } else {
+                    h += '<div class="planning-commentaire-jour-empty">Aucun commentaire pour cette journee.</div>';
+                }
+            }
+            h += '</div>';
+            return h;
+        },
+
         /* --- Counters (gestion only) --- */
         _buildCounters: function () {
             var activeCodes = [];
@@ -279,6 +319,12 @@
             $('#planning-jour-print').on('click', function () { window.print(); });
 
             if (this._isGestion) {
+                this._$el.on('input', '#jour-commentaire-input', function () {
+                    self._commentaireJour = $(this).val();
+                    self._isDirty = true;
+                    self._setSaveState('dirty');
+                });
+
                 this._$el.on('click', '.planning-cell.editable', function (e) {
                     e.stopPropagation();
                     if (self._$commentModal && self._$commentModal.is(':visible')) {

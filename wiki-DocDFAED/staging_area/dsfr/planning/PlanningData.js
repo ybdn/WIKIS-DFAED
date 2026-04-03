@@ -207,6 +207,16 @@
         saveCommentsJournalier: function (year, month, day, data, cb) {
             var key = year + '-' + pad(month) + '-' + pad(day);
             writePage(BASE_PATH + 'CommentsJournalier/' + key, data, 'Commentaires journalier ' + key, cb);
+        },
+
+        /* Commentaire global de journee */
+        loadCommentaireJour: function (year, month, day, cb) {
+            var key = year + '-' + pad(month) + '-' + pad(day);
+            readPage(BASE_PATH + 'CommentaireJour/' + key, cb);
+        },
+        saveCommentaireJour: function (year, month, day, data, cb) {
+            var key = year + '-' + pad(month) + '-' + pad(day);
+            writePage(BASE_PATH + 'CommentaireJour/' + key, data, 'Commentaire journee ' + key, cb);
         }
     };
 
