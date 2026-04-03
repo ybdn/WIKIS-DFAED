@@ -83,7 +83,11 @@
           for (var i = 0; i < navItems.length; i++) {
               var item = navItems[i];
               if (item.type === 'link') {
-                  html += '<li class="fr-nav__item"><a class="fr-nav__link" href="' + mw.util.getUrl(item.page) + '" target="_self">' + item.label + '</a></li>';
+                  if (item.href) {
+                      html += '<li class="fr-nav__item"><a class="fr-nav__link" href="' + item.href + '" target="_blank" rel="noopener">' + item.label + '</a></li>';
+                  } else {
+                      html += '<li class="fr-nav__item"><a class="fr-nav__link" href="' + mw.util.getUrl(item.page) + '" target="_self">' + item.label + '</a></li>';
+                  }
               } else if (item.type === 'menu' && item.items && item.items.length) {
                   var menuId = item.id || 'menu-' + i;
                   html += '<li class="fr-nav__item">' +

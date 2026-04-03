@@ -1,7 +1,7 @@
 /* SOURCE FILE FOR: [[MediaWiki:Dsfr/Config.js]] */
 window.DsfrConfig = {
     service: {
-        title: "DocDFAED (préprod)",
+        title: "DocDFAED",
         tagline: "Département du Fichier Automatisé des Empreintes Digitales",
         logoText: ["Ministère", "de l'Intérieur"]
     },
@@ -60,7 +60,7 @@ window.DsfrConfig = {
             ]
         },
         { type: "link", label: "Historique", page: "Historique" },
-        { type: "link", label: "Application FAED", page: "#" }
+        { type: "link", label: "Application FAED", href: "https://faed.sso.gendarmerie.fr/" }
     ],
  
     footer: {

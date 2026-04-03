@@ -90,7 +90,8 @@ window.DsfrConfig = {
                 { label: "Fiches pratiques", page: "NeoDK:Fiches_pratiques" },
                 { label: "Soutien technique", page: "NeoDK:Soutien_technique" }
             ]
-        }
+        },
+        { type: "link", label: "Application FAED", href: "https://faed.sso.gendarmerie.fr/" }
     ],
     
     footer: {
