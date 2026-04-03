@@ -147,22 +147,32 @@
             $('#' + targetId).addClass('active');
         });
 
-        /* --- Init views --- */
-        window.PlanningP4S.init($('#p4s-panel'), personnel, canEdit);
-        window.PlanningJournalier.init($('#jour-panel'), personnel, canEdit);
+        /* --- Filter active personnel for planning views --- */
+        var activePersonnel = [];
+        for (var i = 0; i < personnel.length; i++) {
+            if (personnel[i].actif !== false) activePersonnel.push(personnel[i]);
+        }
 
-        /* --- Init personnel panel --- */
+        /* --- Init views (active personnel only) --- */
+        window.PlanningP4S.init($('#p4s-panel'), activePersonnel, canEdit);
+        window.PlanningJournalier.init($('#jour-panel'), activePersonnel, canEdit);
+
+        /* --- Init personnel panel (full list) --- */
         if (canEdit) {
             window.PlanningPersonnel.init($('#personnel-panel'), personnel, function (updatedPersonnel) {
-                /* Refresh views with new personnel list */
-                window.PlanningP4S._personnel = updatedPersonnel;
+                /* Refresh views with updated active personnel */
+                var updatedActive = [];
+                for (var j = 0; j < updatedPersonnel.length; j++) {
+                    if (updatedPersonnel[j].actif !== false) updatedActive.push(updatedPersonnel[j]);
+                }
+                window.PlanningP4S._personnel = updatedActive;
                 window.PlanningP4S.loadAndRender();
-                window.PlanningJournalier._personnel = updatedPersonnel;
+                window.PlanningJournalier._personnel = updatedActive;
                 window.PlanningJournalier.loadAndRender();
             });
         }
 
-        console.log('[Planning] App mounted — ' + personnel.length + ' agents.');
+        console.log('[Planning] App mounted — ' + activePersonnel.length + '/' + personnel.length + ' agents actifs.');
     }
 
     /* ================================================================= */

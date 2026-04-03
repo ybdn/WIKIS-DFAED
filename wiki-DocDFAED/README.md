@@ -61,6 +61,14 @@ Le Wiki de production n'a pas accès à ce dépôt Git. Mise à jour via l'inter
 | `shared/dsfr/EditPage.js` | `MediaWiki:Dsfr/EditPage.js` | Barre d'édition DSFR |
 | `shared/dsfr/Style.css` | `MediaWiki:Dsfr/Style.css` | Styles DSFR & overrides |
 | `shared/dsfr/components/*.js` | `MediaWiki:Dsfr/components/*.js` | Composants DSFR (voir liste ci-dessous) |
+| `staging_area/dsfr/planning/MissionsP4S.js` | `MediaWiki:Dsfr/planning/MissionsP4S.js` | Config missions Planning Mensuel |
+| `staging_area/dsfr/planning/MissionsJournalier.js` | `MediaWiki:Dsfr/planning/MissionsJournalier.js` | Config missions Service Journalier |
+| `staging_area/dsfr/planning/PlanningData.js` | `MediaWiki:Dsfr/planning/PlanningData.js` | Service de données (API MW + jours fériés) |
+| `staging_area/dsfr/planning/PlanningP4S.js` | `MediaWiki:Dsfr/planning/PlanningP4S.js` | Vue Planning Mensuel |
+| `staging_area/dsfr/planning/PlanningJournalier.js` | `MediaWiki:Dsfr/planning/PlanningJournalier.js` | Vue Service Journalier |
+| `staging_area/dsfr/planning/PlanningPersonnel.js` | `MediaWiki:Dsfr/planning/PlanningPersonnel.js` | Gestion du personnel (CRUD) |
+| `staging_area/dsfr/planning/PlanningApp.js` | `MediaWiki:Dsfr/planning/PlanningApp.js` | Orchestrateur (routing, tabs, permissions) |
+| `staging_area/dsfr/planning/Planning.css` | `MediaWiki:Dsfr/planning/Style.css` | Styles DSFR du module Planning |
 
 ### Navigation configurée (Config.js)
 
@@ -81,6 +89,63 @@ Le Wiki de production n'a pas accès à ce dépôt Git. Mise à jour via l'inter
 **Actifs** : Accordion, Alert, Badge, Card, Stepper, Download, Summary, Tab, Table, Tag, Tooltip (11 composants chargés dans `sharedModules`)
 
 **Disponibles dans `shared/`, non encore activés** : Breadcrumb, Button, Callout, Checkbox, Dropdown, Form, Highlight, Input, Link, Modal, Notice, Pagination, Quote, Radio, Search, Segmented, Select, Share, Sidemenu, Skiplink, Tabnav, Tile, Toggle, Transcription, Upload
+
+---
+
+## Module Planning
+
+Application de planning intégrée au wiki, avec deux vues et deux modes d'accès.
+
+### Vues
+
+| Vue | Description |
+| --- | ----------- |
+| **P4S — Planning Mensuel** | Grille agents × jours du mois. Week-ends et jours fériés FR colorés. |
+| **Service Journalier** | Grille agents × heures (07h–20h). |
+
+### Accès
+
+| Mode | Page wiki | Droits |
+| ---- | --------- | ------ |
+| **Consultation** | `Planning:Consultation` | Tous les utilisateurs — lecture seule |
+| **Gestion** | `Planning:Gestion` | Bureaucrates / Sysop — édition cellules, gestion personnel, compteurs |
+
+### Fonctionnalités
+
+- ✏️ Édition par clic sur cellule → menu déroulant des missions
+- 📊 Compteurs par personnel (Gestion uniquement)
+- 📅 Navigation ◄ ► par mois (P4S) ou par jour (Journalier)
+- 🎨 Colorisation week-ends et jours fériés français
+- 👥 Gestion du personnel (ajouter, modifier, réordonner, marquer départ)
+- 🖨️ Export PDF via impression navigateur
+- 💾 Sauvegarde via bouton « Enregistrer »
+
+### Stockage des données (pages wiki JSON)
+
+Les données sont stockées dans des pages wiki au format JSON, créées automatiquement via l'API MediaWiki :
+
+| Page wiki | Contenu |
+| --------- | ------- |
+| `Planning:Data/Personnel` | Liste des agents (id, nom, grade, statut actif/parti) |
+| `Planning:Data/P4S/YYYY-MM` | Planning mensuel (ex: `Planning:Data/P4S/2026-04`) |
+| `Planning:Data/Journalier/YYYY-MM-DD` | Service journalier (ex: `Planning:Data/Journalier/2026-04-03`) |
+
+> **Note** : Les données de planning d'un agent parti restent dans les pages JSON historiques. Seul son statut change dans la liste du personnel.
+
+### Configuration des missions
+
+Les codes missions sont définis dans des fichiers JS éditables :
+
+- `staging_area/dsfr/planning/MissionsP4S.js` — codes du planning mensuel (M, AM, R, RR, P…)
+- `staging_area/dsfr/planning/MissionsJournalier.js` — codes du service journalier (MMO, T41, PO, ID…)
+
+Chaque mission a un `code`, un `label`, et des couleurs (`bg`, `fg`).
+
+### Mise en place en production
+
+1. Créer les pages `Planning:Consultation` et `Planning:Gestion` (contenu minimal)
+2. Copier les 8 fichiers JS/CSS du planning vers les pages `MediaWiki:Dsfr/planning/*`
+3. Mettre à jour `MediaWiki:Common.js` (bloc de chargement conditionnel Planning)
 
 ---
 
