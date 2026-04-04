@@ -295,30 +295,40 @@
     border-top: none;
     padding: 0.5rem 0.75rem;
     text-align: left;
-    white-space: nowrap;
+    /* Suppression du white-space: nowrap global pour autoriser le retour à la ligne */
     vertical-align: middle;
+}
+/* Éviter le bug de la scrollbar de 1px dû au border-collapse = 100% + 1px */
+.oce-table th:first-child,
+.oce-table td:first-child {
+    border-left: none;
+}
+.oce-table th:last-child,
+.oce-table td:last-child {
+    border-right: none;
 }
 .oce-table thead th {
     background: #f6f6f6;
     color: #161616;
     font-weight: 600;
     border-top: none;
+    white-space: nowrap; /* On garde le texte des en-têtes sans retour à la ligne si possible */
 }
 .oce-col-numero {
-    min-width: 100px;
+    min-width: 90px;
+    white-space: nowrap;
 }
 .oce-col-objet {
     white-space: normal !important;
-    min-width: 180px;
+    min-width: 150px;
     max-width: 300px;
+    word-break: break-word; /* Évite qu'une URL ou un texte long ne force le défilement */
 }
 .oce-col-actions {
+    /* La min-width a été supprimée pour permettre à la colonne de réduire sa taille en mode consultation */
     white-space: nowrap;
-    min-width: 180px;
 }
-.oce-col-actions-header {
-    min-width: 180px;
-}
+
 
 /* Actions row — inline flex */
 .oce-actions-row {
@@ -331,6 +341,7 @@
     max-width: 110px;
     min-width: 90px;
 }
+
 
 /* Cliches column */
 .oce-col-cliches {
