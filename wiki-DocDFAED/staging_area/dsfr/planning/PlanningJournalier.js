@@ -9,6 +9,14 @@
     var HEURES = [];
     (function () { for (var i = 7; i <= 20; i++) HEURES.push(i); })();
 
+    var ROLE_LABELS_JOUR = {
+        commandement: 'Commandement',
+        chefs_pole: 'Chefs de pole',
+        csf: 'Cellule de suivi fonctionnel (CSF)',
+        formation: 'Formation',
+        experts: 'Experts biometrie'
+    };
+
     window.PlanningJournalier = {
 
         _$el: null,
@@ -26,6 +34,19 @@
         _$commentModal: null,
         _activeAgentId: null,
         _activeHour: null,
+
+        /* Multi-sélection */
+        _dragActive: false,
+        _dragHasMoved: false,
+        _dragStartAgent: null,
+        _dragStartHour: null,
+        _dragCurAgent: null,
+        _dragCurHour: null,
+        _lastSingleAgent: null,
+        _lastSingleHour: null,
+        _selectedCells: [],
+        _$selectionBadge: null,
+        _ignoreNextClick: false,
         _commentaireJour: '',
 
         /* ============================================================= */
@@ -45,7 +66,10 @@
             this._day = now.getDate();
 
             this._createDropdown();
-            if (isGestion) this._createCommentUI();
+            if (isGestion) {
+                this._createCommentUI();
+                this._createSelectionBadge();
+            }
             this.loadAndRender();
         },
 
@@ -132,10 +156,71 @@
         },
 
         /* ============================================================= */
+        /*  MULTI-SÉLECTION                                              */
+        /* ============================================================= */
+
+        _agentIndex: function (agentId) {
+            for (var i = 0; i < this._personnel.length; i++) {
+                if (this._personnel[i].id === agentId) return i;
+            }
+            return -1;
+        },
+
+        _computeRange: function (a1, h1, a2, h2) {
+            var i1 = this._agentIndex(a1);
+            var i2 = this._agentIndex(a2);
+            if (i1 === -1 || i2 === -1) return [];
+            var iMin = Math.min(i1, i2);
+            var iMax = Math.max(i1, i2);
+            var hMin = Math.min(parseInt(h1, 10), parseInt(h2, 10));
+            var hMax = Math.max(parseInt(h1, 10), parseInt(h2, 10));
+            var cells = [];
+            for (var i = iMin; i <= iMax; i++) {
+                for (var h = hMin; h <= hMax; h++) {
+                    cells.push({ agent: this._personnel[i].id, hour: D.pad(h) });
+                }
+            }
+            return cells;
+        },
+
+        _highlightSelection: function () {
+            this._$el.find('.planning-cell-selected').removeClass('planning-cell-selected');
+            for (var i = 0; i < this._selectedCells.length; i++) {
+                var c = this._selectedCells[i];
+                this._$el.find('.planning-cell[data-agent="' + c.agent + '"][data-hour="' + c.hour + '"]')
+                    .addClass('planning-cell-selected');
+            }
+        },
+
+        _clearSelection: function () {
+            this._$el.find('.planning-cell-selected').removeClass('planning-cell-selected');
+            this._selectedCells = [];
+            this._hideSelectionBadge();
+        },
+
+        _showSelectionBadge: function (n) {
+            if (!this._$selectionBadge) return;
+            var label = n + ' cellule' + (n > 1 ? 's' : '') + ' s\u00e9lectionn\u00e9e' + (n > 1 ? 's' : '');
+            this._$selectionBadge.text(label).show();
+        },
+
+        _hideSelectionBadge: function () {
+            if (this._$selectionBadge) this._$selectionBadge.hide();
+        },
+
+        _createSelectionBadge: function () {
+            if (!this._$selectionBadge) {
+                this._$selectionBadge = $('<div class="planning-selection-badge"></div>').appendTo('body').hide();
+            }
+        },
+
+        /* ============================================================= */
         /*  RENDER                                                        */
         /* ============================================================= */
 
         _render: function () {
+            this._dragActive = false;
+            this._clearSelection();
             if (this._$commentModal) this._$commentModal.hide();
             if (this._$tooltip) this._$tooltip.hide();
             var h = '';
@@ -209,11 +294,17 @@
             h += '</tr></thead>';
 
             /* Body */
+            var prevRoleJour = null;
             h += '<tbody>';
             for (var p = 0; p < this._personnel.length; p++) {
                 var agent = this._personnel[p];
+                var agentRole = agent.role || 'experts';
+                if (agentRole !== prevRoleJour) {
+                    h += '<tr class="planning-role-separator"><td colspan="' + (HEURES.length + 1) + '">' + (ROLE_LABELS_JOUR[agentRole] || agentRole) + '</td></tr>';
+                    prevRoleJour = agentRole;
+                }
                 var agentData = this._data[agent.id] || {};
-                h += '<tr><td class="planning-col-agent">' + agent.nom + '</td>';
+                h += '<tr><td class="planning-col-agent">' + (agent.grade ? agent.grade + ' ' : '') + agent.nom + '</td>';
                 for (var j = 0; j < HEURES.length; j++) {
                     var hKey = D.pad(HEURES[j]);
                     var code = agentData[hKey] || '';
@@ -290,7 +381,7 @@
                 var agent = this._personnel[p];
                 var agentData = this._data[agent.id] || {};
                 var total = 0;
-                h += '<tr><td>' + agent.nom + '</td>';
+                h += '<tr><td>' + (agent.grade ? agent.grade + ' ' : '') + agent.nom + '</td>';
                 for (var c2 = 0; c2 < activeCodes.length; c2++) {
                     var count = 0;
                     for (var j = 0; j < HEURES.length; j++) {
@@ -325,15 +416,101 @@
                     self._setSaveState('dirty');
                 });
 
-                this._$el.on('click', '.planning-cell.editable', function (e) {
-                    e.stopPropagation();
+                this._$el.on('mousedown', '.planning-cell.editable', function (e) {
+                    if (e.which !== 1) return;
+                    e.preventDefault();
                     if (self._$commentModal && self._$commentModal.is(':visible')) {
                         self._$commentModal.hide();
                     }
                     var $cell = $(this);
-                    self._activeAgentId = $cell.data('agent');
-                    self._activeHour = '' + $cell.data('hour');
-                    self._showDropdown($cell);
+                    var agent = '' + $cell.data('agent');
+                    var hour = '' + $cell.data('hour');
+
+                    if (e.shiftKey && self._lastSingleAgent) {
+                        /* Shift+clic : sélection rectangulaire depuis la dernière cellule */
+                        self._selectedCells = self._computeRange(self._lastSingleAgent, self._lastSingleHour, agent, hour);
+                        self._highlightSelection();
+                        self._showSelectionBadge(self._selectedCells.length);
+                        self._activeAgentId = agent;
+                        self._activeHour = hour;
+                        self._ignoreNextClick = true;
+                        self._showDropdown($cell);
+                        return;
+                    }
+
+                    /* Début de drag */
+                    self._clearSelection();
+                    self._dragActive = true;
+                    self._dragHasMoved = false;
+                    self._dragStartAgent = agent;
+                    self._dragStartHour = hour;
+                    self._dragCurAgent = agent;
+                    self._dragCurHour = hour;
+                    self._selectedCells = [{ agent: agent, hour: hour }];
+                    self._highlightSelection();
+                    $('#jour-table').addClass('planning-dragging');
+                });
+
+                this._$el.on('mouseover', '.planning-cell.editable', function () {
+                    if (!self._dragActive) return;
+                    var $cell = $(this);
+                    var agent = '' + $cell.data('agent');
+                    var hour = '' + $cell.data('hour');
+                    if (agent === self._dragCurAgent && hour === self._dragCurHour) return;
+                    self._dragCurAgent = agent;
+                    self._dragCurHour = hour;
+                    if (agent !== self._dragStartAgent || hour !== self._dragStartHour) {
+                        self._dragHasMoved = true;
+                    }
+                    self._selectedCells = self._computeRange(self._dragStartAgent, self._dragStartHour, agent, hour);
+                    self._highlightSelection();
+                    if (self._selectedCells.length > 1) {
+                        self._showSelectionBadge(self._selectedCells.length);
+                    }
+                });
+
+                $(document).off('mouseup.jourDrag').on('mouseup.jourDrag', function () {
+                    if (!self._dragActive) return;
+                    self._dragActive = false;
+                    $('#jour-table').removeClass('planning-dragging');
+
+                    if (self._dragHasMoved && self._selectedCells.length > 1) {
+                        /* Drag multi-cellules : ouvrir dropdown sur la dernière cellule */
+                        var $lastCell = self._$el.find(
+                            '.planning-cell[data-agent="' + self._dragCurAgent + '"][data-hour="' + self._dragCurHour + '"]'
+                        );
+                        if ($lastCell.length) {
+                            self._activeAgentId = self._dragCurAgent;
+                            self._activeHour = self._dragCurHour;
+                            self._ignoreNextClick = true;
+                            self._showDropdown($lastCell);
+                        }
+                    } else {
+                        /* Clic simple */
+                        self._clearSelection();
+                        var $startCell = self._$el.find(
+                            '.planning-cell[data-agent="' + self._dragStartAgent + '"][data-hour="' + self._dragStartHour + '"]'
+                        );
+                        if ($startCell.length) {
+                            self._activeAgentId = self._dragStartAgent;
+                            self._activeHour = self._dragStartHour;
+                            self._lastSingleAgent = self._dragStartAgent;
+                            self._lastSingleHour = self._dragStartHour;
+                            self._ignoreNextClick = true;
+                            self._showDropdown($startCell);
+                        }
+                    }
+                });
+
+                $(document).off('keydown.jourDrag').on('keydown.jourDrag', function (e) {
+                    if (e.key === 'Escape' || e.keyCode === 27) {
+                        self._clearSelection();
+                        if (self._dragActive) {
+                            self._dragActive = false;
+                            $('#jour-table').removeClass('planning-dragging');
+                        }
+                        if (self._$dropdown) self._$dropdown.hide();
+                    }
                 });
 
                 this._$el.off('.jourComment')
@@ -406,12 +583,18 @@
             $('body').append(this._$dropdown);
 
             var self = this;
-            this._$dropdown.on('click', '.planning-dropdown-item', function () {
+            this._$dropdown.on('click', '.planning-dropdown-item', function (e) {
+                e.stopPropagation();
                 var code = $(this).data('code');
                 self._selectMission(code);
             });
             $(document).on('click.jourDropdown', function () {
+                if (self._ignoreNextClick) {
+                    self._ignoreNextClick = false;
+                    return;
+                }
                 if (self._$dropdown) self._$dropdown.hide();
+                self._clearSelection();
             });
         },
 
@@ -479,21 +662,29 @@
         },
 
         _selectMission: function (code) {
-            var agentId = this._activeAgentId;
-            var hour = this._activeHour;
-            if (!agentId || !hour) return;
-
-            if (!this._data[agentId]) this._data[agentId] = {};
-            this._data[agentId][hour] = code;
-            this._isDirty = true;
-
             var mission = this._getMission(code);
-            var $cell = this._$el.find('.planning-cell[data-agent="' + agentId + '"][data-hour="' + hour + '"]');
-            $cell.text(code).css({
-                'background-color': code ? mission.bg : '',
-                'color': code ? mission.fg : ''
-            });
+            var cells = this._selectedCells.length > 0
+                ? this._selectedCells
+                : (this._activeAgentId && this._activeHour
+                    ? [{ agent: this._activeAgentId, hour: this._activeHour }]
+                    : []);
 
+            if (cells.length === 0) return;
+
+            for (var i = 0; i < cells.length; i++) {
+                var c = cells[i];
+                if (!this._data[c.agent]) this._data[c.agent] = {};
+                this._data[c.agent][c.hour] = code;
+                var $cell = this._$el.find('.planning-cell[data-agent="' + c.agent + '"][data-hour="' + c.hour + '"]');
+                $cell.text(code).css({
+                    'background-color': code ? mission.bg : '',
+                    'color': code ? mission.fg : ''
+                }).removeClass('planning-cell-selected');
+            }
+
+            this._selectedCells = [];
+            this._hideSelectionBadge();
+            this._isDirty = true;
             this._$dropdown.hide();
             this._setSaveState('dirty');
         }

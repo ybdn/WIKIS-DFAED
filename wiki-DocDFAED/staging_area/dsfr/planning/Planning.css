@@ -403,6 +403,23 @@
 }
 
 
+/* --- Séparateurs de groupes par rôle --- */
+.planning-role-separator td {
+    background: #eef0fb !important;
+    color: #000091;
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.3rem 0.75rem !important;
+    text-align: left !important;
+    border-top: 2px solid #9ba9e0 !important;
+    border-bottom: 1px solid #c5caf5 !important;
+    height: 26px !important;
+    min-width: 0 !important;
+    pointer-events: none;
+}
+
 /* --- Personnel management --- */
 .planning-personnel {
     margin-top: 2rem;
@@ -535,6 +552,44 @@
     justify-content: flex-end;
     gap: 8px;
     margin-top: 8px;
+}
+
+/* --- Multi-sélection de cellules --- */
+
+/* Cellule sélectionnée (drag ou Shift+clic) */
+.planning-cell.planning-cell-selected {
+    outline: 2px solid #0063cb;
+    outline-offset: -2px;
+    background-color: rgba(0, 99, 203, 0.15) !important;
+    color: inherit !important;
+    position: relative;
+    z-index: 1;
+}
+
+/* Désactive la sélection de texte pendant le drag */
+.planning-table.planning-dragging,
+.planning-table.planning-dragging * {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Badge compteur de sélection (flottant, centré en bas) */
+.planning-selection-badge {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0063cb;
+    color: #fff;
+    padding: 0.4rem 1rem;
+    border-radius: 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    z-index: 2000;
+    pointer-events: none;
+    display: none;
 }
 
 /* --- Print styles --- */

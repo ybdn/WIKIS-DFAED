@@ -8,6 +8,30 @@
  */
 (function () {
 
+    var GRADE_ORDER = ['GAR','GCA','GDI','GBR','COL','LCL','CEN','CNE','LTN','SLT',
+                       'ASP','MAJ','ADC','ADJ','MDC','GND','MDL','ELG','BRC','BRI','GAV'];
+
+    var ROLE_ORDER = ['commandement', 'chefs_pole', 'csf', 'formation', 'experts'];
+
+    function sortPersonnelByGrade(arr) {
+        arr.sort(function (a, b) {
+            var rra = ROLE_ORDER.indexOf(a.role || 'experts');
+            var rrb = ROLE_ORDER.indexOf(b.role || 'experts');
+            if (rra < 0) rra = ROLE_ORDER.length;
+            if (rrb < 0) rrb = ROLE_ORDER.length;
+            if (rra !== rrb) return rra - rrb;
+            var ga = (a.grade || '').toUpperCase();
+            var gb = (b.grade || '').toUpperCase();
+            var ra = GRADE_ORDER.indexOf(ga);
+            var rb = GRADE_ORDER.indexOf(gb);
+            if (ra < 0) ra = GRADE_ORDER.length;
+            if (rb < 0) rb = GRADE_ORDER.length;
+            if (ra !== rb) return ra - rb;
+            return (a.id || '').localeCompare(b.id || '');
+        });
+        return arr;
+    }
+
     /* ================================================================= */
     /*  POLLING — attente des dependances                                 */
     /* ================================================================= */
@@ -120,6 +144,7 @@
         /* --- Load personnel then build UI --- */
         window.PlanningData.loadPersonnel(function (err, personnel) {
             personnel = personnel || [];
+            sortPersonnelByGrade(personnel);
 
             if (isGestion && personnel.length === 0) {
                 console.log('[Planning] Aucun personnel — affichage du panneau de gestion.');
@@ -200,6 +225,7 @@
         if (canEdit) {
             window.PlanningPersonnel.init($('#personnel-panel'), personnel, function (updatedPersonnel) {
                 /* Refresh views with updated active personnel */
+                sortPersonnelByGrade(updatedPersonnel);
                 var updatedActive = [];
                 for (var j = 0; j < updatedPersonnel.length; j++) {
                     if (updatedPersonnel[j].actif !== false) updatedActive.push(updatedPersonnel[j]);

@@ -9,6 +9,9 @@
     var DATA_PAGE = 'OCE:Data/Liste';
     var PERSONNEL_PAGE = 'Planning:Data/Personnel';
 
+    var GRADE_ORDER = ['GAR','GCA','GDI','GBR','COL','LCL','CEN','CNE','LTN','SLT',
+                       'ASP','MAJ','ADC','ADJ','MDC','GND','MDL','ELG','BRC','BRI','GAV'];
+
     /* ------------------------------------------------------------------ */
     /*  API MediaWiki — lecture / ecriture                                 */
     /* ------------------------------------------------------------------ */
@@ -135,6 +138,18 @@
                     agentOrder.push(personnel[p].id);
                 }
             }
+
+            /* Tri par grade desc puis ID croissant */
+            agentOrder.sort(function (a, b) {
+                var ga = agentMap[a] ? (agentMap[a].grade || '').toUpperCase() : '';
+                var gb = agentMap[b] ? (agentMap[b].grade || '').toUpperCase() : '';
+                var ra = GRADE_ORDER.indexOf(ga);
+                var rb = GRADE_ORDER.indexOf(gb);
+                if (ra < 0) ra = GRADE_ORDER.length;
+                if (rb < 0) rb = GRADE_ORDER.length;
+                if (ra !== rb) return ra - rb;
+                return a.localeCompare(b);
+            });
 
             /* Init groups in personnel order */
             for (var a = 0; a < agentOrder.length; a++) {

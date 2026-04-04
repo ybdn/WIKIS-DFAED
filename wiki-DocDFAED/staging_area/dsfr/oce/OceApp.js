@@ -167,6 +167,23 @@
     /* ================================================================= */
 
     function initPersonnelPanel($container, personnel, data) {
+        var GRADE_ORDER = ['GAR','GCA','GDI','GBR','COL','LCL','CEN','CNE','LTN','SLT',
+                           'ASP','MAJ','ADC','ADJ','MDC','GND','MDL','ELG','BRC','BRI','GAV'];
+
+        function sortPersonnelByGrade(arr) {
+            arr.sort(function (a, b) {
+                var ga = (a.grade || '').toUpperCase();
+                var gb = (b.grade || '').toUpperCase();
+                var ra = GRADE_ORDER.indexOf(ga);
+                var rb = GRADE_ORDER.indexOf(gb);
+                if (ra < 0) ra = GRADE_ORDER.length;
+                if (rb < 0) rb = GRADE_ORDER.length;
+                if (ra !== rb) return ra - rb;
+                return (a.id || '').localeCompare(b.id || '');
+            });
+            return arr;
+        }
+
         /* Reuse PlanningPersonnel pattern but write to same data source */
         var _personnel = [];
         for (var i = 0; i < personnel.length; i++) {
@@ -210,7 +227,7 @@
             /* Active */
             h += '<h4 style="margin-top:1rem;margin-bottom:0.5rem;">Personnel actif (' + actifs.length + ')</h4>';
             h += '<table class="oce-personnel-table">';
-            h += '<thead><tr><th>ID</th><th>Nom</th><th>Grade</th><th style="min-width:150px;">Actions</th></tr></thead>';
+            h += '<thead><tr><th>ID</th><th>Nom</th><th>Grade</th><th style="min-width:100px;">Actions</th></tr></thead>';
             h += '<tbody>';
 
             for (var a = 0; a < actifs.length; a++) {
@@ -233,9 +250,7 @@
                     h += '<td>' + escH(pp.grade || '') + '</td>';
                     h += '<td>';
                     h += '<button class="fr-btn fr-btn--sm fr-btn--tertiary oce-perso-edit" title="Modifier">\u270F\uFE0F</button> ';
-                    h += '<button class="fr-btn fr-btn--sm fr-btn--tertiary oce-perso-depart" title="Depart">\uD83D\uDCE4</button> ';
-                    h += '<button class="fr-btn fr-btn--sm fr-btn--tertiary oce-perso-up" title="Monter"' + (a === 0 ? ' disabled' : '') + '>\u25B2</button> ';
-                    h += '<button class="fr-btn fr-btn--sm fr-btn--tertiary oce-perso-down" title="Descendre"' + (a === actifs.length - 1 ? ' disabled' : '') + '>\u25BC</button>';
+                    h += '<button class="fr-btn fr-btn--sm fr-btn--tertiary oce-perso-depart" title="Depart">\uD83D\uDCE4</button>';
                     h += '</td>';
                 }
                 h += '</tr>';
@@ -365,6 +380,7 @@
                 var idx = $(this).closest('tr').data('index');
                 _personnel[idx].actif = true;
                 delete _personnel[idx].dateDepart;
+                sortPersonnelByGrade(_personnel);
                 render();
                 markDirty();
             });
@@ -379,37 +395,6 @@
                 }
             });
 
-            /* Move up */
-            $container.on('click.oceperso', '.oce-perso-up', function () {
-                var idx = $(this).closest('tr').data('index');
-                var prev = -1;
-                for (var i = idx - 1; i >= 0; i--) {
-                    if (_personnel[i].actif !== false) { prev = i; break; }
-                }
-                if (prev >= 0) {
-                    var tmp = _personnel[idx];
-                    _personnel[idx] = _personnel[prev];
-                    _personnel[prev] = tmp;
-                    render();
-                    markDirty();
-                }
-            });
-
-            /* Move down */
-            $container.on('click.oceperso', '.oce-perso-down', function () {
-                var idx = $(this).closest('tr').data('index');
-                var next = -1;
-                for (var i = idx + 1; i < _personnel.length; i++) {
-                    if (_personnel[i].actif !== false) { next = i; break; }
-                }
-                if (next >= 0) {
-                    var tmp = _personnel[idx];
-                    _personnel[idx] = _personnel[next];
-                    _personnel[next] = tmp;
-                    render();
-                    markDirty();
-                }
-            });
         }
 
         function addAgent() {
@@ -421,6 +406,7 @@
                 if (_personnel[i].id === id) { alert('Identifiant deja utilise.'); return; }
             }
             _personnel.push({ id: id, nom: nom, grade: grade, actif: true });
+            sortPersonnelByGrade(_personnel);
             render();
             markDirty();
         }
@@ -442,6 +428,7 @@
             _personnel[_editingIndex].nom = newNom;
             _personnel[_editingIndex].grade = newGrade;
             _editingIndex = -1;
+            sortPersonnelByGrade(_personnel);
             render();
             markDirty();
         }

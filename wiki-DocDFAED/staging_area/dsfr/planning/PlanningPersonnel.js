@@ -5,10 +5,41 @@
  * Donnees stockees dans Planning:Data/Personnel.
  *
  * Structure d'un agent :
- *   { id: "dupont", nom: "DUPONT Jean", grade: "MDC", actif: true }
- *   { id: "martin", nom: "MARTIN Sophie", grade: "GAV", actif: false, dateDepart: "2026-04-01" }
+ *   { id: "dupont", nom: "DUPONT Jean", grade: "MDC", role: "experts", actif: true }
+ *   { id: "martin", nom: "MARTIN Sophie", grade: "GAV", role: "commandement", actif: false, dateDepart: "2026-04-01" }
  */
 (function () {
+
+    var GRADE_ORDER = ['GAR','GCA','GDI','GBR','COL','LCL','CEN','CNE','LTN','SLT',
+                       'ASP','MAJ','ADC','ADJ','MDC','GND','MDL','ELG','BRC','BRI','GAV'];
+
+    var ROLE_ORDER = ['commandement', 'chefs_pole', 'csf', 'formation', 'experts'];
+    var ROLE_LABELS = {
+        commandement: 'Commandement',
+        chefs_pole: 'Chefs de pole',
+        csf: 'CSF',
+        formation: 'Formation',
+        experts: 'Experts biometrie'
+    };
+
+    function sortPersonnelByGrade(arr) {
+        arr.sort(function (a, b) {
+            var rra = ROLE_ORDER.indexOf(a.role || 'experts');
+            var rrb = ROLE_ORDER.indexOf(b.role || 'experts');
+            if (rra < 0) rra = ROLE_ORDER.length;
+            if (rrb < 0) rrb = ROLE_ORDER.length;
+            if (rra !== rrb) return rra - rrb;
+            var ga = (a.grade || '').toUpperCase();
+            var gb = (b.grade || '').toUpperCase();
+            var ra = GRADE_ORDER.indexOf(ga);
+            var rb = GRADE_ORDER.indexOf(gb);
+            if (ra < 0) ra = GRADE_ORDER.length;
+            if (rb < 0) rb = GRADE_ORDER.length;
+            if (ra !== rb) return ra - rb;
+            return (a.id || '').localeCompare(b.id || '');
+        });
+        return arr;
+    }
 
     window.PlanningPersonnel = {
 
@@ -36,6 +67,7 @@
                     if (personnel[i].hasOwnProperty(k)) p[k] = personnel[i][k];
                 }
                 if (p.actif === undefined) p.actif = true;
+                if (p.role === undefined) p.role = 'experts';
                 this._personnel.push(p);
             }
 
@@ -84,7 +116,7 @@
             /* ---- ACTIFS ---- */
             h += '<h4 style="margin-top:1rem;margin-bottom:0.5rem;">Personnel actif (' + actifs.length + ')</h4>';
             h += '<table class="planning-personnel-table">';
-            h += '<thead><tr><th>ID</th><th>Nom</th><th>Grade</th><th style="min-width:150px;">Actions</th></tr></thead>';
+            h += '<thead><tr><th>ID</th><th>Nom</th><th>Grade</th><th>Role</th><th style="min-width:100px;">Actions</th></tr></thead>';
             h += '<tbody>';
 
             for (var a = 0; a < actifs.length; a++) {
@@ -94,9 +126,14 @@
 
                 h += '<tr data-index="' + idx + '">';
                 if (isEditing) {
+                    var editRoleOpts = '';
+                    for (var roIdx = 0; roIdx < ROLE_ORDER.length; roIdx++) {
+                        editRoleOpts += '<option value="' + ROLE_ORDER[roIdx] + '"' + ((p.role || 'experts') === ROLE_ORDER[roIdx] ? ' selected' : '') + '>' + ROLE_LABELS[ROLE_ORDER[roIdx]] + '</option>';
+                    }
                     h += '<td><input class="fr-input fr-input--sm" type="text" id="perso-edit-id" value="' + this._escAttr(p.id) + '" style="width:100px;"></td>';
                     h += '<td><input class="fr-input fr-input--sm" type="text" id="perso-edit-nom" value="' + this._escAttr(p.nom) + '" style="width:180px;"></td>';
                     h += '<td><input class="fr-input fr-input--sm" type="text" id="perso-edit-grade" value="' + this._escAttr(p.grade || '') + '" style="width:80px;"></td>';
+                    h += '<td><select class="fr-select fr-select--sm" id="perso-edit-role" style="width:160px;">' + editRoleOpts + '</select></td>';
                     h += '<td>';
                     h += '<button class="fr-btn fr-btn--sm fr-btn--secondary perso-confirm" title="Confirmer">\u2713</button> ';
                     h += '<button class="fr-btn fr-btn--sm fr-btn--tertiary perso-cancel" title="Annuler">\u2715</button>';
@@ -105,26 +142,30 @@
                     h += '<td>' + this._esc(p.id) + '</td>';
                     h += '<td>' + this._esc(p.nom) + '</td>';
                     h += '<td>' + this._esc(p.grade || '') + '</td>';
+                    h += '<td>' + this._esc(ROLE_LABELS[p.role || 'experts'] || '') + '</td>';
                     h += '<td>';
                     h += '<button class="fr-btn fr-btn--sm fr-btn--tertiary perso-edit" title="Modifier">\u270F\uFE0F</button> ';
-                    h += '<button class="fr-btn fr-btn--sm fr-btn--tertiary perso-depart" title="Depart de l\'unite">\uD83D\uDCE4</button> ';
-                    h += '<button class="fr-btn fr-btn--sm fr-btn--tertiary perso-up" title="Monter"' + (a === 0 ? ' disabled' : '') + '>\u25B2</button> ';
-                    h += '<button class="fr-btn fr-btn--sm fr-btn--tertiary perso-down" title="Descendre"' + (a === actifs.length - 1 ? ' disabled' : '') + '>\u25BC</button>';
+                    h += '<button class="fr-btn fr-btn--sm fr-btn--tertiary perso-depart" title="Depart de l\'unite">\uD83D\uDCE4</button>';
                     h += '</td>';
                 }
                 h += '</tr>';
             }
 
             if (actifs.length === 0) {
-                h += '<tr><td colspan="4" style="text-align:center;color:#666;">Aucun personnel actif</td></tr>';
+                h += '<tr><td colspan="5" style="text-align:center;color:#666;">Aucun personnel actif</td></tr>';
             }
             h += '</tbody></table>';
 
             /* Add form */
+            var addRoleOpts = '';
+            for (var ro2 = 0; ro2 < ROLE_ORDER.length; ro2++) {
+                addRoleOpts += '<option value="' + ROLE_ORDER[ro2] + '"' + (ROLE_ORDER[ro2] === 'experts' ? ' selected' : '') + '>' + ROLE_LABELS[ROLE_ORDER[ro2]] + '</option>';
+            }
             h += '<div class="planning-personnel-add" style="margin-bottom:1.5rem;">';
             h += '<input class="fr-input" type="text" id="perso-add-id" placeholder="Identifiant (ex: dupont)" style="max-width:150px;">';
             h += '<input class="fr-input" type="text" id="perso-add-nom" placeholder="Nom complet (ex: DUPONT Jean)" style="max-width:200px;">';
             h += '<input class="fr-input" type="text" id="perso-add-grade" placeholder="Grade (ex: MDC)" style="max-width:100px;">';
+            h += '<select class="fr-select" id="perso-add-role" style="max-width:180px;">' + addRoleOpts + '</select>';
             h += '<button class="fr-btn fr-btn--sm fr-btn--secondary" id="perso-add-btn">Ajouter</button>';
             h += '</div>';
 
@@ -133,7 +174,7 @@
                 h += '<details style="margin-top:1rem;">';
                 h += '<summary style="cursor:pointer;font-weight:700;color:#666;">Personnel parti (' + partis.length + ')</summary>';
                 h += '<table class="planning-personnel-table" style="opacity:0.7;margin-top:0.5rem;">';
-                h += '<thead><tr><th>ID</th><th>Nom</th><th>Grade</th><th>Date depart</th><th>Actions</th></tr></thead>';
+                h += '<thead><tr><th>ID</th><th>Nom</th><th>Grade</th><th>Role</th><th>Date depart</th><th>Actions</th></tr></thead>';
                 h += '<tbody>';
                 for (var b = 0; b < partis.length; b++) {
                     var pp = partis[b].data;
@@ -142,6 +183,7 @@
                     h += '<td>' + this._esc(pp.id) + '</td>';
                     h += '<td>' + this._esc(pp.nom) + '</td>';
                     h += '<td>' + this._esc(pp.grade || '') + '</td>';
+                    h += '<td>' + this._esc(ROLE_LABELS[pp.role || 'experts'] || '') + '</td>';
                     h += '<td>' + (pp.dateDepart || '—') + '</td>';
                     h += '<td>';
                     h += '<button class="fr-btn fr-btn--sm fr-btn--tertiary perso-reactivate" title="Reactiver">\u21A9\uFE0F</button> ';
@@ -224,7 +266,7 @@
                 var agent = self._personnel[idx];
                 agent.actif = true;
                 delete agent.dateDepart;
-                self._render();
+                self._sortPersonnel();
                 self._markDirty();
             });
 
@@ -238,40 +280,15 @@
                 }
             });
 
-            /* Move up (active only) */
-            this._$el.on('click', '.perso-up', function () {
-                var idx = $(this).closest('tr').data('index');
-                if (idx > 0) {
-                    /* Find previous active */
-                    var prev = -1;
-                    for (var i = idx - 1; i >= 0; i--) {
-                        if (self._personnel[i].actif !== false) { prev = i; break; }
-                    }
-                    if (prev >= 0) {
-                        var tmp = self._personnel[idx];
-                        self._personnel[idx] = self._personnel[prev];
-                        self._personnel[prev] = tmp;
-                        self._render();
-                        self._markDirty();
-                    }
-                }
-            });
+        },
 
-            /* Move down (active only) */
-            this._$el.on('click', '.perso-down', function () {
-                var idx = $(this).closest('tr').data('index');
-                var next = -1;
-                for (var i = idx + 1; i < self._personnel.length; i++) {
-                    if (self._personnel[i].actif !== false) { next = i; break; }
-                }
-                if (next >= 0) {
-                    var tmp = self._personnel[idx];
-                    self._personnel[idx] = self._personnel[next];
-                    self._personnel[next] = tmp;
-                    self._render();
-                    self._markDirty();
-                }
-            });
+        /* ============================================================= */
+        /*  SORT                                                          */
+        /* ============================================================= */
+
+        _sortPersonnel: function () {
+            sortPersonnelByGrade(this._personnel);
+            this._render();
         },
 
         /* ============================================================= */
@@ -292,8 +309,9 @@
                     return;
                 }
             }
-            this._personnel.push({ id: id, nom: nom, grade: grade, actif: true });
-            this._render();
+            var role = $('#perso-add-role').val() || 'experts';
+            this._personnel.push({ id: id, nom: nom, grade: grade, role: role, actif: true });
+            this._sortPersonnel();
             this._markDirty();
         },
 
@@ -304,6 +322,7 @@
             var newId = $('#perso-edit-id').val().trim().toLowerCase().replace(/\s+/g, '_');
             var newNom = $('#perso-edit-nom').val().trim();
             var newGrade = $('#perso-edit-grade').val().trim();
+            var newRole = $('#perso-edit-role').val() || 'experts';
 
             if (!newId || !newNom) {
                 alert('L\'identifiant et le nom sont obligatoires.');
@@ -329,9 +348,10 @@
             this._personnel[idx].id = newId;
             this._personnel[idx].nom = newNom;
             this._personnel[idx].grade = newGrade;
+            this._personnel[idx].role = newRole;
 
             this._editingIndex = -1;
-            this._render();
+            this._sortPersonnel();
             this._markDirty();
         },
 
