@@ -14,7 +14,7 @@
 
 (function () {
 
-    $(function () {
+    function init() {
         var apiPath = mw.config.get('wgScript');
         var isLocal = window.location.hostname === 'localhost';
 
@@ -182,6 +182,15 @@
                 document.head.appendChild(s);
             });
         }
-    });
+    }
+
+    function waitForDeps() {
+        if (window.jQuery && window.mw && window.mw.config && window.mw.util) {
+            init();
+        } else {
+            setTimeout(waitForDeps, 50);
+        }
+    }
+    waitForDeps();
 
 }());
