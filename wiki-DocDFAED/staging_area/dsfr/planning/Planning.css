@@ -4,12 +4,22 @@
    PLANNING APP — DSFR-compatible styles
    ================================================================ */
 
+/* --- Mode "Bord à bord" pour MediaWiki --- */
+.mw-page-container,
+.mw-workspace-container,
+.mw-content-container,
+#content.mw-body,
+#content {
+    max-width: none !important;
+}
+
 /* --- Container --- */
 .planning-app {
     max-width: 100%;
     margin: 0;
     font-family: 'Marianne', arial, sans-serif;
 }
+
 
 /* --- Tabs --- */
 .planning-tabs {
