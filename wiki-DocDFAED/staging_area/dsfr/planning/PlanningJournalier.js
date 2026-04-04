@@ -229,11 +229,11 @@
             h += '<div class="planning-export-row" style="text-align:right;margin-bottom:0.5rem;">';
             h += '<button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-printer-line" id="planning-jour-print"> Imprimer / PDF</button>';
             h += '</div>';
+            h += this._buildCommentaireJour();
             h += '<div class="planning-table-wrapper">';
             h += this._buildTable();
             h += '</div>';
             h += this._buildLegend();
-            h += this._buildCommentaireJour();
             if (this._isGestion) h += this._buildCounters();
             this._$el.html(h);
             this._bindEvents();
@@ -340,22 +340,22 @@
             return h;
         },
 
-        /* --- Commentaire global de journee --- */
+        /* --- Consignes globales de journee --- */
         _buildCommentaireJour: function () {
             var h = '<div class="planning-commentaire-jour">';
             h += '<div class="planning-commentaire-jour-header">';
-            h += '<span class="planning-commentaire-jour-title">Commentaires</span>';
+            h += '<span class="planning-commentaire-jour-title">Consignes</span>';
             h += '</div>';
             if (this._isGestion) {
                 var escaped = (this._commentaireJour || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                h += '<textarea class="planning-commentaire-jour-input" id="jour-commentaire-input" rows="4" placeholder="Ajouter un commentaire pour cette journee...">' + escaped + '</textarea>';
+                h += '<textarea class="planning-commentaire-jour-input" id="jour-commentaire-input" rows="4" placeholder="Ajouter une consigne pour cette journee...">' + escaped + '</textarea>';
             } else {
                 var txt = this._commentaireJour || '';
                 if (txt) {
                     var display = txt.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
                     h += '<div class="planning-commentaire-jour-text">' + display + '</div>';
                 } else {
-                    h += '<div class="planning-commentaire-jour-empty">Aucun commentaire pour cette journee.</div>';
+                    h += '<div class="planning-commentaire-jour-empty">Aucune consigne pour cette journee.</div>';
                 }
             }
             h += '</div>';
