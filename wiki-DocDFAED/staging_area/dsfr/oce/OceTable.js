@@ -135,27 +135,13 @@
 
             h += '</div>';
 
-            /* --- Filters --- */
+            /* --- Filters (search, priorite, checkboxes only — statut/echeance via dashboard chips) --- */
             h += '<div class="oce-filters">';
             h += '<input class="fr-input fr-input--sm" type="text" id="oce-search" placeholder="Rechercher..." value="' + this._escAttr(this._filters.search) + '" style="max-width:220px;">';
-            h += '<select class="fr-select fr-select--sm" id="oce-filter-statut" style="max-width:160px;">';
-            h += '<option value="all"' + (this._filters.statut === 'all' ? ' selected' : '') + '>Tous les statuts</option>';
-            for (var fs = 0; fs < C.statuts.length; fs++) {
-                var fst = C.statuts[fs];
-                h += '<option value="' + fst.code + '"' + (this._filters.statut === fst.code ? ' selected' : '') + '>' + fst.label + '</option>';
-            }
-            h += '</select>';
             h += '<select class="fr-select fr-select--sm" id="oce-filter-priorite" style="max-width:160px;">';
             h += '<option value="all"' + (this._filters.priorite === 'all' ? ' selected' : '') + '>Toutes priorites</option>';
             h += '<option value="normale"' + (this._filters.priorite === 'normale' ? ' selected' : '') + '>Normale</option>';
             h += '<option value="urgente"' + (this._filters.priorite === 'urgente' ? ' selected' : '') + '>Urgente</option>';
-            h += '</select>';
-            h += '<select class="fr-select fr-select--sm" id="oce-filter-echeance" style="max-width:180px;">';
-            h += '<option value="all"' + (this._filters.echeance === 'all' ? ' selected' : '') + '>Toutes echeances</option>';
-            h += '<option value="retard"' + (this._filters.echeance === 'retard' ? ' selected' : '') + '>\u26A0 En retard</option>';
-            h += '<option value="proche"' + (this._filters.echeance === 'proche' ? ' selected' : '') + '>\u23F3 Echeance proche (\u226430j)</option>';
-            h += '<option value="retard_proche"' + (this._filters.echeance === 'retard_proche' ? ' selected' : '') + '>\u26A0 En retard + proche</option>';
-            h += '<option value="ok"' + (this._filters.echeance === 'ok' ? ' selected' : '') + '>\u2705 Dans les delais (&gt;30j)</option>';
             h += '</select>';
             h += '<label class="oce-checkbox-label"><input type="checkbox" id="oce-show-cloture"' + (this._filters.showCloture ? ' checked' : '') + '> Afficher cloturees</label>';
             if (this._canEdit) {
@@ -335,21 +321,27 @@
             /* Save */
             $('#oce-save-btn').on('click', function () { self._save(); });
 
+            /* Dashboard chip: statut toggle */
+            this._$el.on('click.oce', '.oce-dash-chip[data-filter-statut]', function () {
+                var val = $(this).attr('data-filter-statut');
+                self._filters.statut = (self._filters.statut === val) ? 'all' : val;
+                self._render();
+            });
+
+            /* Dashboard chip: echeance toggle */
+            this._$el.on('click.oce', '.oce-dash-ech[data-filter-echeance]', function () {
+                var val = $(this).attr('data-filter-echeance');
+                self._filters.echeance = (self._filters.echeance === val) ? 'all' : val;
+                self._render();
+            });
+
             /* Filters */
             $('#oce-search').on('input', function () {
                 self._filters.search = $(this).val();
                 self._render();
             });
-            $('#oce-filter-statut').on('change', function () {
-                self._filters.statut = $(this).val();
-                self._render();
-            });
             $('#oce-filter-priorite').on('change', function () {
                 self._filters.priorite = $(this).val();
-                self._render();
-            });
-            $('#oce-filter-echeance').on('change', function () {
-                self._filters.echeance = $(this).val();
                 self._render();
             });
             $('#oce-show-cloture').on('change', function () {
