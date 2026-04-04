@@ -63,7 +63,8 @@
             'components/Toggle',
             'components/Tooltip',
             'components/Transcription',
-            'components/Upload'
+            'components/Upload',
+            'EasterEgg'
         ];
 
         var allModules = localModules.concat(sharedModules);

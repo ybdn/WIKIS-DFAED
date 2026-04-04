@@ -414,6 +414,9 @@
 
 
 /* --- Séparateurs de groupes par rôle --- */
+.planning-role-separator {
+    cursor: pointer;
+}
 .planning-role-separator td {
     background: #eef0fb !important;
     color: #000091;
@@ -427,7 +430,20 @@
     border-bottom: 1px solid #c5caf5 !important;
     height: 26px !important;
     min-width: 0 !important;
-    pointer-events: none;
+}
+.planning-role-toggle {
+    display: inline-block;
+    font-size: 0.65rem;
+    margin-right: 0.4rem;
+    color: #000091;
+}
+
+/* Colonnes heures du service journalier — plus compactes */
+#jour-table th:not(.planning-col-agent),
+#jour-table td:not(.planning-col-agent) {
+    min-width: 32px;
+    padding-left: 0.2rem;
+    padding-right: 0.2rem;
 }
 
 /* --- Personnel management --- */

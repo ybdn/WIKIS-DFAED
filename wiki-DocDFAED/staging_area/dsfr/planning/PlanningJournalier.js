@@ -48,6 +48,7 @@
         _$selectionBadge: null,
         _ignoreNextClick: false,
         _commentaireJour: '',
+        _collapsedRoles: {},
 
         /* ============================================================= */
         /*  INIT                                                          */
@@ -300,11 +301,16 @@
                 var agent = this._personnel[p];
                 var agentRole = agent.role || 'experts';
                 if (agentRole !== prevRoleJour) {
-                    h += '<tr class="planning-role-separator"><td colspan="' + (HEURES.length + 1) + '">' + (ROLE_LABELS_JOUR[agentRole] || agentRole) + '</td></tr>';
+                    var chevronJour = this._collapsedRoles[agentRole] ? '\u25BA' : '\u25BC';
+                    h += '<tr class="planning-role-separator" data-role-key="' + agentRole + '">' +
+                         '<td colspan="' + (HEURES.length + 1) + '">' +
+                         '<span class="planning-role-toggle">' + chevronJour + '</span> ' +
+                         (ROLE_LABELS_JOUR[agentRole] || agentRole) + '</td></tr>';
                     prevRoleJour = agentRole;
                 }
                 var agentData = this._data[agent.id] || {};
-                h += '<tr><td class="planning-col-agent">' + (agent.grade ? agent.grade + ' ' : '') + agent.nom + '</td>';
+                var rowStyleJour = this._collapsedRoles[agentRole] ? ' style="display:none"' : '';
+                h += '<tr data-role-key="' + agentRole + '"' + rowStyleJour + '><td class="planning-col-agent">' + (agent.grade ? agent.grade + ' ' : '') + agent.nom + '</td>';
                 for (var j = 0; j < HEURES.length; j++) {
                     var hKey = D.pad(HEURES[j]);
                     var code = agentData[hKey] || '';
@@ -408,6 +414,15 @@
             $('#jour-next').on('click', function () { self._navigate(1); });
             $('#jour-save-btn').on('click', function () { self.save(); });
             $('#planning-jour-print').on('click', function () { window.print(); });
+
+            this._$el.on('click', '.planning-role-separator', function () {
+                var role = $(this).data('role-key');
+                self._collapsedRoles[role] = !self._collapsedRoles[role];
+                self._$el.find('tr[data-role-key="' + role + '"]:not(.planning-role-separator)')
+                    .toggle(!self._collapsedRoles[role]);
+                $(this).find('.planning-role-toggle')
+                    .text(self._collapsedRoles[role] ? '\u25BA' : '\u25BC');
+            });
 
             if (this._isGestion) {
                 this._$el.on('input', '#jour-commentaire-input', function () {

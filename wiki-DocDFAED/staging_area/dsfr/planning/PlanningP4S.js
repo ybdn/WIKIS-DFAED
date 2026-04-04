@@ -45,6 +45,7 @@
         _selectedCells: [],
         _$selectionBadge: null,
         _ignoreNextClick: false,
+        _collapsedRoles: {},
 
         /* ============================================================= */
         /*  INIT                                                          */
@@ -331,11 +332,16 @@
                 var agent = this._personnel[p];
                 var agentRole = agent.role || 'experts';
                 if (agentRole !== prevRoleP4S) {
-                    h += '<tr class="planning-role-separator"><td colspan="' + (days + 1) + '">' + (ROLE_LABELS_P4S[agentRole] || agentRole) + '</td></tr>';
+                    var chevronP4S = this._collapsedRoles[agentRole] ? '\u25BA' : '\u25BC';
+                    h += '<tr class="planning-role-separator" data-role-key="' + agentRole + '">' +
+                         '<td colspan="' + (days + 1) + '">' +
+                         '<span class="planning-role-toggle">' + chevronP4S + '</span> ' +
+                         (ROLE_LABELS_P4S[agentRole] || agentRole) + '</td></tr>';
                     prevRoleP4S = agentRole;
                 }
                 var agentData = this._data[agent.id] || {};
-                h += '<tr><td class="planning-col-agent">' + (agent.grade ? agent.grade + ' ' : '') + agent.nom + '</td>';
+                var rowStyleP4S = this._collapsedRoles[agentRole] ? ' style="display:none"' : '';
+                h += '<tr data-role-key="' + agentRole + '"' + rowStyleP4S + '><td class="planning-col-agent">' + (agent.grade ? agent.grade + ' ' : '') + agent.nom + '</td>';
                 for (var d2 = 1; d2 <= days; d2++) {
                     var code = agentData['' + d2] || '';
                     var mission = this._getMission(code);
@@ -435,6 +441,15 @@
             $('#p4s-next').on('click', function () { self._navigate(1); });
             $('#p4s-save-btn').on('click', function () { self.save(); });
             $('#planning-p4s-print').on('click', function () { window.print(); });
+
+            this._$el.on('click', '.planning-role-separator', function () {
+                var role = $(this).data('role-key');
+                self._collapsedRoles[role] = !self._collapsedRoles[role];
+                self._$el.find('tr[data-role-key="' + role + '"]:not(.planning-role-separator)')
+                    .toggle(!self._collapsedRoles[role]);
+                $(this).find('.planning-role-toggle')
+                    .text(self._collapsedRoles[role] ? '\u25BA' : '\u25BC');
+            });
 
             if (this._isGestion) {
                 this._$el.on('mousedown', '.planning-cell.editable', function (e) {
