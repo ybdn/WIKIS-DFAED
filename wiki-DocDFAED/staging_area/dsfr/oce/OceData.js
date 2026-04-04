@@ -19,7 +19,7 @@
     function readPage(pageTitle, callback) {
         $.ajax({
             url: mw.config.get('wgScript'),
-            data: { title: pageTitle, action: 'raw' },
+            data: { title: pageTitle, action: 'raw', maxage: 0, smaxage: 0 },
             dataType: 'text',
             success: function (text) {
                 try {
