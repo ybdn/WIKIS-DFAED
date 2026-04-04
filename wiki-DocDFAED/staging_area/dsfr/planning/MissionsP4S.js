@@ -10,12 +10,20 @@
  *   fg    : Couleur du texte (hexadecimal)
  */
 window.PlanningMissionsP4S = [
-    { code: "",   label: "(vide)",         bg: "#FFFFFF", fg: "#3a3a3a" },
-    { code: "M",  label: "Matin",          bg: "#E8EDFF", fg: "#000091" },
-    { code: "AM", label: "Apres-midi",     bg: "#FFE8D4", fg: "#716043" },
-    { code: "WE", label: "Week-end",       bg: "#FFD4D8", fg: "#910000" },
-    { code: "R",  label: "Repos",          bg: "#B8FEC9", fg: "#18753C" },
-    { code: "RR", label: "Repos retard",   bg: "#B8FEC9", fg: "#18753C" },
-    { code: "P",  label: "Permissions",    bg: "#B8FEC9", fg: "#18753C" },
-    { code: "F",  label: "Formation",      bg: "#B8FEC9", fg: "#18753C" }
+    { code: "",   label: "(vide)",                  bg: "#FFFFFF", fg: "#3a3a3a" },
+/* PERMANENCES */    
+    { code: "M",  label: "Matin",                   bg: "#E8EDFF", fg: "#000091" },
+    { code: "AM", label: "Apres-midi",              bg: "#FFE8D4", fg: "#716043" },
+    { code: "WE", label: "Week-end",                bg: "#FFD4D8", fg: "#910000" },
+/* ABSENCES */
+    { code: "R",  label: "Repos",                   bg: "#B8FEC9", fg: "#18753C" },
+    { code: "RR", label: "Repos retard",            bg: "#B8FEC9", fg: "#18753C" },
+    { code: "P",  label: "Permissions",             bg: "#B8FEC9", fg: "#18753C" },
+    { code: "PM",  label: "Permission matin",       bg: "#B8FEC9", fg: "#18753C" },
+    { code: "PAM",  label: "Permission après-midi", bg: "#B8FEC9", fg: "#18753C" },
+    { code: "CM",  label: "Congé maladie",          bg: "#B8FEC9", fg: "#18753C" },
+/* FORMATION */
+    { code: "F",  label: "Formation",               bg: "#B8FEC9", fg: "#18753C" },
+    { code: "TIR", label: "Tir",                    bg: "#B8FEC9", fg: "#18753C" },
+    { code: "OPJ", label: "OPJ",                    bg: "#B8FEC9", fg: "#18753C" }
 ];
