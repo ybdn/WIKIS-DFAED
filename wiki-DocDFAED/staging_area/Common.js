@@ -152,6 +152,8 @@
                     s.type = 'text/javascript';
                     s.src = apiPath + '?title=MediaWiki:Dsfr/' + m + '.js&action=raw&ctype=text/javascript';
                 }
+                s.onload = function() { console.log('[DSFR] Planning module loaded: ' + m); };
+                s.onerror = function() { console.error('[DSFR] FAILED to load planning module: ' + m + ' — verifiez que la page MediaWiki:Dsfr/' + m + '.js existe'); };
                 document.head.appendChild(s);
             });
         }

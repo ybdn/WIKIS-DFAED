@@ -14,28 +14,67 @@
 
     var attempts = 0;
     var maxAttempts = 300; // 15s
+    var loadingShown = false;
+
+    function showLoadingIndicator() {
+        if (loadingShown) return;
+        loadingShown = true;
+        var $ct = document.getElementById('mw-content-text');
+        if ($ct) {
+            $ct.innerHTML = '<div style="text-align:center;padding:3rem;">' +
+                '<div style="font-size:1.1rem;color:#666;margin-bottom:0.5rem;">Chargement du module Planning...</div>' +
+                '<div style="color:#999;font-size:0.8rem;">Si ce message persiste, verifiez la console (F12).</div>' +
+                '</div>';
+        }
+    }
+
+    function getMissing() {
+        var deps = [
+            ['jQuery', !!window.jQuery],
+            ['mw', !!(window.mw && window.mw.config)],
+            ['PlanningData', !!window.PlanningData],
+            ['PlanningMissionsP4S', !!window.PlanningMissionsP4S],
+            ['PlanningMissionsJournalier', !!window.PlanningMissionsJournalier],
+            ['PlanningP4S', !!window.PlanningP4S],
+            ['PlanningJournalier', !!window.PlanningJournalier],
+            ['PlanningPersonnel', !!window.PlanningPersonnel]
+        ];
+        var missing = [];
+        for (var i = 0; i < deps.length; i++) {
+            if (!deps[i][1]) missing.push(deps[i][0]);
+        }
+        return missing;
+    }
 
     function tryMount() {
-        var ready = window.jQuery &&
-                    window.mw &&
-                    window.mw.config &&
-                    window.PlanningData &&
-                    window.PlanningMissionsP4S &&
-                    window.PlanningMissionsJournalier &&
-                    window.PlanningP4S &&
-                    window.PlanningJournalier &&
-                    window.PlanningPersonnel;
+        var missing = getMissing();
+        var ready = missing.length === 0;
 
         if (!ready) {
             attempts++;
+            if (attempts === 20) {
+                /* Apres 1s, afficher un indicateur de chargement */
+                showLoadingIndicator();
+                console.log('[Planning] Attente des dependances... Manquantes: ' + missing.join(', '));
+            }
             if (attempts < maxAttempts) {
                 setTimeout(tryMount, 50);
             } else {
-                console.error('[Planning] Timeout — dependances non chargees.');
+                console.error('[Planning] Timeout apres 15s — dependances manquantes: ' + missing.join(', '));
+                var $ct = document.getElementById('mw-content-text');
+                if ($ct) {
+                    $ct.innerHTML = '<div class="fr-alert fr-alert--error" style="margin:2rem 0;">' +
+                        '<h3 class="fr-alert__title">Erreur de chargement</h3>' +
+                        '<p>Le module Planning n\'a pas pu charger toutes ses dependances.</p>' +
+                        '<p><strong>Modules manquants :</strong> ' + missing.join(', ') + '</p>' +
+                        '<p>Verifiez que les pages <code>MediaWiki:Dsfr/planning/*.js</code> existent en preprod.</p>' +
+                        '</div>';
+                }
             }
             return;
         }
 
+        console.log('[Planning] Toutes les dependances chargees (' + attempts + ' tentatives).');
         $(function () { mountApp(); });
     }
 

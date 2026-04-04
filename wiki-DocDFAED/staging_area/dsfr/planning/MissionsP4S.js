@@ -17,5 +17,5 @@ window.PlanningMissionsP4S = [
     { code: "R",  label: "Repos",          bg: "#B8FEC9", fg: "#18753C" },
     { code: "RR", label: "Repos retard",   bg: "#B8FEC9", fg: "#18753C" },
     { code: "P",  label: "Permissions",    bg: "#B8FEC9", fg: "#18753C" },
-    { code: "F",  label: "Formation",      bg: "#B8FEC9", fg: "#18753C" },
+    { code: "F",  label: "Formation",      bg: "#B8FEC9", fg: "#18753C" }
 ];
