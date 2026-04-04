@@ -155,6 +155,31 @@
                 document.head.appendChild(s);
             });
         }
+
+        /* ----------------------------------------------------------- */
+        /*  OCE — chargement conditionnel (pages OCE:*)                 */
+        /* ----------------------------------------------------------- */
+        if (currentPage.indexOf('OCE:') === 0) {
+            var oceModules = [
+                'oce/OceConfig',
+                'oce/OceData',
+                'oce/OceTable',
+                'oce/OceForm',
+                'oce/OceStats',
+                'oce/OceApp'
+            ];
+            console.log('[DSFR] Loading OCE modules (' + oceModules.length + ')');
+            oceModules.forEach(function(m) {
+                var s = document.createElement('script');
+                if (isLocal) {
+                    s.src = '/staging_area/dsfr/' + m + '.js?v=' + Date.now();
+                } else {
+                    s.type = 'text/javascript';
+                    s.src = apiPath + '?title=MediaWiki:Dsfr/' + m + '.js&action=raw&ctype=text/javascript';
+                }
+                document.head.appendChild(s);
+            });
+        }
     });
 
 }());
