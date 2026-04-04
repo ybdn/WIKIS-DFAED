@@ -1,7 +1,8 @@
 /* SOURCE FILE FOR: [[MediaWiki:Dsfr/oce/OceStats.js]] */
 /**
  * Statistiques OCE — tableau agents x mois.
- * Comptage par date de reception (mois d'attribution).
+ * Toggle entre volume OCE et volume cliches.
+ * Comptage base sur dateArriveeOrdonnance (mois d'attribution).
  * Inclut OCE actives + archivees de l'annee selectionnee.
  * Uniquement visible en mode Gestion.
  */
@@ -18,6 +19,7 @@
         _data: null,
         _personnel: [],
         _year: new Date().getFullYear(),
+        _mode: 'oce', // 'oce' ou 'cliches'
 
         /* ============================================================= */
         /*  INIT                                                          */
@@ -28,6 +30,7 @@
             this._data = data;
             this._personnel = personnel;
             this._year = new Date().getFullYear();
+            this._mode = 'oce';
             this._render();
         },
 
@@ -43,6 +46,7 @@
 
         _render: function () {
             var self = this;
+            var isClichesMode = (this._mode === 'cliches');
 
             /* Merge active + archived OCE */
             var allOce = (this._data.oce || []).concat(this._data.archive || []);
@@ -66,30 +70,39 @@
 
             for (var i = 0; i < allOce.length; i++) {
                 var oce = allOce[i];
-                if (!oce.dateReception) continue;
-                var parts = oce.dateReception.split('-');
+                var dateRef = oce.dateArriveeOrdonnance || oce.dateReception || '';
+                if (!dateRef) continue;
+                var parts = dateRef.split('-');
                 var y = parseInt(parts[0], 10);
                 var m = parseInt(parts[1], 10) - 1; // 0-indexed
                 if (y !== this._year) continue;
                 if (!oce.agent) continue;
 
+                var val = isClichesMode ? (parseInt(oce.nbCliches, 10) || 0) : 1;
+
                 /* Toujours compter dans les totaux */
-                monthTotals[m]++;
+                monthTotals[m] += val;
 
                 /* Compter par agent (actifs seulement dans les lignes) */
                 if (!stats[oce.agent]) {
                     stats[oce.agent] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
                 }
-                stats[oce.agent][m]++;
+                stats[oce.agent][m] += val;
             }
 
-            /* Year selector */
+            /* Header + toggle */
             var h = '<div class="oce-stats-header">';
             h += '<h4>Statistiques OCE</h4>';
+            h += '<div class="oce-stats-controls">';
+            h += '<div class="oce-stats-toggle">';
+            h += '<button class="oce-stats-toggle-btn' + (!isClichesMode ? ' active' : '') + '" data-mode="oce">OCE</button>';
+            h += '<button class="oce-stats-toggle-btn' + (isClichesMode ? ' active' : '') + '" data-mode="cliches">Cliches</button>';
+            h += '</div>';
             h += '<div class="oce-stats-nav">';
             h += '<button class="fr-btn fr-btn--sm fr-btn--tertiary" id="oce-stats-prev">\u25C0</button>';
             h += '<span class="oce-stats-year" id="oce-stats-year">' + this._year + '</span>';
             h += '<button class="fr-btn fr-btn--sm fr-btn--tertiary" id="oce-stats-next">\u25B6</button>';
+            h += '</div>';
             h += '</div>';
             h += '</div>';
 
@@ -113,9 +126,9 @@
                 h += '<tr>';
                 h += '<td class="oce-stats-agent-col">' + this._esc(agent.nom) + '</td>';
                 for (var m3 = 0; m3 < 12; m3++) {
-                    var val = row[m3];
-                    total += val;
-                    h += '<td class="' + (val > 0 ? 'oce-stats-has-value' : '') + '">' + (val > 0 ? val : '') + '</td>';
+                    var v = row[m3];
+                    total += v;
+                    h += '<td class="' + (v > 0 ? 'oce-stats-has-value' : '') + '">' + (v > 0 ? v : '') + '</td>';
                 }
                 h += '<td class="oce-stats-total-col">' + (total > 0 ? '<strong>' + total + '</strong>' : '') + '</td>';
                 h += '</tr>';
@@ -135,7 +148,8 @@
             h += '</tbody></table>';
             h += '</div>';
 
-            h += '<p class="oce-stats-footnote">Comptage base sur la date de reception.</p>';
+            var modeLabel = isClichesMode ? 'nombre de cliches' : 'nombre d\'OCE';
+            h += '<p class="oce-stats-footnote">Comptage base sur la date d\'arrivee de l\'ordonnance (' + modeLabel + ').</p>';
 
             this._$el.html(h);
             this._bindEvents();
@@ -156,6 +170,14 @@
             $('#oce-stats-next').on('click', function () {
                 self._year++;
                 self._render();
+            });
+
+            this._$el.on('click', '.oce-stats-toggle-btn', function () {
+                var mode = $(this).attr('data-mode');
+                if (mode !== self._mode) {
+                    self._mode = mode;
+                    self._render();
+                }
             });
         },
 

@@ -57,7 +57,7 @@
 
     window.OceData = {
 
-        /** Charge toutes les OCE (actives + archive) */
+        /** Charge toutes les OCE (actives + archive) avec migration auto */
         load: function (cb) {
             readPage(DATA_PAGE, function (err, data) {
                 if (!data) {
@@ -65,6 +65,18 @@
                 }
                 if (!data.oce) data.oce = [];
                 if (!data.archive) data.archive = [];
+                /* Migration: dateReception -> dateArriveeOrdonnance */
+                var lists = [data.oce, data.archive];
+                for (var l = 0; l < lists.length; l++) {
+                    for (var i = 0; i < lists[l].length; i++) {
+                        var o = lists[l][i];
+                        if (o.dateReception && !o.dateArriveeOrdonnance) {
+                            o.dateArriveeOrdonnance = o.dateReception;
+                            delete o.dateReception;
+                        }
+                        if (o.nbCliches === undefined) o.nbCliches = 0;
+                    }
+                }
                 cb(null, data);
             });
         },

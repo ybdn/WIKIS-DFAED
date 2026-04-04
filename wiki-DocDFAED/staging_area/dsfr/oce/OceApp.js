@@ -122,16 +122,16 @@
         html += '<button class="oce-tab active" data-panel="oce-suivi-panel">Suivi</button>';
         if (canEdit) {
             html += '<button class="oce-tab" data-panel="oce-personnel-panel">Personnel</button>';
-            html += '<button class="oce-tab" data-panel="oce-stats-panel">Statistiques</button>';
         }
+        html += '<button class="oce-tab" data-panel="oce-stats-panel">Statistiques</button>';
         html += '</div>';
 
         /* Panels */
         html += '<div class="oce-panel active" id="oce-suivi-panel"></div>';
         if (canEdit) {
             html += '<div class="oce-panel" id="oce-personnel-panel"></div>';
-            html += '<div class="oce-panel" id="oce-stats-panel"></div>';
         }
+        html += '<div class="oce-panel" id="oce-stats-panel"></div>';
 
         html += '</div>';
         $content.html(html);
@@ -148,16 +148,16 @@
         /* --- Init table (suivi) --- */
         window.OceTable.init($('#oce-suivi-panel'), data, personnel, canEdit, function () {
             /* On dirty change — refresh stats */
-            if (canEdit) {
-                window.OceStats.refresh(window.OceTable.getData(), personnel);
-            }
+            window.OceStats.refresh(window.OceTable.getData(), personnel);
         });
 
         /* --- Init personnel panel (gestion only) --- */
         if (canEdit) {
             initPersonnelPanel($('#oce-personnel-panel'), personnel, data);
-            window.OceStats.init($('#oce-stats-panel'), data, personnel);
         }
+
+        /* --- Init stats (consultation et gestion) --- */
+        window.OceStats.init($('#oce-stats-panel'), data, personnel);
 
         console.log('[OCE] App mounted — ' + (data.oce || []).length + ' OCE actives, ' + (data.archive || []).length + ' archivees.');
     }

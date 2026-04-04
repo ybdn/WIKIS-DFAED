@@ -62,7 +62,7 @@
 
             /* --- Counters --- */
             var allOce = this._data.oce || [];
-            var counts = { total: allOce.length, en_attente: 0, en_cours: 0, termine: 0, cloture: 0 };
+            var counts = { total: allOce.length, en_attente: 0, pret: 0, en_cours: 0, termine: 0, cloture: 0 };
             var echCounts = { retard: 0, proche: 0, ok: 0 };
             for (var c = 0; c < allOce.length; c++) {
                 var st = allOce[c].statut || 'en_attente';
@@ -172,10 +172,8 @@
                 h += '<div class="oce-table-wrapper">';
                 h += '<table class="oce-table">';
                 h += '<thead><tr>';
-                h += '<th>N\u00B0 OCE</th><th>Delivre par</th><th>Objet</th><th>Reception</th><th>Echeance</th><th>Statut</th><th>Priorite</th>';
-                if (this._canEdit) {
-                    h += '<th style="min-width:120px;">Actions</th>';
-                }
+                h += '<th>N\u00B0 OCE</th><th>Delivre par</th><th>Objet</th><th>Ordonnance</th><th>Images</th><th>Echeance</th><th>Cliches</th><th>Statut</th><th>Priorite</th>';
+                h += '<th class="oce-col-actions-header">Actions</th>';
                 h += '</tr></thead>';
                 h += '<tbody>';
 
@@ -196,39 +194,68 @@
                     h += '<td class="oce-col-numero"><strong>' + this._esc(oce.numero) + '</strong></td>';
                     h += '<td>' + this._esc(oce.delivrePar || '') + '</td>';
                     h += '<td class="oce-col-objet">' + this._esc(oce.objet || '') + '</td>';
-                    h += '<td>' + C.formatDate(oce.dateReception) + '</td>';
+                    h += '<td>' + C.formatDate(oce.dateArriveeOrdonnance) + '</td>';
+                    h += '<td>' + (oce.dateArriveeImages ? C.formatDate(oce.dateArriveeImages) : '<span class="oce-date-missing">\u2014</span>') + '</td>';
                     h += '<td class="' + echClass + '" title="' + echTitle + '">' + C.formatDate(oce.dateEcheance) + '</td>';
+                    h += '<td class="oce-col-cliches">' + (oce.nbCliches || 0) + '</td>';
                     h += '<td><span class="fr-badge ' + statutObj.badge + ' fr-badge--sm">' + statutObj.label + '</span></td>';
                     h += '<td>' + (oce.priorite === 'urgente' ? '<span class="fr-badge fr-badge--error fr-badge--sm fr-badge--no-icon">Urgente</span>' : 'Normale') + '</td>';
 
-                    if (this._canEdit) {
-                        h += '<td class="oce-col-actions">';
-                        if (!isArchived) {
-                            h += '<button class="fr-btn fr-btn--sm fr-btn--tertiary oce-edit-btn" title="Modifier">\u270F\uFE0F</button> ';
-                            h += '<select class="fr-select fr-select--sm oce-statut-select" style="max-width:110px;">';
-                            for (var ss = 0; ss < C.statuts.length; ss++) {
-                                h += '<option value="' + C.statuts[ss].code + '"' + (oce.statut === C.statuts[ss].code ? ' selected' : '') + '>' + C.statuts[ss].label + '</option>';
+                    /* --- Actions column --- */
+                    h += '<td class="oce-col-actions">';
+                    if (isArchived) {
+                        h += '<span style="color:#929292;font-style:italic;">Archivee</span>';
+                    } else if (this._canEdit) {
+                        /* Mode gestion : ligne compacte */
+                        h += '<div class="oce-actions-row">';
+                        h += '<button class="fr-btn fr-btn--sm fr-btn--tertiary oce-edit-btn" title="Modifier">\u270F\uFE0F</button>';
+                        h += '<select class="fr-select fr-select--sm oce-statut-select">';
+                        for (var ss = 0; ss < C.statuts.length; ss++) {
+                            h += '<option value="' + C.statuts[ss].code + '"' + (oce.statut === C.statuts[ss].code ? ' selected' : '') + '>' + C.statuts[ss].label + '</option>';
+                        }
+                        h += '</select>';
+                        if (oce.statut === 'cloture') {
+                            h += '<button class="fr-btn fr-btn--sm fr-btn--tertiary oce-archive-btn" title="Archiver">\uD83D\uDCE6</button>';
+                        }
+                        if (oce.historique && oce.historique.length > 0) {
+                            h += '<button class="fr-btn fr-btn--sm fr-btn--tertiary oce-histo-btn" title="Historique">\uD83D\uDCCB</button>';
+                        }
+                        h += '</div>';
+                    } else {
+                        /* Mode consultation : dropdown limite */
+                        var canChangeConsult = (oce.statut === 'pret' || oce.statut === 'en_cours' || oce.statut === 'termine');
+                        if (canChangeConsult) {
+                            h += '<div class="oce-actions-row">';
+                            h += '<select class="fr-select fr-select--sm oce-statut-select">';
+                            var consultStatuts = C.statutsConsultation;
+                            /* Option actuelle si elle n'est pas dans la liste consultation (ex: pret) */
+                            if (oce.statut === 'pret') {
+                                h += '<option value="pret" selected>Pret</option>';
+                            }
+                            for (var cs = 0; cs < consultStatuts.length; cs++) {
+                                var cCode = consultStatuts[cs];
+                                var cObj = C.getStatut(cCode);
+                                h += '<option value="' + cCode + '"' + (oce.statut === cCode ? ' selected' : '') + '>' + cObj.label + '</option>';
                             }
                             h += '</select>';
-                            if (oce.statut === 'cloture') {
-                                h += ' <button class="fr-btn fr-btn--sm fr-btn--tertiary oce-archive-btn" title="Archiver">\uD83D\uDCE6</button>';
+                            if (oce.historique && oce.historique.length > 0) {
+                                h += '<button class="fr-btn fr-btn--sm fr-btn--tertiary oce-histo-btn" title="Historique">\uD83D\uDCCB</button>';
                             }
+                            h += '</div>';
                         } else {
-                            h += '<span style="color:#929292;font-style:italic;">Archivee</span>';
+                            /* Statut non modifiable en consultation (en_attente, cloture) */
+                            if (oce.historique && oce.historique.length > 0) {
+                                h += '<button class="fr-btn fr-btn--sm fr-btn--tertiary oce-histo-btn" title="Historique">\uD83D\uDCCB</button>';
+                            }
                         }
-                        /* Historique toggle (gestion only) */
-                        if (!isArchived && oce.historique && oce.historique.length > 0) {
-                            h += ' <button class="fr-btn fr-btn--sm fr-btn--tertiary oce-histo-btn" title="Historique">\uD83D\uDCCB</button>';
-                        }
-                        h += '</td>';
                     }
+                    h += '</td>';
                     h += '</tr>';
 
                     /* Historique row (hidden by default) */
-                    if (this._canEdit && oce.historique && oce.historique.length > 0) {
-                        var colSpan = this._canEdit ? 8 : 7;
+                    if (oce.historique && oce.historique.length > 0) {
                         h += '<tr class="oce-histo-row" data-histo-for="' + this._escAttr(oce.numero) + '" style="display:none;">';
-                        h += '<td colspan="' + colSpan + '" class="oce-histo-cell">';
+                        h += '<td colspan="10" class="oce-histo-cell">';
                         h += '<div class="oce-histo-content">';
                         h += '<strong>Historique :</strong><br>';
                         for (var hh = oce.historique.length - 1; hh >= 0; hh--) {
@@ -301,7 +328,7 @@
 
             if (this._filters.search) {
                 var q = this._filters.search.toLowerCase();
-                var haystack = (oce.numero + ' ' + (oce.objet || '') + ' ' + (oce.delivrePar || '') + ' ' + (oce.agent || '') + ' ' + (oce.commentaire || '')).toLowerCase();
+                var haystack = (oce.numero + ' ' + (oce.objet || '') + ' ' + (oce.delivrePar || '') + ' ' + (oce.agent || '') + ' ' + (oce.commentaire || '') + ' ' + (oce.nbCliches || '')).toLowerCase();
                 if (haystack.indexOf(q) === -1) return false;
             }
 
@@ -377,7 +404,7 @@
                 });
             });
 
-            /* Statut change */
+            /* Statut change (gestion et consultation) */
             this._$el.on('change.oce', '.oce-statut-select', function () {
                 var numero = $(this).closest('tr').data('numero');
                 var newStatut = $(this).val();
@@ -388,7 +415,14 @@
                 if (newStatut !== oldStatut) {
                     window.OceData.addHistorique(oce, 'Statut', oldStatut, newStatut);
                     oce.statut = newStatut;
-                    self._markDirty();
+                    if (self._canEdit) {
+                        self._markDirty();
+                    } else {
+                        /* Consultation : sauvegarde immediate */
+                        window.OceData.save(self._data, function (err) {
+                            if (err) alert('Erreur : ' + err);
+                        });
+                    }
                     self._render();
                 }
             });

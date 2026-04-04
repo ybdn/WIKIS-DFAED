@@ -7,10 +7,17 @@ window.OceConfig = {
 
     statuts: [
         { code: 'en_attente', label: 'En attente',  badge: 'fr-badge--info',    bg: '#E8EDFF', fg: '#000091' },
+        { code: 'pret',       label: 'Pret',        badge: 'fr-badge--new',     bg: '#E3E3FD', fg: '#000091' },
         { code: 'en_cours',   label: 'En cours',    badge: 'fr-badge--warning', bg: '#FEF7DA', fg: '#716043' },
         { code: 'termine',    label: 'Termine',     badge: 'fr-badge--success', bg: '#B8FEC9', fg: '#18753C' },
         { code: 'cloture',    label: 'Cloture',     badge: 'fr-badge--new',     bg: '#E5E5E5', fg: '#3A3A3A' }
     ],
+
+    /** Statuts modifiables en consultation (agents) */
+    statutsConsultation: ['en_cours', 'termine'],
+
+    /** Statuts modifiables en gestion uniquement */
+    statutsGestion: ['en_attente', 'pret', 'en_cours', 'termine', 'cloture'],
 
     priorites: [
         { code: 'normale', label: 'Normale' },
@@ -77,5 +84,19 @@ window.OceConfig = {
             (h < 10 ? '0' : '') + h + ':' +
             (min < 10 ? '0' : '') + min + ':' +
             (sec < 10 ? '0' : '') + sec;
+    },
+
+    /**
+     * Calcule le statut automatique d'une OCE en fonction des dates.
+     * - 'en_attente' si dateArriveeImages est vide
+     * - 'pret' si les deux dates sont renseignees ET statut actuel est en_attente
+     * Retourne null si le statut ne doit pas changer automatiquement.
+     */
+    computeAutoStatut: function (oce) {
+        if (!oce.dateArriveeImages) return 'en_attente';
+        if (oce.dateArriveeOrdonnance && oce.dateArriveeImages) {
+            if (oce.statut === 'en_attente') return 'pret';
+        }
+        return null;
     }
 };
