@@ -32,7 +32,7 @@ window.PlanningMissionsJournalier = [
     { code: "CM",    label: "Conge maladie",                 bg: "#fce8f5", fg: "#7c0059" },
 
 /* ABSENCES */
-    { code: "R",     label: "Repos",                         bg: "#eeeeee", fg: "#666666" },
-    { code: "RR",    label: "Repos recup.",            bg: "#eeeeee", fg: "#666666" },
-    { code: "P",     label: "Permissions",                   bg: "#eeeeee", fg: "#666666" }
+    { code: "R",     label: "Repos",                         bg: "#eeeeee", fg: "#666666", absence: true },
+    { code: "RR",    label: "Repos recup.",            bg: "#eeeeee", fg: "#666666", absence: true },
+    { code: "P",     label: "Permissions",                   bg: "#eeeeee", fg: "#666666", absence: true }
 ];

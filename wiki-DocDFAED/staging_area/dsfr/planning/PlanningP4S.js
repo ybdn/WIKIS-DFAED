@@ -460,7 +460,22 @@
                 h += '<th class="' + cls + '"' + (title ? ' title="' + title + '"' : '') + '>' +
                      d + '<span class="planning-day-name">' + D.JOURS_COURTS[D.getDayOfWeek(y, m, d)] + '</span></th>';
             }
-            h += '</tr></thead>';
+            h += '</tr>';
+
+            /* Ligne stats (gestion uniquement) */
+            if (this._isGestion) {
+                h += '<tr class="planning-stats-row" id="p4s-stats-row">';
+                h += '<th class="planning-col-agent planning-stats-label">Indicateurs</th>';
+                for (var sd = 1; sd <= days; sd++) {
+                    var sCls = 'planning-stats-cell';
+                    if (D.isWeekend(y, m, sd)) sCls += ' planning-col-weekend';
+                    if (D.isHoliday(y, m, sd)) sCls += ' planning-col-holiday';
+                    h += '<td class="' + sCls + '" data-stat-day="' + sd + '">' + this._renderStatCell(sd) + '</td>';
+                }
+                h += '</tr>';
+            }
+
+            h += '</thead>';
 
             /* Body */
             var prevRoleP4S = null;
@@ -515,6 +530,47 @@
             }
             h += '</div>';
             return h;
+        },
+
+        /* --- Stats row helpers (gestion only) --- */
+        _computeStatsForDay: function (day) {
+            var dayKey = '' + day;
+            var absCount = 0, mCount = 0, amCount = 0;
+            for (var i = 0; i < this._personnel.length; i++) {
+                var agentData = this._data[this._personnel[i].id] || {};
+                var code = agentData[dayKey] || '';
+                var mission = this._getMission(code);
+                if (mission && mission.absence) absCount++;
+                if (code === 'M') mCount++;
+                if (code === 'AM') amCount++;
+            }
+            return { absCount: absCount, mCount: mCount, amCount: amCount };
+        },
+
+        _renderStatCell: function (day) {
+            var stats = this._computeStatsForDay(day);
+            var total = this._personnel.length;
+            var absPct = total > 0 ? Math.round(stats.absCount / total * 100) : 0;
+            var mCls  = 'p4s-stat-badge p4s-stat-badge-m'  + (stats.mCount  > 0 ? ' p4s-stat-badge-ok' : '');
+            var amCls = 'p4s-stat-badge p4s-stat-badge-am' + (stats.amCount > 0 ? ' p4s-stat-badge-ok' : '');
+            var absCls = 'p4s-stat-abs';
+            var isNeutral = D.isWeekend(this._year, this._month, day) || D.isHoliday(this._year, this._month, day);
+            if (!isNeutral) {
+                absCls += absPct <= 50 ? ' p4s-stat-abs-ok' : ' p4s-stat-abs-warn';
+            }
+            return '<span class="' + absCls + '">' + absPct + '%</span>' +
+                   '<span class="p4s-stat-badges">' +
+                       '<span class="' + mCls  + '">M</span>' +
+                       '<span class="' + amCls + '">AM</span>' +
+                   '</span>';
+        },
+
+        _updateStatsRow: function () {
+            var self = this;
+            this._$el.find('#p4s-stats-row td[data-stat-day]').each(function () {
+                var day = parseInt($(this).data('stat-day'), 10);
+                $(this).html(self._renderStatCell(day));
+            });
         },
 
         /* --- Counters (gestion only) --- */
@@ -933,10 +989,12 @@
                 if (!this._data[c.agent]) this._data[c.agent] = {};
                 this._data[c.agent][c.day] = code;
                 var $cell = this._$el.find('.planning-cell[data-agent="' + c.agent + '"][data-day="' + c.day + '"]');
+                var $dot = $cell.find('.planning-prevision-dot').detach();
                 $cell.text(code).css({
                     'background-color': code ? mission.bg : '',
                     'color': code ? mission.fg : ''
                 }).removeClass('planning-cell-selected');
+                if ($dot.length) $cell.append($dot);
             }
 
             this._selectedCells = [];
@@ -944,6 +1002,7 @@
             this._isDirty = true;
             this._$dropdown.hide();
             this._setSaveState('dirty');
+            this._updateStatsRow();
         },
 
         _openPrintWindow: function () {
@@ -1001,10 +1060,9 @@
                 '.planning-table {',
                 '    width: 100%;',
                 '    border-collapse: collapse;',
-                '    font-size: 7pt;',
+                '    font-size: 6.5pt;',
                 '    page-break-inside: auto;',
                 '    table-layout: fixed;',
-                '    font-size: 6.5pt;',
                 '}',
                 '.planning-table th, .planning-table td {',
                 '    border: 1px solid #ccc;',
@@ -1070,6 +1128,7 @@
                 '    font-weight: 600;',
                 '    border: 1px solid rgba(0,0,0,0.1);',
                 '}',
+                '.planning-stats-row { display: none !important; }',
                 '.planning-cell-tooltip, .planning-role-toggle { display: none !important; }',
                 'tr { display: table-row !important; }',
                 '.planning-cell.has-comment::after {',
@@ -1169,7 +1228,7 @@
                     self._data[agentId]['' + d] = prevCode;
                     if (self._previsionData[agentId]) delete self._previsionData[agentId]['' + d];
                     var $cell = self._$el.find('.planning-cell[data-agent="' + agentId + '"][data-day="' + d + '"]');
-                    $cell.html(prevCode).css({ 'background-color': m.bg, 'color': m.fg });
+                    $cell.text(prevCode).css({ 'background-color': m.bg, 'color': m.fg });
                 }
                 self._isDirty = true;
                 self._setSaveState('dirty');

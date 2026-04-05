@@ -384,7 +384,7 @@
         _buildCounters: function () {
             var activeCodes = [];
             for (var i = 0; i < this._missions.length; i++) {
-                if (this._missions[i].code) activeCodes.push(this._missions[i]);
+                if (this._missions[i].code && !this._missions[i].absence) activeCodes.push(this._missions[i]);
             }
 
             var h = '<details class="planning-counters" open>';
@@ -413,7 +413,7 @@
                         if ((agentData[hKey] || '') === activeCodes[c2].code) count++;
                     }
                     total += count;
-                    h += '<td data-sort-col="c-' + c2 + '" data-val="' + count + '">' + count + '</td>';
+                    h += '<td data-sort-col="c-' + c2 + '" data-val="' + count + '" style="background:' + activeCodes[c2].bg + ';color:' + activeCodes[c2].fg + ';">' + count + '</td>';
                 }
                 h += '<td data-sort-col="total" data-val="' + total + '"><strong>' + total + '</strong></td></tr>';
             }
@@ -787,10 +787,12 @@
                 if (!this._data[c.agent]) this._data[c.agent] = {};
                 this._data[c.agent][c.hour] = code;
                 var $cell = this._$el.find('.planning-cell[data-agent="' + c.agent + '"][data-hour="' + c.hour + '"]');
+                var $dot = $cell.find('.planning-prevision-dot').detach();
                 $cell.text(code).css({
                     'background-color': code ? mission.bg : '',
                     'color': code ? mission.fg : ''
                 }).removeClass('planning-cell-selected');
+                if ($dot.length) $cell.append($dot);
             }
 
             this._selectedCells = [];
@@ -1041,7 +1043,7 @@
                     self._data[agentId][hKey] = prevCode;
                     if (self._previsionData[agentId]) delete self._previsionData[agentId][hKey];
                     var $cell = self._$el.find('.planning-cell[data-agent="' + agentId + '"][data-hour="' + hKey + '"]');
-                    $cell.html(prevCode).css({ 'background-color': m.bg, 'color': m.fg });
+                    $cell.text(prevCode).css({ 'background-color': m.bg, 'color': m.fg });
                 }
                 self._isDirty = true;
                 self._setSaveState('dirty');

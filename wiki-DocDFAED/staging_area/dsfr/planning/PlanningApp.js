@@ -237,6 +237,17 @@
         /* --- Init tabs --- */
         $('.planning-tab').on('click', function () {
             var targetId = $(this).data('panel');
+            var targetView = (targetId === 'jour-panel')
+                ? window.PlanningJournalier
+                : window.PlanningP4S;
+
+            /* Guard : ne pas perdre les modifications non sauvegardées */
+            if (targetView && targetView._isDirty) {
+                if (!window.confirm('Des modifications non sauvegardées sur cette vue seront perdues. Continuer ?')) {
+                    return;
+                }
+            }
+
             $('.planning-tab').removeClass('active');
             $(this).addClass('active');
             $('.planning-panel').removeClass('active');
@@ -246,6 +257,11 @@
                 $('body').removeClass('planning-fullwidth');
             } else {
                 $('body').addClass('planning-fullwidth');
+            }
+
+            /* Rechargement des données à jour */
+            if (targetView && typeof targetView.loadAndRender === 'function') {
+                targetView.loadAndRender();
             }
         });
 

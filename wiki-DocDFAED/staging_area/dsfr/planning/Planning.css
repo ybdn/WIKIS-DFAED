@@ -463,6 +463,63 @@ body.planning-fullwidth #content {
     color: #000091 !important;
 }
 
+/* --- Ligne indicateurs P4S (gestion) --- */
+.planning-stats-row th,
+.planning-stats-row td {
+    background: #fafaf5;
+    padding: 2px 1px;
+    vertical-align: top;
+    position: sticky;
+    top: 36px;
+    z-index: 9;
+}
+.planning-stats-row .planning-col-agent {
+    background: #f0f0e8;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #555;
+    vertical-align: middle;
+    z-index: 14;
+}
+.planning-stats-row .planning-col-weekend {
+    background-color: #efefef !important;
+}
+.planning-stats-row .planning-col-holiday {
+    background-color: #e4eaff !important;
+}
+.planning-stats-cell {
+    text-align: center;
+}
+.p4s-stat-abs {
+    display: block;
+    font-size: 0.625rem;
+    font-weight: 700;
+    line-height: 1.5;
+    color: #666;
+    white-space: nowrap;
+}
+.p4s-stat-abs.p4s-stat-abs-ok   { color: #18753c; }
+.p4s-stat-abs.p4s-stat-abs-warn { color: #c9191e; }
+.p4s-stat-badges {
+    display: flex;
+    justify-content: center;
+    gap: 2px;
+}
+.p4s-stat-badge {
+    display: inline-block;
+    font-size: 0.5625rem;
+    font-weight: 700;
+    line-height: 1;
+    padding: 1px 3px;
+    border-radius: 2px;
+    background: #ccc;
+    color: #fff;
+    white-space: nowrap;
+}
+.p4s-stat-badge.p4s-stat-badge-ok {
+    background: #18753c;
+}
+
 /* --- Séparateurs de groupes par rôle --- */
 .planning-role-separator {
     cursor: pointer;
