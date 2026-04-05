@@ -176,13 +176,14 @@
             document.head.appendChild(link);
         }
 
+        /* --- Modify page H1 --- */
+        var $h1 = $('#firstHeading');
+        if ($h1.length) {
+            $h1.text(canEdit ? 'Planning - Gestion' : 'Planning - Consultation');
+        }
+
         /* --- Main container --- */
         var html = '<div class="planning-app" id="planning-app">';
-
-        /* Titre */
-        html += '<h2 style="margin-bottom:1rem;">';
-        html += canEdit ? 'Planning \u2014 Gestion' : 'Planning \u2014 Consultation';
-        html += '</h2>';
 
         /* Tabs */
         html += '<div class="planning-tabs">';
