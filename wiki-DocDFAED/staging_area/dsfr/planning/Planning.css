@@ -198,6 +198,30 @@ body.planning-fullwidth #content {
     box-shadow: inset 0 0 0 2px #000091;
     z-index: 2;
 }
+.planning-cell-po {
+    cursor: not-allowed;
+    opacity: 0.8;
+    font-style: italic;
+}
+
+/* --- Toast erreur SPORT --- */
+.planning-sport-error-toast {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ce0500;
+    color: #fff;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    z-index: 9999;
+    max-width: 480px;
+    text-align: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    pointer-events: none;
+}
 
 /* --- Dropdown (mission selector) --- */
 .planning-dropdown {

@@ -56,6 +56,10 @@
         _collapsedRolesP4S: {},
         _collapsedRolesJour: {},
 
+        /* Donnees de la semaine (prevision + officiel) pour contraintes SPORT */
+        _weekPrevisionData: {},
+        _weekOfficialData: {},
+
         /* Multi-selection P4S */
         _dragActive: false,
         _dragHasMoved: false,
@@ -170,8 +174,11 @@
         _loadJour: function () {
             var self = this;
             $('#prev-panel-jour').html('<div style="text-align:center;padding:2rem;color:#666;">Chargement...</div>');
-            D.loadPrevisionJournalier(self._year, self._month, self._day, function (err, data) {
-                self._dataJour = data || {};
+            self._weekPrevisionData = {};
+            self._weekOfficialData = {};
+            self._loadWeekData(function () {
+                var currentKey = self._year + '-' + D.pad(self._month) + '-' + D.pad(self._day);
+                self._dataJour = self._weekPrevisionData[currentKey] || {};
                 self._isDirtyJour = false;
                 self._renderJour();
             });
@@ -495,6 +502,9 @@
             }
             h += '</tr></thead>';
 
+            var currentKey = this._year + '-' + D.pad(this._month) + '-' + D.pad(this._day);
+            var officialToday = this._weekOfficialData[currentKey] || {};
+
             var prevRole = null;
             h += '<tbody>';
             for (var p = 0; p < this._personnel.length; p++) {
@@ -509,21 +519,33 @@
                     prevRole = agentRole;
                 }
                 var agentData = this._dataJour[agent.id] || {};
+                var agentOfficial = officialToday[agent.id] || {};
                 var rowStyle = this._collapsedRolesJour[agentRole] ? ' style="display:none"' : '';
                 h += '<tr data-role-key="' + agentRole + '"' + rowStyle + '>' +
                      '<td class="planning-col-agent">' + (agent.grade ? agent.grade + ' ' : '') + agent.nom + '</td>';
                 for (var j = 0; j < HEURES.length; j++) {
                     var hKey = D.pad(HEURES[j]);
                     var code = agentData[hKey] || '';
-                    var cellCls = 'planning-cell editable';
-                    var bg = '';
-                    var fg = '';
-                    for (var ci = 0; ci < CODES_JOUR.length; ci++) {
-                        if (CODES_JOUR[ci].code === code) { bg = CODES_JOUR[ci].bg; fg = CODES_JOUR[ci].fg; break; }
+                    var officialCode = agentOfficial[hKey] || '';
+                    var isPO = (officialCode === 'PO' && code !== 'SPORT');
+                    var cellCls, bg, fg, displayCode;
+                    if (isPO) {
+                        cellCls = 'planning-cell planning-cell-po';
+                        bg = '#f2e6fd';
+                        fg = '#6a00f4';
+                        displayCode = 'PO';
+                    } else {
+                        cellCls = 'planning-cell editable';
+                        bg = '';
+                        fg = '';
+                        displayCode = code;
+                        for (var ci = 0; ci < CODES_JOUR.length; ci++) {
+                            if (CODES_JOUR[ci].code === code) { bg = CODES_JOUR[ci].bg; fg = CODES_JOUR[ci].fg; break; }
+                        }
                     }
                     var style = bg ? 'background-color:' + bg + ';color:' + fg + ';' : '';
                     h += '<td class="' + cellCls + '" data-agent="' + agent.id + '" data-hour="' + hKey + '"' +
-                         (style ? ' style="' + style + '"' : '') + '>' + code + '</td>';
+                         (style ? ' style="' + style + '"' : '') + '>' + displayCode + '</td>';
                 }
                 h += '</tr>';
             }
@@ -765,6 +787,27 @@
             var agentId = this._activeAgentId;
             var hour = this._activeKey;
 
+            if (code === 'SPORT') {
+                var err = this._checkSportConstraints(agentId, hour);
+                if (err) {
+                    if (this._$dropdownJour) this._$dropdownJour.hide();
+                    this._showSportError(err);
+                    return;
+                }
+            }
+
+            /* Suppression : bloquer si cela creerait un bloc SPORT finissant a 18h vendredi */
+            if (!code) {
+                var dowErase = D.getDayOfWeek(this._year, this._month, this._day);
+                var hourErase = parseInt(hour, 10);
+                var agentDataErase = this._dataJour[agentId] || {};
+                if (dowErase === 5 && hourErase === 18 && agentDataErase[D.pad(17)] === 'SPORT') {
+                    if (this._$dropdownJour) this._$dropdownJour.hide();
+                    this._showSportError('Impossible de supprimer ce cr\u00e9neau\u00a0: le SPORT se terminerait \u00e0 18h le vendredi.');
+                    return;
+                }
+            }
+
             if (!this._dataJour[agentId]) this._dataJour[agentId] = {};
             if (code) {
                 this._dataJour[agentId][hour] = code;
@@ -783,6 +826,123 @@
             this._isDirtyJour = true;
             this._setSaveStateJour('dirty');
             if (this._$dropdownJour) this._$dropdownJour.hide();
+        },
+
+        /* ============================================================= */
+        /*  CONTRAINTES SPORT                                             */
+        /* ============================================================= */
+
+        _getWeekDates: function () {
+            var date = new Date(this._year, this._month - 1, this._day);
+            var dow = date.getDay(); // 0=Di, 1=Lu ... 6=Sa
+            var monday = new Date(date.getTime());
+            monday.setDate(date.getDate() - (dow === 0 ? 6 : dow - 1));
+            var dates = [];
+            for (var i = 0; i < 7; i++) {
+                var d = new Date(monday.getTime());
+                d.setDate(monday.getDate() + i);
+                var yr = d.getFullYear();
+                var mo = d.getMonth() + 1;
+                var dy = d.getDate();
+                dates.push({
+                    year: yr,
+                    month: mo,
+                    day: dy,
+                    key: yr + '-' + D.pad(mo) + '-' + D.pad(dy)
+                });
+            }
+            return dates;
+        },
+
+        _loadWeekData: function (callback) {
+            var self = this;
+            var weekDates = this._getWeekDates();
+            var pending = weekDates.length * 2;
+
+            function done() {
+                pending--;
+                if (pending === 0) callback();
+            }
+
+            for (var i = 0; i < weekDates.length; i++) {
+                (function (date) {
+                    D.loadPrevisionJournalier(date.year, date.month, date.day, function (err, data) {
+                        self._weekPrevisionData[date.key] = data || {};
+                        done();
+                    });
+                    D.loadJournalier(date.year, date.month, date.day, function (err, data) {
+                        self._weekOfficialData[date.key] = data || {};
+                        done();
+                    });
+                }(weekDates[i]));
+            }
+        },
+
+        _countWeekSport: function (agentId) {
+            var count = 0;
+            var weekDates = this._getWeekDates();
+            var currentKey = this._year + '-' + D.pad(this._month) + '-' + D.pad(this._day);
+            for (var i = 0; i < weekDates.length; i++) {
+                var key = weekDates[i].key;
+                var prevData = (key === currentKey)
+                    ? (this._dataJour[agentId] || {})
+                    : ((this._weekPrevisionData[key] || {})[agentId] || {});
+                var offData = (this._weekOfficialData[key] || {})[agentId] || {};
+                var h;
+                for (h in prevData) {
+                    if (prevData[h] === 'SPORT') count++;
+                }
+                for (h in offData) {
+                    if (offData[h] === 'SPORT') count++;
+                }
+            }
+            return count;
+        },
+
+        _checkSportConstraints: function (agentId, hourKey) {
+            var hourInt = parseInt(hourKey, 10);
+            var dow = D.getDayOfWeek(this._year, this._month, this._day);
+            var currentKey = this._year + '-' + D.pad(this._month) + '-' + D.pad(this._day);
+
+            /* Contrainte PO */
+            var officialToday = (this._weekOfficialData[currentKey] || {})[agentId] || {};
+            if (officialToday[hourKey] === 'PO') {
+                return 'Vous \u00eates en Permanence Op\u00e9rationnelle \u00e0 ce cr\u00e9neau\u00a0: impossible de poser du SPORT.';
+            }
+
+            /* Contrainte lundi : pas de SPORT avant 9h */
+            if (dow === 1 && hourInt < 9) {
+                return 'Le SPORT ne peut pas d\u00e9buter entre 7h et 9h le lundi.';
+            }
+
+            /* Contrainte vendredi : le SPORT ne peut pas se terminer a 18h
+               (= dernier creneau SPORT serait 17h, plage 17:00-18:00) */
+            if (dow === 5) {
+                var agentData = this._dataJour[agentId] || {};
+                /* Trouver le bord droit du bloc apres ajout de ce creneau */
+                var rightEnd = hourInt;
+                while (agentData[D.pad(rightEnd + 1)] === 'SPORT') { rightEnd++; }
+                if (rightEnd === 17) {
+                    return 'Le SPORT ne peut pas se terminer \u00e0 18h le vendredi (cr\u00e9neau 17h-18h interdit en fin de s\u00e9ance).';
+                }
+            }
+
+            /* Contrainte quota 2h par semaine */
+            var currentCount = this._countWeekSport(agentId);
+            var alreadySport = ((this._dataJour[agentId] || {})[hourKey] === 'SPORT');
+            if (!alreadySport && currentCount >= 2) {
+                return 'Quota de SPORT atteint\u00a0: ' + currentCount + '\u202fh d\u00e9j\u00e0 pr\u00e9vue(s) ou valid\u00e9e(s) cette semaine (maximum 2\u202fh).';
+            }
+
+            return null;
+        },
+
+        _showSportError: function (msg) {
+            var $existing = $('#planning-sport-error-toast');
+            if ($existing.length) $existing.remove();
+            var $toast = $('<div id="planning-sport-error-toast" class="planning-sport-error-toast"></div>').text(msg);
+            $('body').append($toast);
+            setTimeout(function () { $toast.fadeOut(400, function () { $toast.remove(); }); }, 4000);
         }
     };
 
