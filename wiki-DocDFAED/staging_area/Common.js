@@ -142,6 +142,7 @@
                 'planning/PlanningP4S',
                 'planning/PlanningJournalier',
                 'planning/PlanningPersonnel',
+                'planning/PlanningPrevision',
                 'planning/PlanningApp'
             ];
             console.log('[DSFR] Loading Planning modules (' + planningModules.length + ')');

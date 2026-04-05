@@ -49,6 +49,8 @@
         _ignoreNextClick: false,
         _commentaireJour: '',
         _collapsedRoles: {},
+        _previsionData: {},
+        _counterSortState: { col: null, dir: 0 },
 
         /* ============================================================= */
         /*  INIT                                                          */
@@ -83,15 +85,18 @@
             var dataDone = false;
             var commentsDone = !self._isGestion;
             var commentaireJourDone = false;
+            var previsionDone = !self._isGestion;
             var pendingData = {};
             var pendingComments = {};
             var pendingCommentaireJour = '';
+            var pendingPrevision = {};
 
             function tryRender() {
-                if (dataDone && commentsDone && commentaireJourDone) {
+                if (dataDone && commentsDone && commentaireJourDone && previsionDone) {
                     self._data = pendingData;
                     self._comments = pendingComments;
                     self._commentaireJour = pendingCommentaireJour;
+                    self._previsionData = pendingPrevision;
                     self._isDirty = false;
                     self._render();
                 }
@@ -107,6 +112,11 @@
                 D.loadCommentsJournalier(self._year, self._month, self._day, function (err, data) {
                     pendingComments = data || {};
                     commentsDone = true;
+                    tryRender();
+                });
+                D.loadPrevisionJournalier(self._year, self._month, self._day, function (err, data) {
+                    pendingPrevision = data || {};
+                    previsionDone = true;
                     tryRender();
                 });
             }
@@ -323,9 +333,11 @@
                     var fg = code ? mission.fg : '';
                     var style = bg ? 'background-color:' + bg + ';color:' + fg + ';' : '';
                     var commentAttr = comment ? ' data-comment="' + comment.replace(/"/g, '&quot;') + '"' : '';
+                    var prevCode = (this._isGestion && this._previsionData && this._previsionData[agent.id] && this._previsionData[agent.id][hKey]) ? this._previsionData[agent.id][hKey] : '';
+                    var prevDot = prevCode ? '<span class="planning-prevision-dot" title="Pr\u00e9vision\u00a0: ' + prevCode + '" data-agent="' + agent.id + '" data-hour="' + hKey + '" data-code="' + prevCode + '"></span>' : '';
                     h += '<td class="' + cellCls + '" data-agent="' + agent.id + '" data-hour="' + hKey + '"' +
                          (style ? ' style="' + style + '"' : '') + commentAttr + '>' +
-                         code + '</td>';
+                         code + prevDot + '</td>';
                 }
                 h += '</tr>';
             }
@@ -377,17 +389,23 @@
 
             var h = '<details class="planning-counters" open>';
             h += '<summary>Compteurs par personnel</summary>';
-            h += '<table class="planning-counters-table"><thead><tr><th>Agent</th>';
+            h += '<table class="planning-counters-table" id="jour-counters-table"><thead><tr>';
+            h += '<th class="planning-cth-agent planning-cth-sortable" data-sort-col="agent">';
+            h += 'Agent <span class="planning-sort-icon">\u2195</span></th>';
             for (var c = 0; c < activeCodes.length; c++) {
-                h += '<th style="background:' + activeCodes[c].bg + ';color:' + activeCodes[c].fg + ';">' + activeCodes[c].code + '</th>';
+                h += '<th class="planning-cth-sortable" data-sort-col="c-' + c + '" style="background:' + activeCodes[c].bg + ';color:' + activeCodes[c].fg + ';">';
+                h += activeCodes[c].code + ' <span class="planning-sort-icon">\u2195</span></th>';
             }
-            h += '<th>Total h</th></tr></thead><tbody>';
+            h += '<th class="planning-cth-sortable" data-sort-col="total">Total h <span class="planning-sort-icon">\u2195</span></th>';
+            h += '</tr></thead><tbody>';
 
             for (var p = 0; p < this._personnel.length; p++) {
                 var agent = this._personnel[p];
                 var agentData = this._data[agent.id] || {};
                 var total = 0;
-                h += '<tr><td>' + (agent.grade ? agent.grade + ' ' : '') + agent.nom + '</td>';
+                var agentLabel = (agent.grade ? agent.grade + ' ' : '') + agent.nom;
+                h += '<tr data-orig-idx="' + p + '">';
+                h += '<td data-val="' + agentLabel + '">' + agentLabel + '</td>';
                 for (var c2 = 0; c2 < activeCodes.length; c2++) {
                     var count = 0;
                     for (var j = 0; j < HEURES.length; j++) {
@@ -395,12 +413,72 @@
                         if ((agentData[hKey] || '') === activeCodes[c2].code) count++;
                     }
                     total += count;
-                    h += '<td>' + count + '</td>';
+                    h += '<td data-sort-col="c-' + c2 + '" data-val="' + count + '">' + count + '</td>';
                 }
-                h += '<td><strong>' + total + '</strong></td></tr>';
+                h += '<td data-sort-col="total" data-val="' + total + '"><strong>' + total + '</strong></td></tr>';
             }
             h += '</tbody></table></details>';
             return h;
+        },
+
+        _bindCounterSort: function () {
+            var self = this;
+            this._$el.on('click', '#jour-counters-table .planning-cth-sortable', function () {
+                var col = $(this).data('sort-col');
+                if (self._counterSortState.col === col) {
+                    if (self._counterSortState.dir === 1) {
+                        self._counterSortState.dir = -1;
+                    } else if (self._counterSortState.dir === -1) {
+                        self._counterSortState.dir = 0;
+                        self._counterSortState.col = null;
+                    } else {
+                        self._counterSortState.dir = 1;
+                    }
+                } else {
+                    self._counterSortState.col = col;
+                    self._counterSortState.dir = 1;
+                }
+                self._applyCounterSort();
+            });
+        },
+
+        _applyCounterSort: function () {
+            var state = this._counterSortState;
+            var $tbody = this._$el.find('#jour-counters-table tbody');
+            var rows = $tbody.find('tr').get();
+
+            if (state.dir === 0 || state.col === null) {
+                rows.sort(function (a, b) {
+                    return parseInt($(a).data('orig-idx'), 10) - parseInt($(b).data('orig-idx'), 10);
+                });
+            } else {
+                var col = state.col;
+                var dir = state.dir;
+                rows.sort(function (a, b) {
+                    var va, vb;
+                    if (col === 'agent') {
+                        va = $(a).find('td:first-child').data('val') || '';
+                        vb = $(b).find('td:first-child').data('val') || '';
+                        return dir * ('' + va).localeCompare('' + vb);
+                    }
+                    va = parseInt($(a).find('td[data-sort-col="' + col + '"]').data('val'), 10) || 0;
+                    vb = parseInt($(b).find('td[data-sort-col="' + col + '"]').data('val'), 10) || 0;
+                    return dir * (va - vb);
+                });
+            }
+
+            $tbody.empty();
+            for (var i = 0; i < rows.length; i++) { $tbody.append(rows[i]); }
+
+            /* Mise a jour des indicateurs */
+            this._$el.find('#jour-counters-table .planning-sort-icon').text('\u2195');
+            this._$el.find('#jour-counters-table .planning-cth-sortable')
+                .removeClass('planning-sort-asc planning-sort-desc');
+            if (state.dir !== 0 && state.col !== null) {
+                var $th = this._$el.find('#jour-counters-table [data-sort-col="' + state.col + '"]').first();
+                $th.addClass(state.dir === 1 ? 'planning-sort-asc' : 'planning-sort-desc');
+                $th.find('.planning-sort-icon').text(state.dir === 1 ? '\u25B2' : '\u25BC');
+            }
         },
 
         /* ============================================================= */
@@ -425,6 +503,8 @@
             });
 
             if (this._isGestion) {
+                this._bindCounterSort();
+
                 this._$el.on('input', '#jour-commentaire-input', function () {
                     self._commentaireJour = $(this).val();
                     self._isDirty = true;
@@ -512,7 +592,23 @@
                             self._lastSingleAgent = self._dragStartAgent;
                             self._lastSingleHour = self._dragStartHour;
                             self._ignoreNextClick = true;
-                            self._showDropdown($startCell);
+                            /* Si une prévision existe → dialog de validation en priorité */
+                            var agentId = self._dragStartAgent;
+                            var hourKey = self._dragStartHour;
+                            var prevCode = self._previsionData[agentId] && self._previsionData[agentId][hourKey]
+                                ? self._previsionData[agentId][hourKey] : '';
+                            if (prevCode) {
+                                var agentNom = '';
+                                for (var pi = 0; pi < self._personnel.length; pi++) {
+                                    if (self._personnel[pi].id === agentId) {
+                                        agentNom = (self._personnel[pi].grade ? self._personnel[pi].grade + ' ' : '') + self._personnel[pi].nom;
+                                        break;
+                                    }
+                                }
+                                self._openPrevisionDialog(agentId, hourKey, prevCode, agentNom);
+                            } else {
+                                self._showDropdown($startCell);
+                            }
                         }
                     }
                 });
@@ -880,6 +976,100 @@
             w.document.close();
             w.focus();
             setTimeout(function () { w.print(); w.close(); }, 400);
+        },
+
+        /* ============================================================= */
+        /*  DIALOG PREVISION                                              */
+        /* ============================================================= */
+
+        _openPrevisionDialog: function (agentId, hour, prevCode, agentNom) {
+            var self = this;
+
+            /* Detection de la plage d'heures consecutive (meme code, meme agent) */
+            var hourInt = parseInt(hour, 10);
+            var agentPrev = self._previsionData[agentId] || {};
+            var periodStartH = hourInt;
+            var periodEndH = hourInt;
+            while (periodStartH > 7  && agentPrev[D.pad(periodStartH - 1)] === prevCode) periodStartH--;
+            while (periodEndH < 20 && agentPrev[D.pad(periodEndH + 1)] === prevCode) periodEndH++;
+            var isPeriod = (periodStartH < periodEndH);
+            var periodLength = periodEndH - periodStartH + 1;
+
+            var mission = self._getMission(prevCode);
+            var missionLabel = mission.label || prevCode;
+
+            var dn = D.JOURS_COURTS[D.getDayOfWeek(self._year, self._month, self._day)];
+            var dateBase = dn + ' ' + self._day + ' ' + D.MOIS[self._month - 1] + ' ' + self._year;
+            var periodStr = isPeriod
+                ? D.pad(periodStartH) + 'h\u2013' + D.pad(periodEndH) + 'h (' + periodLength + '\u00a0h) \u2014 ' + dateBase
+                : D.pad(hourInt) + 'h \u2014 ' + dateBase;
+
+            var html = '<div class="planning-prevision-dialog-overlay">' +
+                '<div class="planning-prevision-dialog">' +
+                '<h4>Pr\u00e9vision en attente</h4>' +
+                '<p><strong>Agent\u00a0:</strong> ' + agentNom + '</p>' +
+                '<p><strong>' + (isPeriod ? 'Plage\u00a0:' : 'Heure\u00a0:') + '</strong> ' + periodStr + '</p>' +
+                '<p><strong>Code\u00a0:</strong> ' + prevCode + ' \u2014 ' + missionLabel + '</p>' +
+                '<div class="planning-prevision-dialog-actions">';
+
+            if (isPeriod) {
+                html += '<button class="fr-btn fr-btn--sm" id="pd-ok-period">Int\u00e9grer la plage (' + periodLength + '\u00a0h)</button>';
+                html += '<button class="fr-btn fr-btn--secondary fr-btn--sm" id="pd-ok-day">Cette heure seule</button>';
+            } else {
+                html += '<button class="fr-btn fr-btn--sm" id="pd-ok-day">Int\u00e9grer ' + prevCode + '</button>';
+            }
+
+            html += '</div><div class="planning-prevision-dialog-actions planning-prevision-dialog-actions--reject">';
+
+            if (isPeriod) {
+                html += '<button class="fr-btn fr-btn--secondary fr-btn--sm planning-btn-reject" id="pd-reject-period">Rejeter la plage</button>';
+                html += '<button class="fr-btn fr-btn--secondary fr-btn--sm planning-btn-reject" id="pd-reject-day">Rejeter cette heure</button>';
+            } else {
+                html += '<button class="fr-btn fr-btn--secondary fr-btn--sm planning-btn-reject" id="pd-reject-day">Rejeter</button>';
+            }
+            html += '<button class="fr-btn fr-btn--secondary fr-btn--sm" id="pd-cancel">Annuler</button>';
+            html += '</div></div></div>';
+
+            var $overlay = $(html).appendTo('body');
+
+            /* Integrer une plage d'heures dans le planning officiel */
+            function integrateRange(startH, endH) {
+                var m = self._getMission(prevCode);
+                for (var h = startH; h <= endH; h++) {
+                    var hKey = D.pad(h);
+                    if (!self._data[agentId]) self._data[agentId] = {};
+                    self._data[agentId][hKey] = prevCode;
+                    if (self._previsionData[agentId]) delete self._previsionData[agentId][hKey];
+                    var $cell = self._$el.find('.planning-cell[data-agent="' + agentId + '"][data-hour="' + hKey + '"]');
+                    $cell.html(prevCode).css({ 'background-color': m.bg, 'color': m.fg });
+                }
+                self._isDirty = true;
+                self._setSaveState('dirty');
+                D.savePrevisionJournalier(self._year, self._month, self._day, self._previsionData, function (err) {
+                    if (err) console.warn('[Planning] Erreur sauvegarde prevision journalier:', err);
+                });
+            }
+
+            /* Rejeter (supprimer) une plage de previsions */
+            function rejectRange(startH, endH) {
+                for (var h = startH; h <= endH; h++) {
+                    var hKey = D.pad(h);
+                    if (self._previsionData[agentId]) delete self._previsionData[agentId][hKey];
+                    self._$el.find('.planning-cell[data-agent="' + agentId + '"][data-hour="' + hKey + '"] .planning-prevision-dot').remove();
+                }
+                D.savePrevisionJournalier(self._year, self._month, self._day, self._previsionData, function (err) {
+                    if (err) console.warn('[Planning] Erreur sauvegarde prevision journalier:', err);
+                });
+            }
+
+            $overlay.on('click', '#pd-ok-period',     function () { integrateRange(periodStartH, periodEndH); $overlay.remove(); });
+            $overlay.on('click', '#pd-ok-day',         function () { integrateRange(hourInt, hourInt);        $overlay.remove(); });
+            $overlay.on('click', '#pd-reject-period', function () { rejectRange(periodStartH, periodEndH);    $overlay.remove(); });
+            $overlay.on('click', '#pd-reject-day',    function () { rejectRange(hourInt, hourInt);            $overlay.remove(); });
+            $overlay.on('click', '#pd-cancel',        function () { $overlay.remove(); });
+            $overlay.on('click', function (e) {
+                if ($(e.target).hasClass('planning-prevision-dialog-overlay')) $overlay.remove();
+            });
         }
     };
 

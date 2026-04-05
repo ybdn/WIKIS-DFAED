@@ -46,6 +46,8 @@
         _$selectionBadge: null,
         _ignoreNextClick: false,
         _collapsedRoles: {},
+        _previsionData: {},
+        _counterSortState: { col: null, dir: 0 },
 
         /* ============================================================= */
         /*  INIT                                                          */
@@ -79,13 +81,16 @@
             var monthDone = false;
             var yearDone = !self._isGestion; // si pas gestion, pas besoin des données annuelles
             var commentsDone = !self._isGestion; // idem pour les commentaires
+            var previsionDone = !self._isGestion;
             var pendingMonthData = {};
             var pendingComments = {};
+            var pendingPrevision = {};
 
             function tryRender() {
-                if (monthDone && yearDone && commentsDone) {
+                if (monthDone && yearDone && commentsDone && previsionDone) {
                     self._data = pendingMonthData;
                     self._comments = pendingComments;
+                    self._previsionData = pendingPrevision;
                     self._isDirty = false;
                     self._render();
                 }
@@ -105,6 +110,11 @@
                 D.loadCommentsP4S(self._year, self._month, function (err, data) {
                     pendingComments = data || {};
                     commentsDone = true;
+                    tryRender();
+                });
+                D.loadPrevisionP4S(self._year, self._month, function (err, data) {
+                    pendingPrevision = data || {};
+                    previsionDone = true;
                     tryRender();
                 });
             }
@@ -166,14 +176,126 @@
                         alert('Erreur de sauvegarde commentaires : ' + errC);
                         self._setSaveState('dirty');
                     } else {
-                        self._isDirty = false;
-                        self._setSaveState('saved');
-                        setTimeout(function () {
-                            if (!self._isDirty) self._setSaveState('clean');
-                        }, 2500);
+                        self._setSaveState('syncing');
+                        self._syncToJournalier(function (errSync) {
+                            if (errSync) {
+                                console.warn('[P4S] Erreur sync journalier : ' + errSync);
+                            }
+                            self._isDirty = false;
+                            self._setSaveState('saved');
+                            setTimeout(function () {
+                                if (!self._isDirty) self._setSaveState('clean');
+                            }, 2500);
+                        });
                     }
                 });
             });
+        },
+
+        _syncToJournalier: function (callback) {
+            var self = this;
+            var year = self._year;
+            var month = self._month;
+            var days = D.getDaysInMonth(year, month);
+            var p4sData = self._data;
+
+            function computeHours(code) {
+                var map = {};
+                var h, hStr;
+                if (code === 'R' || code === 'RR') {
+                    for (h = 7; h <= 20; h++) { hStr = D.pad(h); map[hStr] = code; }
+                } else if (code === 'P') {
+                    for (h = 7; h <= 20; h++) { hStr = D.pad(h); map[hStr] = 'P'; }
+                } else if (code === 'PM') {
+                    for (h = 7; h <= 13; h++) { hStr = D.pad(h); map[hStr] = 'P'; }
+                } else if (code === 'PAM') {
+                    for (h = 14; h <= 20; h++) { hStr = D.pad(h); map[hStr] = 'P'; }
+                } else if (code === 'M') {
+                    for (h = 7; h <= 11; h++) { hStr = D.pad(h); map[hStr] = 'PO'; }
+                } else if (code === 'AM') {
+                    for (h = 12; h <= 20; h++) { hStr = D.pad(h); map[hStr] = 'PO'; }
+                } else if (code === 'OPJ') {
+                    for (h = 7; h <= 20; h++) { hStr = D.pad(h); map[hStr] = 'F'; }
+                } else {
+                    return null;
+                }
+                return map;
+            }
+
+            var loadResults = {};
+            var loadCount = 0;
+
+            function onAllLoaded() {
+                var daysToSave = [];
+                var d, ai, aid, hk;
+
+                for (d = 1; d <= days; d++) {
+                    var existing = loadResults[d] || {};
+                    var newData = {};
+                    for (aid in existing) {
+                        if (!existing.hasOwnProperty(aid)) continue;
+                        newData[aid] = {};
+                        for (hk in existing[aid]) {
+                            if (existing[aid].hasOwnProperty(hk)) {
+                                newData[aid][hk] = existing[aid][hk];
+                            }
+                        }
+                    }
+
+                    var changed = false;
+                    for (ai = 0; ai < self._personnel.length; ai++) {
+                        var agentId = self._personnel[ai].id;
+                        var agentP4S = p4sData[agentId] || {};
+                        var code = agentP4S[String(d)] || '';
+                        var hours = computeHours(code);
+                        if (hours === null) continue;
+
+                        if (!newData[agentId]) newData[agentId] = {};
+                        for (hk in hours) {
+                            if (!hours.hasOwnProperty(hk)) continue;
+                            if (newData[agentId][hk] !== hours[hk]) {
+                                newData[agentId][hk] = hours[hk];
+                                changed = true;
+                            }
+                        }
+                    }
+
+                    if (changed) {
+                        daysToSave.push({ day: d, data: newData });
+                    }
+                }
+
+                if (daysToSave.length === 0) {
+                    callback(null);
+                    return;
+                }
+
+                var saveCount = 0;
+                var firstErr = null;
+                for (var si = 0; si < daysToSave.length; si++) {
+                    (function (item) {
+                        D.saveJournalier(year, month, item.day, item.data, function (err) {
+                            if (err && !firstErr) firstErr = err;
+                            saveCount++;
+                            if (saveCount === daysToSave.length) {
+                                callback(firstErr);
+                            }
+                        });
+                    }(daysToSave[si]));
+                }
+            }
+
+            for (var d = 1; d <= days; d++) {
+                (function (day) {
+                    D.loadJournalier(year, month, day, function (err, data) {
+                        loadResults[day] = data || {};
+                        loadCount++;
+                        if (loadCount === days) {
+                            onAllLoaded();
+                        }
+                    });
+                }(d));
+            }
         },
 
         _getMission: function (code) {
@@ -296,6 +418,9 @@
             } else if (state === 'saving') {
                 $status.text('Enregistrement en cours...');
                 $btn.prop('disabled', true);
+            } else if (state === 'syncing') {
+                $status.text('Synchronisation journalier en cours...');
+                $btn.prop('disabled', true);
             } else if (state === 'saved') {
                 $bar.addClass('saved');
                 $status.text('Enregistre avec succes');
@@ -355,9 +480,11 @@
                     var fg = code ? mission.fg : '';
                     var style = bg ? 'background-color:' + bg + ';color:' + fg + ';' : '';
                     var commentAttr = comment ? ' data-comment="' + comment.replace(/"/g, '&quot;') + '"' : '';
+                    var prevCode = (this._isGestion && this._previsionData[agent.id] && this._previsionData[agent.id]['' + d2]) ? this._previsionData[agent.id]['' + d2] : '';
+                    var prevDot = prevCode ? '<span class="planning-prevision-dot" title="Pr\u00e9vision\u00a0: ' + prevCode + '" data-agent="' + agent.id + '" data-day="' + d2 + '" data-code="' + prevCode + '"></span>' : '';
                     h += '<td class="' + cellCls + '" data-agent="' + agent.id + '" data-day="' + d2 + '"' +
                          (style ? ' style="' + style + '"' : '') + commentAttr + '>' +
-                         code + '</td>';
+                         code + prevDot + '</td>';
                 }
                 h += '</tr>';
             }
@@ -388,11 +515,12 @@
             var h = '<details class="planning-counters" open>';
             h += '<summary>Compteurs par personnel</summary>';
             h += '<div class="planning-counters-scroll">';
-            h += '<table class="planning-counters-table"><thead>';
+            h += '<table class="planning-counters-table" id="p4s-counters-table"><thead>';
 
             /* Ligne 1 : codes missions (colspan 2) */
             h += '<tr>';
-            h += '<th rowspan="2" class="planning-cth-agent">Agent</th>';
+            h += '<th rowspan="2" class="planning-cth-agent planning-cth-sortable" data-sort-col="agent">';
+            h += 'Agent <span class="planning-sort-icon">\u2195</span></th>';
             for (var c = 0; c < activeCodes.length; c++) {
                 var mc = activeCodes[c];
                 h += '<th colspan="2" class="planning-cth-code planning-col-month" style="background:' + mc.bg + ';color:' + mc.fg + ';">' + mc.code + '</th>';
@@ -402,8 +530,10 @@
             /* Ligne 2 : Mois / Année pour chaque code */
             h += '<tr>';
             for (var c3 = 0; c3 < activeCodes.length; c3++) {
-                h += '<th class="planning-cth-sub planning-col-month">Mois</th>';
-                h += '<th class="planning-cth-sub planning-cth-year">Ann\u00e9e</th>';
+                h += '<th class="planning-cth-sub planning-col-month planning-cth-sortable" data-sort-col="m-' + c3 + '">';
+                h += 'Mois <span class="planning-sort-icon">\u2195</span></th>';
+                h += '<th class="planning-cth-sub planning-cth-year planning-cth-sortable" data-sort-col="y-' + c3 + '">';
+                h += 'Ann\u00e9e <span class="planning-sort-icon">\u2195</span></th>';
             }
             h += '</tr>';
 
@@ -414,20 +544,82 @@
                 var agent = this._personnel[p];
                 var agentData = this._data[agent.id] || {};
                 var yearAgentData = (this._yearlyData && this._yearlyData[agent.id]) || {};
-                h += '<tr><td>' + (agent.grade ? agent.grade + ' ' : '') + agent.nom + '</td>';
+                var agentLabel = (agent.grade ? agent.grade + ' ' : '') + agent.nom;
+                h += '<tr data-orig-idx="' + p + '">';
+                h += '<td data-val="' + agentLabel + '">' + agentLabel + '</td>';
                 for (var c2 = 0; c2 < activeCodes.length; c2++) {
                     var count = 0;
                     for (var d = 1; d <= days; d++) {
                         if ((agentData['' + d] || '') === activeCodes[c2].code) count++;
                     }
                     var countYear = yearAgentData[activeCodes[c2].code] || 0;
-                    h += '<td class="planning-col-month">' + count + '</td>';
-                    h += '<td class="planning-ctd-year">' + countYear + '</td>';
+                    h += '<td class="planning-col-month" data-sort-col="m-' + c2 + '" data-val="' + count + '">' + count + '</td>';
+                    h += '<td class="planning-ctd-year" data-sort-col="y-' + c2 + '" data-val="' + countYear + '">' + countYear + '</td>';
                 }
                 h += '</tr>';
             }
             h += '</tbody></table></div></details>';
             return h;
+        },
+
+        _bindCounterSort: function () {
+            var self = this;
+            this._$el.on('click', '#p4s-counters-table .planning-cth-sortable', function () {
+                var col = $(this).data('sort-col');
+                if (self._counterSortState.col === col) {
+                    if (self._counterSortState.dir === 1) {
+                        self._counterSortState.dir = -1;
+                    } else if (self._counterSortState.dir === -1) {
+                        self._counterSortState.dir = 0;
+                        self._counterSortState.col = null;
+                    } else {
+                        self._counterSortState.dir = 1;
+                    }
+                } else {
+                    self._counterSortState.col = col;
+                    self._counterSortState.dir = 1;
+                }
+                self._applyCounterSort();
+            });
+        },
+
+        _applyCounterSort: function () {
+            var state = this._counterSortState;
+            var $tbody = this._$el.find('#p4s-counters-table tbody');
+            var rows = $tbody.find('tr').get();
+
+            if (state.dir === 0 || state.col === null) {
+                rows.sort(function (a, b) {
+                    return parseInt($(a).data('orig-idx'), 10) - parseInt($(b).data('orig-idx'), 10);
+                });
+            } else {
+                var col = state.col;
+                var dir = state.dir;
+                rows.sort(function (a, b) {
+                    var va, vb;
+                    if (col === 'agent') {
+                        va = $(a).find('td:first-child').data('val') || '';
+                        vb = $(b).find('td:first-child').data('val') || '';
+                        return dir * ('' + va).localeCompare('' + vb);
+                    }
+                    va = parseInt($(a).find('td[data-sort-col="' + col + '"]').data('val'), 10) || 0;
+                    vb = parseInt($(b).find('td[data-sort-col="' + col + '"]').data('val'), 10) || 0;
+                    return dir * (va - vb);
+                });
+            }
+
+            $tbody.empty();
+            for (var i = 0; i < rows.length; i++) { $tbody.append(rows[i]); }
+
+            /* Mise a jour des indicateurs */
+            this._$el.find('#p4s-counters-table .planning-sort-icon').text('\u2195');
+            this._$el.find('#p4s-counters-table .planning-cth-sortable')
+                .removeClass('planning-sort-asc planning-sort-desc');
+            if (state.dir !== 0 && state.col !== null) {
+                var $th = this._$el.find('#p4s-counters-table [data-sort-col="' + state.col + '"]').first();
+                $th.addClass(state.dir === 1 ? 'planning-sort-asc' : 'planning-sort-desc');
+                $th.find('.planning-sort-icon').text(state.dir === 1 ? '\u25B2' : '\u25BC');
+            }
         },
 
         /* ============================================================= */
@@ -452,6 +644,8 @@
             });
 
             if (this._isGestion) {
+                this._bindCounterSort();
+
                 this._$el.on('mousedown', '.planning-cell.editable', function (e) {
                     if (e.which !== 1) return;
                     e.preventDefault();
@@ -533,7 +727,23 @@
                             self._lastSingleAgent = self._dragStartAgent;
                             self._lastSingleDay = self._dragStartDay;
                             self._ignoreNextClick = true;
-                            self._showDropdown($startCell);
+                            /* Si une prévision existe → dialog de validation en priorité */
+                            var agentId = self._dragStartAgent;
+                            var dayKey = '' + self._dragStartDay;
+                            var prevCode = self._previsionData[agentId] && self._previsionData[agentId][dayKey]
+                                ? self._previsionData[agentId][dayKey] : '';
+                            if (prevCode) {
+                                var agentNom = '';
+                                for (var pi = 0; pi < self._personnel.length; pi++) {
+                                    if (self._personnel[pi].id === agentId) {
+                                        agentNom = (self._personnel[pi].grade ? self._personnel[pi].grade + ' ' : '') + self._personnel[pi].nom;
+                                        break;
+                                    }
+                                }
+                                self._openPrevisionDialog(agentId, parseInt(dayKey, 10), prevCode, agentNom);
+                            } else {
+                                self._showDropdown($startCell);
+                            }
                         }
                     }
                 });
@@ -882,6 +1092,99 @@
             w.document.close();
             w.focus();
             setTimeout(function () { w.print(); w.close(); }, 400);
+        },
+
+        /* ============================================================= */
+        /*  DIALOG PREVISION                                              */
+        /* ============================================================= */
+
+        _openPrevisionDialog: function (agentId, day, prevCode, agentNom) {
+            var self = this;
+
+            /* Detection de la periode consecutive (meme code, meme agent) */
+            var maxDays = D.getDaysInMonth(self._year, self._month);
+            var agentPrev = self._previsionData[agentId] || {};
+            var periodStart = day;
+            var periodEnd = day;
+            while (periodStart > 1 && agentPrev['' + (periodStart - 1)] === prevCode) periodStart--;
+            while (periodEnd < maxDays && agentPrev['' + (periodEnd + 1)] === prevCode) periodEnd++;
+            var isPeriod = (periodStart < periodEnd);
+            var periodLength = periodEnd - periodStart + 1;
+
+            var mission = self._getMission(prevCode);
+            var missionLabel = mission.label || prevCode;
+
+            function dayLabel(d) {
+                return d + ' ' + D.MOIS[self._month - 1] + ' ' + self._year;
+            }
+            var periodStr = isPeriod
+                ? 'du ' + dayLabel(periodStart) + ' au ' + dayLabel(periodEnd) + ' (' + periodLength + '\u00a0j)'
+                : dayLabel(day);
+
+            var html = '<div class="planning-prevision-dialog-overlay">' +
+                '<div class="planning-prevision-dialog">' +
+                '<h4>Pr\u00e9vision en attente</h4>' +
+                '<p><strong>Agent\u00a0:</strong> ' + agentNom + '</p>' +
+                '<p><strong>' + (isPeriod ? 'P\u00e9riode\u00a0:' : 'Jour\u00a0:') + '</strong> ' + periodStr + '</p>' +
+                '<p><strong>Code\u00a0:</strong> ' + prevCode + ' \u2014 ' + missionLabel + '</p>' +
+                '<div class="planning-prevision-dialog-actions">';
+
+            if (isPeriod) {
+                html += '<button class="fr-btn fr-btn--sm" id="pd-ok-period">Int\u00e9grer la p\u00e9riode (' + periodLength + '\u00a0j)</button>';
+                html += '<button class="fr-btn fr-btn--secondary fr-btn--sm" id="pd-ok-day">Ce jour seul</button>';
+            } else {
+                html += '<button class="fr-btn fr-btn--sm" id="pd-ok-day">Int\u00e9grer ' + prevCode + '</button>';
+            }
+
+            html += '</div><div class="planning-prevision-dialog-actions planning-prevision-dialog-actions--reject">';
+
+            if (isPeriod) {
+                html += '<button class="fr-btn fr-btn--secondary fr-btn--sm planning-btn-reject" id="pd-reject-period">Rejeter la p\u00e9riode</button>';
+                html += '<button class="fr-btn fr-btn--secondary fr-btn--sm planning-btn-reject" id="pd-reject-day">Rejeter ce jour</button>';
+            } else {
+                html += '<button class="fr-btn fr-btn--secondary fr-btn--sm planning-btn-reject" id="pd-reject-day">Rejeter</button>';
+            }
+            html += '<button class="fr-btn fr-btn--secondary fr-btn--sm" id="pd-cancel">Annuler</button>';
+            html += '</div></div></div>';
+
+            var $overlay = $(html).appendTo('body');
+
+            /* Integrer une plage de jours dans le planning officiel */
+            function integrateRange(start, end) {
+                var m = self._getMission(prevCode);
+                for (var d = start; d <= end; d++) {
+                    if (!self._data[agentId]) self._data[agentId] = {};
+                    self._data[agentId]['' + d] = prevCode;
+                    if (self._previsionData[agentId]) delete self._previsionData[agentId]['' + d];
+                    var $cell = self._$el.find('.planning-cell[data-agent="' + agentId + '"][data-day="' + d + '"]');
+                    $cell.html(prevCode).css({ 'background-color': m.bg, 'color': m.fg });
+                }
+                self._isDirty = true;
+                self._setSaveState('dirty');
+                D.savePrevisionP4S(self._year, self._month, self._previsionData, function (err) {
+                    if (err) console.warn('[Planning] Erreur sauvegarde prevision P4S:', err);
+                });
+            }
+
+            /* Rejeter (supprimer) une plage de previsions */
+            function rejectRange(start, end) {
+                for (var d = start; d <= end; d++) {
+                    if (self._previsionData[agentId]) delete self._previsionData[agentId]['' + d];
+                    self._$el.find('.planning-cell[data-agent="' + agentId + '"][data-day="' + d + '"] .planning-prevision-dot').remove();
+                }
+                D.savePrevisionP4S(self._year, self._month, self._previsionData, function (err) {
+                    if (err) console.warn('[Planning] Erreur sauvegarde prevision P4S:', err);
+                });
+            }
+
+            $overlay.on('click', '#pd-ok-period', function () { integrateRange(periodStart, periodEnd); $overlay.remove(); });
+            $overlay.on('click', '#pd-ok-day',    function () { integrateRange(day, day);               $overlay.remove(); });
+            $overlay.on('click', '#pd-reject-period', function () { rejectRange(periodStart, periodEnd); $overlay.remove(); });
+            $overlay.on('click', '#pd-reject-day',    function () { rejectRange(day, day);               $overlay.remove(); });
+            $overlay.on('click', '#pd-cancel',        function () { $overlay.remove(); });
+            $overlay.on('click', function (e) {
+                if ($(e.target).hasClass('planning-prevision-dialog-overlay')) $overlay.remove();
+            });
         }
     };
 

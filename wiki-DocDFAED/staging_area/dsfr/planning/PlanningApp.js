@@ -61,7 +61,8 @@
             ['PlanningMissionsJournalier', !!window.PlanningMissionsJournalier],
             ['PlanningP4S', !!window.PlanningP4S],
             ['PlanningJournalier', !!window.PlanningJournalier],
-            ['PlanningPersonnel', !!window.PlanningPersonnel]
+            ['PlanningPersonnel', !!window.PlanningPersonnel],
+            ['PlanningPrevision', !!window.PlanningPrevision]
         ];
         var missing = [];
         for (var i = 0; i < deps.length; i++) {
@@ -115,8 +116,35 @@
         var pageName = mw.config.get('wgPageName');
         var isConsultation = (pageName === 'Planning:Consultation');
         var isGestion = (pageName === 'Planning:Gestion');
+        var isPrevision = (pageName === 'Planning:Prevision');
 
-        if (!isConsultation && !isGestion) return;
+        if (!isConsultation && !isGestion && !isPrevision) return;
+
+        /* --- Prevision page (tous les agents connectes) --- */
+        if (isPrevision) {
+            var isLocalPrev = window.location.hostname === 'localhost';
+            var cssHrefPrev = isLocalPrev
+                ? '/staging_area/dsfr/planning/Planning.css?v=' + Date.now()
+                : mw.config.get('wgScript') + '?title=MediaWiki:Dsfr/planning/Style.css&action=raw&ctype=text/css';
+            if (!document.getElementById('planning-css')) {
+                var linkPrev = document.createElement('link');
+                linkPrev.id = 'planning-css';
+                linkPrev.rel = 'stylesheet';
+                linkPrev.type = 'text/css';
+                linkPrev.href = cssHrefPrev;
+                document.head.appendChild(linkPrev);
+            }
+            window.PlanningData.loadPersonnel(function (err, personnelPrev) {
+                personnelPrev = personnelPrev || [];
+                sortPersonnelByGrade(personnelPrev);
+                var activePrev = [];
+                for (var i = 0; i < personnelPrev.length; i++) {
+                    if (personnelPrev[i].actif !== false) activePrev.push(personnelPrev[i]);
+                }
+                window.PlanningPrevision.init($('#mw-content-text'), activePrev);
+            });
+            return;
+        }
 
         /* --- Check permissions for Gestion --- */
         var userGroups = mw.config.get('wgUserGroups') || [];

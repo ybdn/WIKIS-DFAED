@@ -38,7 +38,8 @@ window.DsfrConfig = {
             id: "menu-planning",
             items: [
                 { label: "Consultation", page: "Planning:Consultation" },
-                { label: "Gestion", page: "Planning:Gestion" }
+                { label: "Gestion", page: "Planning:Gestion" },
+                { label: "Pr\u00e9vision", page: "Planning:Prevision" }
             ]
         },
         {

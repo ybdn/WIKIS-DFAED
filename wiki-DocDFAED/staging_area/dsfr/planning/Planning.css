@@ -413,6 +413,32 @@ body.planning-fullwidth #content {
 }
 
 
+/* --- Tri des colonnes compteurs --- */
+.planning-cth-sortable {
+    cursor: pointer;
+    user-select: none;
+}
+.planning-cth-sortable:hover {
+    background: #e0e0e0 !important;
+}
+.planning-sort-icon {
+    display: inline-block;
+    font-size: 0.65rem;
+    opacity: 0.45;
+    margin-left: 0.2rem;
+    vertical-align: middle;
+}
+.planning-sort-asc .planning-sort-icon,
+.planning-sort-desc .planning-sort-icon {
+    opacity: 1;
+    color: #000091;
+}
+.planning-sort-asc,
+.planning-sort-desc {
+    background: #e8eaf6 !important;
+    color: #000091 !important;
+}
+
 /* --- Séparateurs de groupes par rôle --- */
 .planning-role-separator {
     cursor: pointer;
@@ -525,8 +551,8 @@ body.planning-fullwidth #content {
     position: absolute;
     top: 2px;
     right: 2px;
-    width: 6px;
-    height: 6px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
     background: #000091;
     pointer-events: none;
@@ -645,4 +671,91 @@ body.planning-fullwidth #content {
     .planning-cell.editable:hover {
         box-shadow: none;
     }
+}
+
+/* ================================================================
+   PREVISION — pastille mauve et dialog de confirmation
+   ================================================================ */
+
+/* Pastille mauve indiquant une prevision en attente */
+.planning-prevision-dot {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+}
+
+/* Coexistence commentaire (bleu, right:2px 6px) + prevision (mauve) :
+   decaler la pastille mauve a gauche du point bleu (6px + 2px gap + 1px = right:11px) */
+.planning-cell.has-comment .planning-prevision-dot {
+    right: 11px;
+}
+
+.planning-prevision-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #6a00f4;
+    cursor: default;
+    display: inline-block;
+    flex-shrink: 0;
+    pointer-events: none;
+    z-index: 3;
+}
+
+/* Overlay du dialog de confirmation */
+.planning-prevision-dialog-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 9000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Dialog de confirmation */
+.planning-prevision-dialog {
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    padding: 1.5rem 2rem;
+    min-width: 320px;
+    max-width: 480px;
+}
+.planning-prevision-dialog h4 {
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #161616;
+    border-bottom: 2px solid #6a00f4;
+    padding-bottom: 0.5rem;
+}
+.planning-prevision-dialog p {
+    margin: 0.4rem 0;
+    color: #3a3a3a;
+    font-size: 0.95rem;
+}
+.planning-prevision-dialog-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+/* Ligne secondaire (rejet + annuler) */
+.planning-prevision-dialog-actions--reject {
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e5e5e5;
+}
+
+/* Bouton de rejet (rouge discret) */
+.planning-btn-reject {
+    color: #c9191e !important;
+    border-color: #c9191e !important;
+}
+.planning-btn-reject:hover {
+    background-color: #ffe9e9 !important;
+    color: #c9191e !important;
 }
