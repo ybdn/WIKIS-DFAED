@@ -14,7 +14,7 @@
 
 (function () {
 
-    $(function () {
+    function init() {
         var apiPath = mw.config.get('wgScript');
         var isLocal = window.location.hostname === 'localhost';
 
@@ -63,7 +63,8 @@
             'components/Toggle',
             'components/Tooltip',
             'components/Transcription',
-            'components/Upload'
+            'components/Upload',
+            'EasterEgg'
         ];
 
         var allModules = localModules.concat(sharedModules);
@@ -152,9 +153,45 @@
                     s.type = 'text/javascript';
                     s.src = apiPath + '?title=MediaWiki:Dsfr/' + m + '.js&action=raw&ctype=text/javascript';
                 }
+                s.onload = function() { console.log('[DSFR] Planning module loaded: ' + m); };
+                s.onerror = function() { console.error('[DSFR] FAILED to load planning module: ' + m + ' — verifiez que la page MediaWiki:Dsfr/' + m + '.js existe'); };
                 document.head.appendChild(s);
             });
         }
-    });
+
+        /* ----------------------------------------------------------- */
+        /*  OCE — chargement conditionnel (pages OCE:*)                 */
+        /* ----------------------------------------------------------- */
+        if (currentPage.indexOf('OCE:') === 0) {
+            var oceModules = [
+                'oce/OceConfig',
+                'oce/OceData',
+                'oce/OceTable',
+                'oce/OceForm',
+                'oce/OceStats',
+                'oce/OceApp'
+            ];
+            console.log('[DSFR] Loading OCE modules (' + oceModules.length + ')');
+            oceModules.forEach(function(m) {
+                var s = document.createElement('script');
+                if (isLocal) {
+                    s.src = '/staging_area/dsfr/' + m + '.js?v=' + Date.now();
+                } else {
+                    s.type = 'text/javascript';
+                    s.src = apiPath + '?title=MediaWiki:Dsfr/' + m + '.js&action=raw&ctype=text/javascript';
+                }
+                document.head.appendChild(s);
+            });
+        }
+    }
+
+    function waitForDeps() {
+        if (window.jQuery && window.mw && window.mw.config && window.mw.util) {
+            init();
+        } else {
+            setTimeout(waitForDeps, 50);
+        }
+    }
+    waitForDeps();
 
 }());
