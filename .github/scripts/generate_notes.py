@@ -109,11 +109,18 @@ def run_git(args):
 
 
 def get_changed_files(compare_ref):
-    """Retourne la liste des fichiers modifiés depuis compare_ref."""
+    """
+    Retourne la liste des fichiers ajoutés, copiés, modifiés ou renommés
+    (destination) depuis compare_ref. Les fichiers supprimés sont exclus :
+    il n'y a rien à copier-coller en production pour un fichier qui n'existe plus.
+    """
     try:
-        output = run_git(['diff', '--name-only', compare_ref + '..HEAD'])
+        output = run_git([
+            'diff', '--name-only', '--diff-filter=ACMR',
+            compare_ref + '..HEAD',
+        ])
     except subprocess.CalledProcessError:
-        # Fallback : tous les fichiers trackés (premier run)
+        # Fallback premier run : tous les fichiers actuellement trackés
         output = run_git(['ls-files'])
     if not output:
         return []
