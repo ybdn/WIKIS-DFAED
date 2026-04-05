@@ -137,7 +137,15 @@
 
             /* --- Filters (search, priorite, checkboxes only — statut/echeance via dashboard chips) --- */
             h += '<div class="oce-filters">';
-            h += '<input class="fr-input fr-input--sm" type="text" id="oce-search" placeholder="Rechercher..." value="' + this._escAttr(this._filters.search) + '" style="max-width:220px;">';
+            h += '<input class="fr-input fr-input--sm" type="text" id="oce-search" list="oce-search-datalist" placeholder="Rechercher un agent..." value="' + this._escAttr(this._filters.search) + '" style="max-width:220px;">';
+            h += '<datalist id="oce-search-datalist">';
+            for (var pi = 0; pi < this._personnel.length; pi++) {
+                var p = this._personnel[pi];
+                if (p.actif !== false) {
+                    h += '<option value="' + this._escAttr(p.nom + (p.grade ? ' (' + p.grade + ')' : '')) + '">';
+                }
+            }
+            h += '</datalist>';
             h += '<select class="fr-select fr-select--sm" id="oce-filter-priorite" style="max-width:160px;">';
             h += '<option value="all"' + (this._filters.priorite === 'all' ? ' selected' : '') + '>Toutes priorites</option>';
             h += '<option value="normale"' + (this._filters.priorite === 'normale' ? ' selected' : '') + '>Normale</option>';
@@ -328,7 +336,14 @@
 
             if (this._filters.search) {
                 var q = this._filters.search.toLowerCase();
-                var haystack = (oce.numero + ' ' + (oce.objet || '') + ' ' + (oce.delivrePar || '') + ' ' + (oce.agent || '') + ' ' + (oce.commentaire || '') + ' ' + (oce.nbCliches || '')).toLowerCase();
+                var agentNom = '';
+                for (var pi = 0; pi < this._personnel.length; pi++) {
+                    if (this._personnel[pi].id === oce.agent) {
+                        agentNom = this._personnel[pi].nom + ' ' + (this._personnel[pi].grade || '');
+                        break;
+                    }
+                }
+                var haystack = (oce.numero + ' ' + (oce.objet || '') + ' ' + (oce.delivrePar || '') + ' ' + (oce.agent || '') + ' ' + agentNom + ' ' + (oce.commentaire || '') + ' ' + (oce.nbCliches || '')).toLowerCase();
                 if (haystack.indexOf(q) === -1) return false;
             }
 
@@ -364,8 +379,15 @@
 
             /* Filters */
             $('#oce-search').on('input', function () {
-                self._filters.search = $(this).val();
+                var val = $(this).val();
+                var pos = this.selectionStart;
+                self._filters.search = val;
                 self._render();
+                var $inp = $('#oce-search');
+                if ($inp.length) {
+                    $inp.focus();
+                    try { $inp[0].setSelectionRange(pos, pos); } catch (e) {}
+                }
             });
             $('#oce-filter-priorite').on('change', function () {
                 self._filters.priorite = $(this).val();
