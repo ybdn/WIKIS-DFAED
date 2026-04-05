@@ -44,6 +44,7 @@
         _personnel: [],
         _dataP4S: {},
         _dataJour: {},
+        _actualP4S: {},
         _isDirtyP4S: false,
         _isDirtyJour: false,
         _activeTab: 'p4s',
@@ -143,10 +144,15 @@
         _loadP4S: function () {
             var self = this;
             $('#prev-panel-p4s').html('<div style="text-align:center;padding:2rem;color:#666;">Chargement...</div>');
+            var pending = 2;
+            function done() { pending--; if (pending === 0) { self._isDirtyP4S = false; self._renderP4S(); } }
             D.loadPrevisionP4S(self._year, self._month, function (err, data) {
                 self._dataP4S = data || {};
-                self._isDirtyP4S = false;
-                self._renderP4S();
+                done();
+            });
+            D.loadP4S(self._year, self._month, function (err, data) {
+                self._actualP4S = data || {};
+                done();
             });
         },
 
@@ -255,6 +261,22 @@
             }
         },
 
+        _getMissionColorsP4S: function (code) {
+            var missions = window.PlanningMissionsP4S || [];
+            for (var i = 0; i < missions.length; i++) {
+                if (missions[i].code === code) return { bg: missions[i].bg, fg: missions[i].fg };
+            }
+            return { bg: 'rgba(0,0,0,0.08)', fg: '#3a3a3a' };
+        },
+
+        _getMissionColorsJour: function (code) {
+            var missions = window.PlanningMissionsJournalier || [];
+            for (var i = 0; i < missions.length; i++) {
+                if (missions[i].code === code) return { bg: missions[i].bg, fg: missions[i].fg };
+            }
+            return { bg: 'rgba(0,0,0,0.08)', fg: '#3a3a3a' };
+        },
+
         _buildTableP4S: function () {
             var days = D.getDaysInMonth(this._year, this._month);
             var y = this._year;
@@ -293,6 +315,7 @@
                      '<td class="planning-col-agent">' + (agent.grade ? agent.grade + ' ' : '') + agent.nom + '</td>';
                 for (var d2 = 1; d2 <= days; d2++) {
                     var code = agentData['' + d2] || '';
+                    var officialCode = (this._actualP4S[agent.id] || {})['' + d2] || '';
                     var cellCls = 'planning-cell editable';
                     if (D.isWeekend(y, m, d2)) cellCls += ' planning-col-weekend';
                     if (D.isHoliday(y, m, d2)) cellCls += ' planning-col-holiday';
@@ -303,7 +326,12 @@
                     }
                     var style = bg ? 'background-color:' + bg + ';color:' + fg + ';' : '';
                     h += '<td class="' + cellCls + '" data-agent="' + agent.id + '" data-day="' + d2 + '"' +
-                         (style ? ' style="' + style + '"' : '') + '>' + code + '</td>';
+                         (style ? ' style="' + style + '"' : '') + '>' + code;
+                    if (officialCode) {
+                        var oc = this._getMissionColorsP4S(officialCode);
+                        h += '<span class="prev-official-dot" style="background:' + oc.bg + ';color:' + oc.fg + ';" title="Planifi\u00e9\u00a0: ' + officialCode + '">' + officialCode + '</span>';
+                    }
+                    h += '</td>';
                 }
                 h += '</tr>';
             }
@@ -545,7 +573,12 @@
                     }
                     var style = bg ? 'background-color:' + bg + ';color:' + fg + ';' : '';
                     h += '<td class="' + cellCls + '" data-agent="' + agent.id + '" data-hour="' + hKey + '"' +
-                         (style ? ' style="' + style + '"' : '') + '>' + displayCode + '</td>';
+                         (style ? ' style="' + style + '"' : '') + '>' + displayCode;
+                    if (!isPO && officialCode && officialCode !== 'PO') {
+                        var oj = this._getMissionColorsJour(officialCode);
+                        h += '<span class="prev-official-dot" style="background:' + oj.bg + ';color:' + oj.fg + ';" title="Planifi\u00e9\u00a0: ' + officialCode + '">' + officialCode + '</span>';
+                    }
+                    h += '</td>';
                 }
                 h += '</tr>';
             }
@@ -772,7 +805,9 @@
                     delete this._dataP4S[agentId][day];
                 }
                 var $cell = this._$el.find('#prev-panel-p4s .planning-cell[data-agent="' + agentId + '"][data-day="' + day + '"]');
+                var $dot = $cell.find('.prev-official-dot').detach();
                 $cell.text(code).css({ 'background-color': bg, 'color': fg }).removeClass('planning-cell-selected');
+                if ($dot.length) $cell.append($dot);
             }
 
             this._selectedCells = [];
@@ -821,7 +856,9 @@
             for (var i = 0; i < CODES_JOUR.length; i++) {
                 if (CODES_JOUR[i].code === code) { bg = CODES_JOUR[i].bg; fg = CODES_JOUR[i].fg; break; }
             }
+            var $dot = $cell.find('.prev-official-dot').detach();
             $cell.text(code).css({ 'background-color': bg, 'color': fg });
+            if ($dot.length) $cell.append($dot);
 
             this._isDirtyJour = true;
             this._setSaveStateJour('dirty');

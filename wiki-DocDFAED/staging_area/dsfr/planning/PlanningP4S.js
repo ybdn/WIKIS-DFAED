@@ -216,6 +216,8 @@
                     for (h = 12; h <= 20; h++) { hStr = D.pad(h); map[hStr] = 'PO'; }
                 } else if (code === 'OPJ') {
                     for (h = 7; h <= 20; h++) { hStr = D.pad(h); map[hStr] = 'F'; }
+                } else if (code === 'WE' || code === 'CM' || code === 'F' || code === 'TIR') {
+                    /* codes P4S valides sans équivalent journalier → map vide = effacer uniquement */
                 } else {
                     return null;
                 }
@@ -247,16 +249,26 @@
                         var agentId = self._personnel[ai].id;
                         var agentP4S = p4sData[agentId] || {};
                         var code = agentP4S[String(d)] || '';
-                        var hours = computeHours(code);
-                        if (hours === null) continue;
+                        var hours;
+                        if (code === '') {
+                            hours = {};              /* vide P4S → on efface le journalier de cet agent */
+                        } else {
+                            hours = computeHours(code);
+                            if (hours === null) continue; /* code vraiment inconnu → on ne touche pas */
+                        }
 
-                        if (!newData[agentId]) newData[agentId] = {};
+                        /* Effacer les données existantes de cet agent pour ce jour */
+                        if (newData[agentId]) {
+                            delete newData[agentId];
+                            changed = true;
+                        }
+
+                        /* Appliquer les nouvelles heures (map vide = effacement seul) */
                         for (hk in hours) {
                             if (!hours.hasOwnProperty(hk)) continue;
-                            if (newData[agentId][hk] !== hours[hk]) {
-                                newData[agentId][hk] = hours[hk];
-                                changed = true;
-                            }
+                            if (!newData[agentId]) { newData[agentId] = {}; }
+                            newData[agentId][hk] = hours[hk];
+                            changed = true;
                         }
                     }
 

@@ -783,3 +783,18 @@ body.planning-fullwidth #content {
     background-color: #ffe9e9 !important;
     color: #c9191e !important;
 }
+
+/* Pastille donnees officielles (coin bas-gauche) dans la vue Previsions */
+/* Les couleurs background/color sont injectees en style inline depuis les tables de missions */
+.prev-official-dot {
+    position: absolute;
+    bottom: 2px;
+    left: 2px;
+    font-size: 9px;
+    font-weight: 600;
+    line-height: 1;
+    padding: 1px 3px;
+    border-radius: 2px;
+    pointer-events: none;
+    opacity: 0.85;
+}
