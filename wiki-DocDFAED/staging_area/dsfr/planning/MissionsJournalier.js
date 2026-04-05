@@ -33,6 +33,6 @@ window.PlanningMissionsJournalier = [
 
 /* ABSENCES */
     { code: "R",     label: "Repos",                         bg: "#eeeeee", fg: "#666666" },
-    { code: "RR",    label: "Repos recuperateur",            bg: "#eeeeee", fg: "#666666" },
+    { code: "RR",    label: "Repos recup.",            bg: "#eeeeee", fg: "#666666" },
     { code: "P",     label: "Permissions",                   bg: "#eeeeee", fg: "#666666" }
 ];

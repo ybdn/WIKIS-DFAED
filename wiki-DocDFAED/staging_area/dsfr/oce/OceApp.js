@@ -109,13 +109,14 @@
             document.head.appendChild(link);
         }
 
+        /* --- Modify page H1 --- */
+        var $h1 = $('#firstHeading');
+        if ($h1.length) {
+            $h1.text(canEdit ? 'OCE - Gestion' : 'OCE - Consultation');
+        }
+
         /* --- Main container --- */
         var html = '<div class="oce-app" id="oce-app">';
-
-        /* Titre */
-        html += '<h2 style="margin-bottom:1rem;">';
-        html += canEdit ? 'Suivi des OCE \u2014 Gestion' : 'Suivi des OCE \u2014 Consultation';
-        html += '</h2>';
 
         /* Tabs */
         html += '<div class="oce-tabs">';

@@ -413,7 +413,7 @@
             $('#jour-prev').on('click', function () { self._navigate(-1); });
             $('#jour-next').on('click', function () { self._navigate(1); });
             $('#jour-save-btn').on('click', function () { self.save(); });
-            $('#planning-jour-print').on('click', function () { window.print(); });
+            $('#planning-jour-print').on('click', function () { self._openPrintWindow(); });
 
             this._$el.on('click', '.planning-role-separator', function () {
                 var role = $(this).data('role-key');
@@ -702,6 +702,184 @@
             this._isDirty = true;
             this._$dropdown.hide();
             this._setSaveState('dirty');
+        },
+
+        _openPrintWindow: function () {
+            var navText = this._$el.find('.planning-nav-title').text() || 'Service Journalier';
+            var $table = this._$el.find('#jour-table');
+            var $legend = this._$el.find('.planning-legend');
+            var $commentaireWrap = this._$el.find('.planning-commentaire-jour');
+
+            var tableHtml = $table.length ? $table[0].outerHTML : '';
+            var legendHtml = $legend.length ? $legend[0].outerHTML : '';
+            var commentHtml = $commentaireWrap.length ? $commentaireWrap[0].outerHTML : '';
+
+            var now = new Date();
+            var pad = function (n) { return n < 10 ? '0' + n : '' + n; };
+            var exportLabel = 'Export\u00e9 le ' +
+                pad(now.getDate()) + '/' + pad(now.getMonth() + 1) + '/' + now.getFullYear() +
+                ' \u00e0 ' + pad(now.getHours()) + 'h' + pad(now.getMinutes());
+
+            var css = [
+                '@page { size: A4 portrait; margin: 1.5cm; }',
+                '* { box-sizing: border-box; }',
+                'body {',
+                '    font-family: Arial, sans-serif;',
+                '    font-size: 8pt;',
+                '    margin: 0;',
+                '    -webkit-print-color-adjust: exact;',
+                '    print-color-adjust: exact;',
+                '    color-adjust: exact;',
+                '}',
+                '.print-header {',
+                '    display: flex;',
+                '    justify-content: space-between;',
+                '    align-items: baseline;',
+                '    margin-bottom: 8pt;',
+                '    border-bottom: 1px solid #ccc;',
+                '    padding-bottom: 4pt;',
+                '}',
+                'h2.print-title {',
+                '    font-size: 12pt;',
+                '    font-weight: 700;',
+                '    margin: 0;',
+                '    color: #161616;',
+                '}',
+                '.print-subtitle {',
+                '    font-size: 7.5pt;',
+                '    color: #555;',
+                '    margin: 2pt 0 0 0;',
+                '    font-style: italic;',
+                '    letter-spacing: 0.04em;',
+                '}',
+                '.print-export-date {',
+                '    font-size: 7.5pt;',
+                '    color: #666;',
+                '    font-style: italic;',
+                '    white-space: nowrap;',
+                '}',
+                '.planning-table {',
+                '    width: 100%;',
+                '    border-collapse: collapse;',
+                '    font-size: 7pt;',
+                '    page-break-inside: auto;',
+                '    table-layout: fixed;',
+                '}',
+                '.planning-table th, .planning-table td {',
+                '    border: 1px solid #ccc;',
+                '    padding: 1px 2px;',
+                '    text-align: center;',
+                '    white-space: nowrap;',
+                '    overflow: hidden;',
+                '    height: 18px;',
+                '    vertical-align: middle;',
+                '}',
+                '.planning-table thead th {',
+                '    background: #f0f0f0;',
+                '    font-weight: 600;',
+                '    position: static;',
+                '}',
+                '.planning-col-agent {',
+                '    position: static;',
+                '    background: #f6f6f6 !important;',
+                '    font-weight: 600;',
+                '    text-align: left !important;',
+                '    width: 22%;',
+                '    padding-left: 4px !important;',
+                '}',
+                'td.planning-col-agent, th.planning-col-agent {',
+                '    white-space: normal;',
+                '    overflow: visible;',
+                '    word-break: break-word;',
+                '    height: auto;',
+                '}',
+                '.planning-table thead .planning-col-agent { background: #e5e5e5 !important; }',
+                '.planning-col-weekend { background-color: #f0f0f0 !important; }',
+                '.planning-table thead .planning-col-weekend { background-color: #ddd !important; }',
+                '.planning-col-holiday { background-color: #E8EDFF !important; }',
+                '.planning-table thead .planning-col-holiday { background-color: #C5D1FF !important; }',
+                '.planning-role-separator td {',
+                '    background: #eef0fb !important;',
+                '    color: #000091;',
+                '    font-weight: 700;',
+                '    font-size: 7pt;',
+                '    text-transform: uppercase;',
+                '    letter-spacing: 0.05em;',
+                '    text-align: left !important;',
+                '    padding: 2px 6px !important;',
+                '    border-top: 1px solid #9ba9e0 !important;',
+                '}',
+                '.planning-legend {',
+                '    display: flex;',
+                '    flex-wrap: wrap;',
+                '    gap: 4px;',
+                '    margin-top: 8pt;',
+                '    padding: 6px 8px;',
+                '    background: #f6f6f6;',
+                '    border-radius: 3px;',
+                '}',
+                '.planning-legend-item {',
+                '    display: inline-flex;',
+                '    align-items: center;',
+                '    gap: 3px;',
+                '    padding: 2px 8px;',
+                '    border-radius: 3px;',
+                '    font-size: 7.5pt;',
+                '    font-weight: 600;',
+                '    border: 1px solid rgba(0,0,0,0.1);',
+                '}',
+                '.planning-commentaire-jour {',
+                '    margin-bottom: 8pt;',
+                '    border: 1px solid #e5e5e5;',
+                '    border-radius: 3px;',
+                '    overflow: hidden;',
+                '}',
+                '.planning-commentaire-jour-header { padding: 3px 8px; background: #f0f0f0; }',
+                '.planning-commentaire-jour-title { font-size: 8pt; font-weight: 700; }',
+                '.planning-commentaire-jour-text,',
+                '.planning-commentaire-jour-empty {',
+                '    padding: 4px 8px;',
+                '    font-size: 8pt;',
+                '    white-space: pre-wrap;',
+                '    word-break: break-word;',
+                '    background: #fff;',
+                '}',
+                '.planning-commentaire-jour-input { display: none !important; }',
+                '.planning-cell-tooltip, .planning-role-toggle { display: none !important; }',
+                'tr { display: table-row !important; }',
+                '.planning-cell.has-comment::after {',
+                '    content: \'\';',
+                '    position: absolute;',
+                '    top: 1px; right: 1px;',
+                '    width: 4px; height: 4px;',
+                '    border-radius: 50%;',
+                '    background: #000091;',
+                '}'
+            ].join('\n');
+
+            var html = '<!DOCTYPE html><html><head>' +
+                '<meta charset="utf-8">' +
+                '<title>Service Journalier \u2014 ' + navText + '</title>' +
+                '<style>' + css + '</style>' +
+                '</head><body>' +
+                '<div class="print-header">' +
+                '<div>' +
+                '<h2 class="print-title">Service Journalier \u2014 ' + navText + '</h2>' +
+                '<p class="print-subtitle">DFAED \u00b7 DFBC \u00b7 SCRC \u00b7 UNPJ</p>' +
+                '</div>' +
+                '<span class="print-export-date">' + exportLabel + '</span>' +
+                '</div>' +
+                commentHtml +
+                '<div class="planning-table-wrapper">' + tableHtml + '</div>' +
+                legendHtml +
+                '</body></html>';
+
+            var w = window.open('', '_blank');
+            if (!w) { return; }
+            w.document.write(html);
+            w.document.close();
+            w.focus();
+            setTimeout(function () { w.print(); w.close(); }, 400);
         }
     };
 
