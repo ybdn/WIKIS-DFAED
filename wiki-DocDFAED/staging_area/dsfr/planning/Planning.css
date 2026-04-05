@@ -4,12 +4,12 @@
    PLANNING APP — DSFR-compatible styles
    ================================================================ */
 
-/* --- Mode "Bord à bord" pour MediaWiki --- */
-.mw-page-container,
-.mw-workspace-container,
-.mw-content-container,
-#content.mw-body,
-#content {
+/* --- Mode "Bord à bord" pour MediaWiki (P4S uniquement) --- */
+body.planning-fullwidth .mw-page-container,
+body.planning-fullwidth .mw-workspace-container,
+body.planning-fullwidth .mw-content-container,
+body.planning-fullwidth #content.mw-body,
+body.planning-fullwidth #content {
     max-width: none !important;
 }
 
@@ -197,6 +197,30 @@
 .planning-cell.editable:hover {
     box-shadow: inset 0 0 0 2px #000091;
     z-index: 2;
+}
+.planning-cell-po {
+    cursor: not-allowed;
+    opacity: 0.8;
+    font-style: italic;
+}
+
+/* --- Toast erreur SPORT --- */
+.planning-sport-error-toast {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ce0500;
+    color: #fff;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    z-index: 9999;
+    max-width: 480px;
+    text-align: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    pointer-events: none;
 }
 
 /* --- Dropdown (mission selector) --- */
@@ -413,6 +437,89 @@
 }
 
 
+/* --- Tri des colonnes compteurs --- */
+.planning-cth-sortable {
+    cursor: pointer;
+    user-select: none;
+}
+.planning-cth-sortable:hover {
+    background: #e0e0e0 !important;
+}
+.planning-sort-icon {
+    display: inline-block;
+    font-size: 0.65rem;
+    opacity: 0.45;
+    margin-left: 0.2rem;
+    vertical-align: middle;
+}
+.planning-sort-asc .planning-sort-icon,
+.planning-sort-desc .planning-sort-icon {
+    opacity: 1;
+    color: #000091;
+}
+.planning-sort-asc,
+.planning-sort-desc {
+    background: #e8eaf6 !important;
+    color: #000091 !important;
+}
+
+/* --- Ligne indicateurs P4S (gestion) --- */
+.planning-stats-row th,
+.planning-stats-row td {
+    background: #fafaf5;
+    padding: 2px 1px;
+    vertical-align: top;
+    position: sticky;
+    top: 36px;
+    z-index: 9;
+}
+.planning-stats-row .planning-col-agent {
+    background: #f0f0e8;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #555;
+    vertical-align: middle;
+    z-index: 14;
+}
+.planning-stats-row .planning-col-weekend {
+    background-color: #efefef !important;
+}
+.planning-stats-row .planning-col-holiday {
+    background-color: #e4eaff !important;
+}
+.planning-stats-cell {
+    text-align: center;
+}
+.p4s-stat-abs {
+    display: block;
+    font-size: 0.625rem;
+    font-weight: 700;
+    line-height: 1.5;
+    color: #666;
+    white-space: nowrap;
+}
+.p4s-stat-abs.p4s-stat-abs-ok   { color: #18753c; }
+.p4s-stat-abs.p4s-stat-abs-warn { color: #c9191e; }
+.p4s-stat-badges {
+    display: flex;
+    justify-content: center;
+    gap: 2px;
+}
+.p4s-stat-badge {
+    display: inline-block;
+    font-size: 0.5625rem;
+    font-weight: 700;
+    line-height: 1;
+    padding: 1px 3px;
+    border-radius: 2px;
+    background: #ccc;
+    color: #fff;
+    white-space: nowrap;
+}
+.p4s-stat-badge.p4s-stat-badge-ok {
+    background: #18753c;
+}
+
 /* --- Séparateurs de groupes par rôle --- */
 .planning-role-separator {
     cursor: pointer;
@@ -525,8 +632,8 @@
     position: absolute;
     top: 2px;
     right: 2px;
-    width: 6px;
-    height: 6px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
     background: #000091;
     pointer-events: none;
@@ -645,4 +752,106 @@
     .planning-cell.editable:hover {
         box-shadow: none;
     }
+}
+
+/* ================================================================
+   PREVISION — pastille mauve et dialog de confirmation
+   ================================================================ */
+
+/* Pastille mauve indiquant une prevision en attente */
+.planning-prevision-dot {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+}
+
+/* Coexistence commentaire (bleu, right:2px 6px) + prevision (mauve) :
+   decaler la pastille mauve a gauche du point bleu (6px + 2px gap + 1px = right:11px) */
+.planning-cell.has-comment .planning-prevision-dot {
+    right: 11px;
+}
+
+.planning-prevision-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #6a00f4;
+    cursor: default;
+    display: inline-block;
+    flex-shrink: 0;
+    pointer-events: none;
+    z-index: 3;
+}
+
+/* Overlay du dialog de confirmation */
+.planning-prevision-dialog-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 9000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Dialog de confirmation */
+.planning-prevision-dialog {
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    padding: 1.5rem 2rem;
+    min-width: 320px;
+    max-width: 480px;
+}
+.planning-prevision-dialog h4 {
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #161616;
+    border-bottom: 2px solid #6a00f4;
+    padding-bottom: 0.5rem;
+}
+.planning-prevision-dialog p {
+    margin: 0.4rem 0;
+    color: #3a3a3a;
+    font-size: 0.95rem;
+}
+.planning-prevision-dialog-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+/* Ligne secondaire (rejet + annuler) */
+.planning-prevision-dialog-actions--reject {
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e5e5e5;
+}
+
+/* Bouton de rejet (rouge discret) */
+.planning-btn-reject {
+    color: #c9191e !important;
+    border-color: #c9191e !important;
+}
+.planning-btn-reject:hover {
+    background-color: #ffe9e9 !important;
+    color: #c9191e !important;
+}
+
+/* Pastille donnees officielles (coin bas-gauche) dans la vue Previsions */
+/* Les couleurs background/color sont injectees en style inline depuis les tables de missions */
+.prev-official-dot {
+    position: absolute;
+    bottom: 2px;
+    left: 2px;
+    font-size: 9px;
+    font-weight: 600;
+    line-height: 1;
+    padding: 1px 3px;
+    border-radius: 2px;
+    pointer-events: none;
+    opacity: 0.85;
 }

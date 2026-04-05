@@ -18,14 +18,14 @@ window.PlanningMissionsP4S = [
     { code: "WE",  label: "Week-end",                bg: "#ffe9e9", fg: "#c9191e" },
 
 /* ABSENCES */
-    { code: "R",   label: "Repos",                   bg: "#dffee6", fg: "#18753c" },
-    { code: "RR",  label: "Repos recup.",            bg: "#dffee6", fg: "#18753c" },
-    { code: "P",   label: "Permissions",             bg: "#dffee6", fg: "#18753c" },
-    { code: "PM",  label: "Perm. matin",        bg: "#dffee6", fg: "#18753c" },
-    { code: "PAM", label: "Perm. apres-midi",   bg: "#dffee6", fg: "#18753c" },
+    { code: "R",   label: "Repos",                   bg: "#dffee6", fg: "#18753c", absence: true },
+    { code: "RR",  label: "Repos recup.",            bg: "#dffee6", fg: "#18753c", absence: true },
+    { code: "P",   label: "Permissions",             bg: "#dffee6", fg: "#18753c", absence: true },
+    { code: "PM",  label: "Perm. matin",        bg: "#dffee6", fg: "#18753c", absence: true },
+    { code: "PAM", label: "Perm. apres-midi",   bg: "#dffee6", fg: "#18753c", absence: true },
 
 /* MALADIE */
-    { code: "CM",  label: "Conge maladie",           bg: "#fce8f5", fg: "#7c0059" },
+    { code: "CM",  label: "Conge maladie",           bg: "#fce8f5", fg: "#7c0059", absence: true },
 
 /* FORMATION */
     { code: "F",   label: "Formation",               bg: "#f2e6fd", fg: "#6a00f4" },

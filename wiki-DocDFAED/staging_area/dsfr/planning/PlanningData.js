@@ -217,6 +217,26 @@
         saveCommentaireJour: function (year, month, day, data, cb) {
             var key = year + '-' + pad(month) + '-' + pad(day);
             writePage(BASE_PATH + 'CommentaireJour/' + key, data, 'Commentaire journee ' + key, cb);
+        },
+
+        /* Previsions P4S */
+        loadPrevisionP4S: function (year, month, cb) {
+            var key = year + '-' + pad(month);
+            readPage(BASE_PATH + 'Prevision/P4S/' + key, cb);
+        },
+        savePrevisionP4S: function (year, month, data, cb) {
+            var key = year + '-' + pad(month);
+            writePage(BASE_PATH + 'Prevision/P4S/' + key, data, 'Prevision P4S ' + key, cb);
+        },
+
+        /* Previsions Journalier */
+        loadPrevisionJournalier: function (year, month, day, cb) {
+            var key = year + '-' + pad(month) + '-' + pad(day);
+            readPage(BASE_PATH + 'Prevision/Journalier/' + key, cb);
+        },
+        savePrevisionJournalier: function (year, month, day, data, cb) {
+            var key = year + '-' + pad(month) + '-' + pad(day);
+            writePage(BASE_PATH + 'Prevision/Journalier/' + key, data, 'Prevision journalier ' + key, cb);
         }
     };
 

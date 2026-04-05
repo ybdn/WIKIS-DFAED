@@ -1,6 +1,5 @@
 /* SOURCE FILE FOR: [[MediaWiki:Dsfr/EasterEgg.js]] */
 (function() {
-    // Séquence : ↑ ↓ ↑ ↓ ← → ← → Y B D N
     var SEQUENCE = [38, 40, 38, 40, 37, 39, 37, 39, 89, 66, 68, 78];
     var pos = 0;
     var overlay = null;
