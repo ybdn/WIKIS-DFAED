@@ -1,0 +1,622 @@
+/* 
+ * -------------------------------------------------------------------------
+ * SOURCE FILE FOR: MediaWiki:Common.css
+ * -------------------------------------------------------------------------
+ * Ce fichier CSS est appliqué à toutes les pages pour tous les utilisateurs.
+ * Copiez le contenu de ce fichier dans la page [[MediaWiki:Common.css]] de la prod.
+ */
+ 
+/*
+ * -------------------------------------------------------------------------
+ * ANTI-FOUC — Masque TOUTE l'interface Vector pendant le chargement DSFR
+ * -------------------------------------------------------------------------
+ * body est rendu invisible immediatement (ce CSS est charge dans <head>).
+ * Un overlay + spinner DSFR s'affiche via html::before / html::after.
+ * Common.js ajoute html.dsfr-ready quand tous les modules sont initialises,
+ * declenchant la revelation avec transition.
+ *
+ * Deux failsafes garantissent que le contenu devient toujours visible :
+ *   — CSS  : animation differee a 4s (si JS echoue ou est trop lent)
+ *   — JS   : setTimeout a 5s dans Common.js (si les onload ne se declenchent pas)
+ * -------------------------------------------------------------------------
+ */
+
+/* --- Masquer le body entier --- */
+body {
+    opacity: 0;
+    transition: opacity 0.3s ease-in;
+    animation: dsfr-failsafe-body 0s ease-in 4s forwards;
+}
+
+html.dsfr-ready body {
+    opacity: 1;
+    animation: none;
+}
+
+/* --- Overlay fond --- */
+html::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #f5f5fe;
+    z-index: 99999;
+    pointer-events: none;
+    transition: opacity 0.3s ease-out;
+    animation: dsfr-failsafe-overlay 0s ease-out 4s forwards;
+}
+
+/* --- Spinner DSFR --- */
+html::after {
+    content: '';
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 48px;
+    height: 48px;
+    margin: -24px 0 0 -24px;
+    border: 4px solid #e3e3fd;
+    border-top-color: #000091;
+    border-radius: 50%;
+    z-index: 100000;
+    pointer-events: none;
+    animation: dsfr-spin 0.8s linear infinite, dsfr-failsafe-overlay 0s ease-out 4s forwards;
+}
+
+/* --- Revelation : masquer overlay + spinner --- */
+html.dsfr-ready::before,
+html.dsfr-ready::after {
+    opacity: 0;
+    visibility: hidden;
+    animation: none;
+}
+
+/* --- Animations --- */
+@keyframes dsfr-spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes dsfr-failsafe-body {
+    to { opacity: 1; }
+}
+
+@keyframes dsfr-failsafe-overlay {
+    to { opacity: 0; visibility: hidden; }
+}
+/* Vos styles personnalisés ci-dessous */
+table.sortable tr:nth-child(even) {
+  background-color: #dbe4f0;
+}
+
+table.sortable tr:hover {
+  background-color: #f5ff00;
+}
+
+table.infotable th{
+  background: #B0C4DE;
+  border: 1px #aaaaaa solid;
+  text-align: left;
+  vertical-align: middle;
+}
+
+table.wikitable td, table.prettytable td, table.sortable td, table.smwtable td, table.infotable td{
+  border: 1px #aaaaaa solid;
+  padding: 0.2em;
+  vertical-align: top;
+}
+
+table.wikitable caption, table.prettytable caption, table.sortable caption, table.smwtable caption {
+  font-weight: bold;
+}
+
+
+table.formtable th {
+  padding-left: 0.7em;
+}
+
+table.formtable td {
+  vertical-align: top;
+  padding-right: 0.7em;
+}
+
+table.notable{
+  margin: 1em 1em 1em 0;
+  background: #f9f9f9;
+  border: 0px;
+  border-collapse: collapse;
+}
+
+table.notable td {
+  border: 0px ;
+  padding: 0.2em;
+}
+
+/* Classe permettant de colorer les lignes paires d'un tableau */
+table.unsurdeux tr:nth-child(even){
+  background-color: #dbe4f0;  
+}
+
+/* Classe permettant de surligner une ligne d'un tableau au survol de la souris */
+table.surligne tr:hover {
+  background-color: #f5ff00;
+}
+
+/* Classe servant à indiquer qu'une partie de la page est obsolète */
+
+.obsolete {
+  font-style: italic;
+  background: #D3D3D3;
+}
+
+/* pour diminuer la taille de la police (utile pour les grands tableaux) */
+.minipolice {
+  font-size:80%;
+}
+
+/* Classe servant à personnaliser l'apparence des liens vers les pages d'homonymie. */
+
+.homonymie {
+ padding-left:2em;
+ padding-bottom:.5em;
+ margin-bottom:.5em;
+ font-style:italic;
+ border-bottom:1px #AAA solid;
+}
+
+/* Classes des boîtes d'information */
+
+.infobox {
+  clear:both;
+  float:right;
+  margin:1px;
+  margin-left:2px;
+  margin-right:0;
+  width:300px;
+  border:solid 1px #99B3FF;
+  background-color:#FFFFFF;
+  padding:1px;
+  text-align:left;
+  font-size:85%;
+}
+
+.infobox_personnel {
+  clear:both;
+  float:right;
+  margin:1px;
+  margin-left:2px;
+  margin-right:0;
+  width:400px;
+  border:solid 1px #99B3FF;
+  background-color:#FFFFFF;
+  padding:1px;
+  text-align:left;
+  font-size:85%;
+}
+
+table.infobox2{
+  background: #FFFFFF;
+  border: 2px solid #164eaf;
+  margin: 0 0 1em 1em;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  position:relative;
+  float:right;
+  padding: 0px;
+}
+ 
+table.infobox2 tr {
+  background: #FFFFFF;
+}
+ 
+table.infobox2 td {
+  vertical-align: top !important;
+}
+ 
+table.infobox2 th {
+  background: #164eaf;
+  padding: 5px;
+  font-size: 120%;
+  font-weight: bold;
+  font-family: Trebuchet MS, Helvetica, Arial, sans-serif;
+  color: white;
+  vertical-align: top !important;
+}
+ 
+table.infobox2 th a {
+  color: #FFFFFF;
+}
+
+table.infobox2 th a:visited {
+  color: #FFFFFF;
+}
+
+/* ARTICLE DÉTAILLÉ */
+ 
+.detail, .details {
+ margin:0 0 .7em 2em;
+ border:solid #E7E7E7;
+ border-width:1px 0;
+ text-align:left;
+ font-size:95%;
+ background:#D3D3D3;
+ padding:1px 4px;
+ display:table;
+}
+.detail > span {
+ display:table-row;
+}
+.detail > span > span {
+ display:table-cell;
+ padding-left:4px;
+ width:100%;
+}
+
+/* extra buttons for edit dialog */
+/* from commons:MediaWiki:Common.css */
+ 
+.my-buttons {
+   padding: 0.5em;
+ }
+.my-buttons a {
+   color: black;
+   background-color: #ccddee !important;
+   font-weight: bold;
+   font-size: 0.9em;
+   text-decoration: none;
+   border: thin #006699 outset;
+   padding: 0 0.1em 0.1em 0.1em;
+ }
+.my-buttons a:hover, .my-buttons a:active {
+   background-color: #bbccdd;
+   border-style: inset;
+ }
+
+/* pour simuler des cellules de tableaux avec retour à la ligne automatique... */
+.td {
+  display:inline-block;
+  /* width: 380px; */
+  /* min-height: 96px; */
+  /*border: 2px solid #8cacbb;*/
+  margin: 1px;
+  padding: 1em;
+}
+
+/* BOÎTES DÉROULANTES */
+ 
+/* Styles des boîtes déroulantes, voir [[Modèle:Boîte déroulante/Doc]]. */
+
+div.NavFrame {
+ margin:0;
+ padding:2px;
+ text-align:center;
+ border:0px;
+ border-collapse:collapse;
+ font-size:95%;
+} /* monobookocentré début */
+ 
+div.NavFrame + div.NavFrame {
+ border-top-style:hidden;
+}
+ 
+div.NavPic {
+ background:#FFF;
+ margin:0;
+ padding:2px;
+ float:left;
+}
+ 
+div.NavFrame div.NavHead {
+ height:1.6em;
+ font-weight:bold;
+ font-size:100%;
+}
+ 
+div.NavFrame p,
+div.NavFrame div.NavContent,
+div.NavFrame div.NavContent p { font-size:100% }
+ 
+div.NavEnd {
+ margin:0;
+ padding:0;
+ line-height:1px;
+ clear:both;
+}
+ 
+.NavToggle {
+ font-size:x-small;
+ float:right;
+} /* monobookocentré fin */
+ 
+/* Styles de [[Modèle:Méta palette de navigation]] */
+table.navbox { 
+ background:#F9F9F9;
+ border:1px solid #AAA;
+ clear:both;
+ font-size:90%;
+ margin:1em 0 0;
+ padding:2px;
+ text-align:center;
+ width:100%;
+}
+ 
+table.navbox th { 
+ background:#CCF;
+ padding-left:1em;
+ padding-right:1em;
+}
+ 
+table.navbox td.group { 
+ background:#DDF;
+ vertical-align:middle;
+ width:150px;
+ padding-left:1em;
+ padding-right:1em;
+ font-weight: bold;
+}
+ 
+table.navbox td.list { 
+ text-align:left
+}
+ 
+table.navbox td.even { 
+ background:#EEF
+}
+ 
+table.navbox td.below { 
+ background:#CCF;
+ vertical-align:middle;
+ padding-left:1em;
+ padding-right:1em;
+}
+ 
+/* Modèle de palettes groupées, [[Modèle:Palette]] */ 
+ 
+div.navbox_group {
+border: 1px solid #aaaaaa;
+margin-top: 15px;
+}
+div.navbox_group table.navbox {
+border: 0;
+}
+
+/*--------------------------------------------------|
+| dTree 2.05 | www.destroydrop.com/javascript/tree/ |
+|---------------------------------------------------|
+| Copyright (c) 2002-2003 Geir Landr�               |
+|--------------------------------------------------*/
+ 
+.dtree {
+        font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+        font-size: 11px;
+        color: #666;
+}
+.dtree img {
+        border: 0px;
+        vertical-align: middle;
+}
+.dtree a {
+        color: #333;
+        text-decoration: none;
+}
+.dtree a.node, .dtree a.nodeSel {
+        white-space: nowrap;
+        padding: 1px 2px 1px 2px;
+}
+.dtree a.node:hover, .dtree a.nodeSel:hover {
+        color: #333;
+        text-decoration: underline;
+}
+.dtree a.nodeSel {
+        background-color: #c0d2ec;
+}
+.dtree .clip {
+        overflow: hidden;
+}
+/* fin dTree */
+
+/* virer Faire un don */
+#n-sitesupport {display:none}
+
+/* boite bleue */
+.bluebox {
+	background-color: lightsteelblue;
+	padding: 0.3em 0.5em 0.3em 0.5em;
+	border-color: slategray; 
+	border-width: 1px; 
+	border-style: solid;
+	margin-bottom: 1em;
+}
+
+/* boîte au comportement adaptatif */
+.smartbox {
+  background-color: lightsteelblue;
+  border-color: slategray;
+  border-radius: 25px;
+  border-width: 1px; 
+  border-style: solid;
+  margin:10px;
+  padding:20px;
+  display:inline-block;
+  min-width: 300px;
+  text-align: left;
+  font-size: 150%;
+  margin-bottom: 1em;
+  vertical-align: middle;
+}
+
+/* pour trier les dates dans les tableaux sémantiques */
+span.smwsortkey {
+    display: none;
+}
+
+/* pour régler un problème de tree */
+/* a.node {
+    display: none;
+} */
+
+
+/*******************************/
+/* Tableaux aux bords arrondis */
+/*******************************/
+table.arrondi {
+  background: #FFFFFF;
+  border: 1px solid #B0C4DE;
+  margin: 0.5em 0.5em 0.5em 0.5em;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  padding: 0px;
+}
+ 
+table.arrondi tr:nth-child(even) {
+  background-color: #dbe4f0;
+}
+ 
+table.arrondi th {
+  background: #B0C4DE;
+  padding: 0.1em;
+  font-family: Trebuchet MS, Helvetica, Arial, sans-serif;
+  vertical-align: top !important;
+}
+ 
+table.arrondi td {
+  vertical-align: middle;
+  padding: 0.1em;
+}
+
+/*******************************/
+/* Pour SMFI Two listboxes     */
+/*******************************/
+
+.ms-container ul.ms-list {
+    height: 200px; 
+    width: 500px; 
+}
+.ms-container {
+    background: url("http://wiki-pjgn.gendarmerie.fr/wiki/extensions/SemanticFormsInputs/images/TwoListboxesArrow.png") no-repeat scroll 505px 83px transparent;
+}
+
+/**
+ * Tab/Panel left slide
+ * @author mwjames
+ */
+#panel {
+    /*position: absolute; */
+	height: 100%;    
+	background: transparent;
+	left: 0;
+}
+ 
+#panel-content {
+	position: relative;
+	width: 0px;
+	overflow: hidden;
+	height: 100%;
+	background: #fff;
+	border: 0px solid #000;
+	float:left;
+	/*margin-left: 10px;*/
+}
+ 
+#panel-tab {
+	position: relative;
+	top: 2px;
+/*	width: 50px;*/
+/*	height: 100%;*/
+	background-color: transparent; 
+	float: left;
+	margin: 0px;
+	padding: 0px;
+	margin-right: -10px;
+	margin-left: 10px;
+}
+ 
+#smwTab {
+/*	position: relative;*/
+/*	top: 1px;*/
+/*	height: 70px;*/
+/*	width: 70%;*/
+	color: white;
+	float: left;
+	margin: 0 5px 0 0;
+	padding: 0px;
+	background: #164EAF;
+/* 	display: block;	 */
+	cursor:pointer;	
+	border: 2px solid #fff;	
+	border-left: 0;
+/*	-moz-border-radius-topright: 5px;*/
+	-webkit-border-top-right-radius: 5px;
+/*	-moz-border-radius-bottomleft: 5px;*/
+	-webkit-border-bottom-right-radius: 5px;
+	border-radius: 0 5px 5px 0;
+	filter: progid:DXImageTransform.Microsoft.DropShadow(sProperties);
+	-webkit-box-shadow: 1px 0px 5px 0px #000;
+	-moz-box-shadow: 1px 0px 5px 0px #000;
+}
+ 
+#smwTab p {
+	font-size: 120%;
+	font-weight: bold;
+	font-family: Trebuchet MS,Helvetica,Arial,sans-serif;
+	color: white;
+	-webkit-transform: rotate(-90deg);
+	-moz-transform: rotate(-90deg);
+	-ms-transform: rotate(-90deg);
+	-o-transform: rotate(-90deg);
+	filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+	margin: 25px 0;
+}
+
+/* distingue les champs obligatoires dans les formulaires sémantiques */
+.mandatoryField {
+  background: #ffff66;
+}
+
+
+/**
+ * Styling for links generated by [[MediaWiki:Edittools]]
+ * @source https://www.mediawiki.org/wiki/Extension:CharInsert#Styling
+ * @updated 2012-02-29
+ */
+.mw-charinsert-buttons {
+	margin-top: 10px;
+	border: 1px solid #aaaaaa;
+	padding: 1px;
+	text-align: center;
+	font-size: 110%;
+}
+.mw-charinsert-buttons a {
+	color: black;
+	background-color: #cde !important;
+	font-weight: bold;
+	font-size: .9em;
+	text-decoration: none;
+	border: thin #069 outset;
+	padding: 0 .1em .1em;
+}
+.mw-charinsert-buttons a:hover,
+.mw-charinsert-buttons a:active {
+	background-color: #bcd;
+	border-style: inset;
+}
+.client-js .mw-edittools-section {
+	display: inline;
+}
+.client-js .mw-edittools-section input[type="button"] {
+	font-size: 0.9em;
+	padding-left: 1px;
+	padding-right: 1px;
+	margin-left: 1px;
+}
+
+
+/* Ne pas afficher l'avertissement relatif aux copies affiché lors de l'édition de page */
+#editpage-copywarn {
+	display: none;
+}
+
+/* [[Catégorie:CSS]] */
+
+

@@ -90,11 +90,12 @@ window.DsfrConfig = {
                 { label: "Fiches pratiques", page: "NeoDK:Fiches_pratiques" },
                 { label: "Soutien technique", page: "NeoDK:Soutien_technique" }
             ]
-        }
+        },
+        { type: "link", label: "Application FAED", href: "https://faed.sso.gendarmerie.fr/" }
     ],
     
     footer: {
-        desc: "Ce wiki est la plateforme de documentation interne du FAED.",
+        desc: "Ce wiki est la plateforme de documentation du DFAED à destination des utilisateurs du FAED.",
         links: [
             { label: "legifrance.gouv.fr", href: "https://legifrance.gouv.fr" },
             { label: "gouvernement.fr", href: "https://gouvernement.fr" },

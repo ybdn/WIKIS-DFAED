@@ -50,9 +50,9 @@ Toute l'édition se fait dans le dossier local `/staging_area`.
 
 Fichiers principaux :
 
-- `staging_area/Common.css` : Styles globaux.
-- `staging_area/Common.js` : **Script Maître**. Il injecte le Loader, détecte l'environnement (Local/Prod) et charge les modules.
-- `staging_area/dsfr/` : Dossier contenant les composants DSFR (Header, Layout, etc.).
+- `staging_area/Common.js` : **Script Maître**. Injecte le Loader, détecte l'environnement (Local/Prod) et charge les modules (Config depuis `staging_area/dsfr/`, tout le reste depuis `shared/dsfr/`).
+- `staging_area/dsfr/Config.js` : Configuration propre à cette instance (navigation, branding, footer).
+- `../shared/` : Base de code commune aux deux wikis — Layout, Header, Footer, EditPage, Style.css, Common.css, 36 composants.
 
 ### 2. Test
 
@@ -66,17 +66,22 @@ Le Wiki de production **n'a pas** accès à ce dépôt Git. Vous devez mettre à
 
 > **ATTENTION** : L'ordre de mise à jour n'est pas critique, mais commencer par `Common.js` assure que tout le monde voit l'écran de chargement.
 
-| Fichier Local | Page Wiki de Production (Destination) | Rôle |
-|--------------|--------------------------------------|------|
-| `Common.css` | `MediaWiki:Common.css` | Styles de base |
-| `Common.js` | `MediaWiki:Common.js` | **Loader & Chef d'orchestre** (À copier en priorité) |
-| `dsfr/Config.js` | `MediaWiki:Dsfr/Config.js` | Textes & Logos |
-| `dsfr/Layout.js` | `MediaWiki:Dsfr/Layout.js` | Nettoyage DOM & CSS Fallback |
-| `dsfr/Header.js` | `MediaWiki:Dsfr/Header.js` | Header DSFR avec logique résiliente |
-| `dsfr/Footer.js` | `MediaWiki:Dsfr/Footer.js` | Pied de page |
-| `dsfr/Style.css` | `MediaWiki:Dsfr/Style.css` | Styles DSFR & Overrides |
-| `dsfr/components/Badge.js` | `MediaWiki:Dsfr/components/Badge.js` | Composant Badge |
-| `dsfr/components/Accordion.js` | `MediaWiki:Dsfr/components/Accordion.js` | Composant Accordéon |
+| Source locale | Page Wiki de Production | Rôle |
+|---------------|-------------------------|------|
+| `staging_area/Common.js` | `MediaWiki:Common.js` | **Loader & Chef d'orchestre** (À copier en priorité) |
+| `staging_area/dsfr/Config.js` | `MediaWiki:Dsfr/Config.js` | Navigation, textes, logos DFAED-NG |
+| `shared/Common.css` | `MediaWiki:Common.css` | Styles de base |
+| `shared/dsfr/Layout.js` | `MediaWiki:Dsfr/Layout.js` | Nettoyage DOM & fil d'Ariane |
+| `shared/dsfr/Header.js` | `MediaWiki:Dsfr/Header.js` | Header DSFR avec logique résiliente |
+| `shared/dsfr/Footer.js` | `MediaWiki:Dsfr/Footer.js` | Pied de page |
+| `shared/dsfr/EditPage.js` | `MediaWiki:Dsfr/EditPage.js` | Barre d'édition DSFR |
+| `shared/dsfr/Style.css` | `MediaWiki:Dsfr/Style.css` | Styles DSFR & overrides |
+| `shared/dsfr/components/Accordion.js` | `MediaWiki:Dsfr/components/Accordion.js` | Composant Accordéon |
+| `shared/dsfr/components/Alert.js` | `MediaWiki:Dsfr/components/Alert.js` | Composant Alerte |
+| `shared/dsfr/components/Badge.js` | `MediaWiki:Dsfr/components/Badge.js` | Composant Badge |
+| `shared/dsfr/components/Card.js` | `MediaWiki:Dsfr/components/Card.js` | Composant Carte |
+| `shared/dsfr/components/Stepper.js` | `MediaWiki:Dsfr/components/Stepper.js` | Indicateur d'étapes |
+| `shared/dsfr/components/*.js` | `MediaWiki:Dsfr/components/*.js` | 31 autres composants disponibles |
 
 ---
 
@@ -88,7 +93,7 @@ Pour éviter les clignotements (FOUC) et garantir la stabilité :
 2. **CSS Préchargé** (Local) : `LocalSettings.php` injecte le CSS DSFR côté serveur via `addHeadItem`.
 3. **Header Résilient** : `Header.js` attend sagement que MediaWiki soit prêt avant de s'afficher et de retirer l'overlay.
 
-Si vous ajoutez un nouveau fichier `MagicButton.js`, ajoutez-le simplement à la liste `dsfrModules` dans `Common.js`.
+Pour activer un composant supplémentaire depuis `shared/`, ajoutez son nom à la liste `sharedModules` dans `staging_area/Common.js`.
 
 ## Semantic MediaWiki
 

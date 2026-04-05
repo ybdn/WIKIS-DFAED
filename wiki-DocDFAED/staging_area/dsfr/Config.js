@@ -1,7 +1,7 @@
 /* SOURCE FILE FOR: [[MediaWiki:Dsfr/Config.js]] */
 window.DsfrConfig = {
     service: {
-        title: "DocDFAED (dev)",
+        title: "DocDFAED",
         tagline: "Département du Fichier Automatisé des Empreintes Digitales",
         logoText: ["Ministère", "de l'Intérieur"]
     },
@@ -50,8 +50,17 @@ window.DsfrConfig = {
                 { label: "Gestion", page: "OCE:Gestion" }
             ]
         },
+        {
+            type: "menu",
+            label: "Outils",
+            id: "menu-outils",
+            items: [
+                { label: "T41 Assistant", page: "Outils:T41 Assistant" },
+                { label: "Stats CSF", page: "Outils:Stats CSF" }
+            ]
+        },
         { type: "link", label: "Historique", page: "Historique" },
-        { type: "link", label: "Application FAED", page: "#" }
+        { type: "link", label: "Application FAED", href: "https://faed.sso.gendarmerie.fr/" }
     ],
  
     footer: {
@@ -74,7 +83,8 @@ window.DsfrConfig = {
             { label: "Pages spéciales", specialPage: "Special:SpecialPages" },
             { label: "Adresse de cette version", action: "permalink" },
             { label: "Information sur la page", action: "info" },
-            { label: "Chercher les propriétés", specialPage: "Special:SearchByProperty" }
+            { label: "Chercher les propriétés", specialPage: "Special:SearchByProperty" },
+            { label: "Documentation fonctionnelle du wiki", specialpage: "Documentation fonctionnelle du wiki"}
         ]
     }
 };

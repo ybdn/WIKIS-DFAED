@@ -7,7 +7,7 @@ DocDFAED est la plateforme de documentation interne du Département du Fichier A
 ## Stack
 
 | Composant | Version |
-|-----------|---------|
+| ----------- | --------- |
 | MediaWiki | 1.31.16 (LTS) |
 | Semantic MediaWiki | 3.2.3 |
 | PHP | 7.4 |
@@ -37,35 +37,43 @@ DocDFAED est la plateforme de documentation interne du Département du Fichier A
 
 ## Workflow de développement
 
-Toute l'édition se fait dans le dossier local `/staging_area`.
+L'édition se fait dans `staging_area/` (Config.js + Common.js propres à DocDFAED) et dans `../shared/` (base commune aux deux wikis).
 
 > **CONTRAINTE TECHNIQUE — Compatibilité prod (MediaWiki 1.31)**
 > Le Wiki de production ne supporte pas le JavaScript moderne dans son minifier.
+>
 > - **INTERDIT** : `const`, `let`, les backticks `` ` ``, les fonctions fléchées `=>`.
 > - **OBLIGATOIRE** : `var`, la concaténation `'a' + 'b'`, et `function() {}` classique.
-
 > **RÈGLE IMPORTANTE** : Chaque fichier doit commencer par `/* SOURCE FILE FOR: [[MediaWiki:NomDeLaPage]] */`
 
 ### Déploiement en Production (Copy-Paste)
 
 Le Wiki de production n'a pas accès à ce dépôt Git. Mise à jour via l'interface web uniquement.
 
-| Fichier local | Page Wiki de production | Rôle |
-|--------------|-------------------------|------|
-| `Common.css` | `MediaWiki:Common.css` | Styles de base |
-| `Common.js` | `MediaWiki:Common.js` | Loader & chef d'orchestre |
-| `dsfr/Config.js` | `MediaWiki:Dsfr/Config.js` | Branding, navigation, footer DocDFAED |
-| `dsfr/Layout.js` | `MediaWiki:Dsfr/Layout.js` | Nettoyage DOM & CSS fallback |
-| `dsfr/Header.js` | `MediaWiki:Dsfr/Header.js` | Header DSFR |
-| `dsfr/Footer.js` | `MediaWiki:Dsfr/Footer.js` | Pied de page |
-| `dsfr/EditPage.js` | `MediaWiki:Dsfr/EditPage.js` | Barre d'édition DSFR custom |
-| `dsfr/Style.css` | `MediaWiki:Dsfr/Style.css` | Styles DSFR & overrides |
-| `dsfr/components/*.js` | `MediaWiki:Dsfr/components/*.js` | Composants DSFR (voir liste ci-dessous) |
+| Source locale | Page Wiki de production | Rôle |
+| -------------- | ------------------------- | ------ |
+| `staging_area/Common.js` | `MediaWiki:Common.js` | Loader & chef d'orchestre (À copier en priorité) |
+| `staging_area/dsfr/Config.js` | `MediaWiki:Dsfr/Config.js` | Navigation, branding, footer DocDFAED |
+| `shared/Common.css` | `MediaWiki:Common.css` | Styles de base |
+| `shared/dsfr/Layout.js` | `MediaWiki:Dsfr/Layout.js` | Nettoyage DOM & fil d'Ariane |
+| `shared/dsfr/Header.js` | `MediaWiki:Dsfr/Header.js` | Header DSFR |
+| `shared/dsfr/Footer.js` | `MediaWiki:Dsfr/Footer.js` | Pied de page |
+| `shared/dsfr/EditPage.js` | `MediaWiki:Dsfr/EditPage.js` | Barre d'édition DSFR |
+| `shared/dsfr/Style.css` | `MediaWiki:Dsfr/Style.css` | Styles DSFR & overrides |
+| `shared/dsfr/components/*.js` | `MediaWiki:Dsfr/components/*.js` | Composants DSFR (voir liste ci-dessous) |
+| `staging_area/dsfr/planning/MissionsP4S.js` | `MediaWiki:Dsfr/planning/MissionsP4S.js` | Config missions Planning Mensuel |
+| `staging_area/dsfr/planning/MissionsJournalier.js` | `MediaWiki:Dsfr/planning/MissionsJournalier.js` | Config missions Service Journalier |
+| `staging_area/dsfr/planning/PlanningData.js` | `MediaWiki:Dsfr/planning/PlanningData.js` | Service de données (API MW + jours fériés) |
+| `staging_area/dsfr/planning/PlanningP4S.js` | `MediaWiki:Dsfr/planning/PlanningP4S.js` | Vue Planning Mensuel |
+| `staging_area/dsfr/planning/PlanningJournalier.js` | `MediaWiki:Dsfr/planning/PlanningJournalier.js` | Vue Service Journalier |
+| `staging_area/dsfr/planning/PlanningPersonnel.js` | `MediaWiki:Dsfr/planning/PlanningPersonnel.js` | Gestion du personnel (CRUD) |
+| `staging_area/dsfr/planning/PlanningApp.js` | `MediaWiki:Dsfr/planning/PlanningApp.js` | Orchestrateur (routing, tabs, permissions) |
+| `staging_area/dsfr/planning/Planning.css` | `MediaWiki:Dsfr/planning/Style.css` | Styles DSFR du module Planning |
 
 ### Navigation configurée (Config.js)
 
 | Entrée | Type | Sous-éléments |
-|--------|------|---------------|
+| -------- | ------ | --------------- |
 | Accueil | Lien | — |
 | Documentation | Menu | ASQ, Veille professionnelle |
 | Formation | Menu | Formations internes, Formations externes |
@@ -78,7 +86,66 @@ Le Wiki de production n'a pas accès à ce dépôt Git. Mise à jour via l'inter
 
 49 composants présents dans `staging_area/dsfr/components/` — tous structurés, à implémenter selon les besoins :
 
-Accordion, Alert, Badge, Breadcrumb, Button, Callout, Card, Checkbox, Combobox, Composition, Connect, Consent, Content, Display, Download, Dropdown, Follow, Form, Highlight, Input, Link, Logo, Modal, Navigation, Notice, Pagination, Password, Quote, Radio, Range, Search, Segmented, Select, Share, Sidemenu, Skiplink, Stepper, Summary, Tab, Tabnav, Table, Tag, Tile, Toggle, Tooltip, Transcription, Translate, Upload, User
+**Actifs** : Accordion, Alert, Badge, Card, Stepper, Download, Summary, Tab, Table, Tag, Tooltip (11 composants chargés dans `sharedModules`)
+
+**Disponibles dans `shared/`, non encore activés** : Breadcrumb, Button, Callout, Checkbox, Dropdown, Form, Highlight, Input, Link, Modal, Notice, Pagination, Quote, Radio, Search, Segmented, Select, Share, Sidemenu, Skiplink, Tabnav, Tile, Toggle, Transcription, Upload
+
+---
+
+## Module Planning
+
+Application de planning intégrée au wiki, avec deux vues et deux modes d'accès.
+
+### Vues
+
+| Vue | Description |
+| --- | ----------- |
+| **P4S — Planning Mensuel** | Grille agents × jours du mois. Week-ends et jours fériés FR colorés. |
+| **Service Journalier** | Grille agents × heures (07h–20h). |
+
+### Accès
+
+| Mode | Page wiki | Droits |
+| ---- | --------- | ------ |
+| **Consultation** | `Planning:Consultation` | Tous les utilisateurs — lecture seule |
+| **Gestion** | `Planning:Gestion` | Bureaucrates / Sysop — édition cellules, gestion personnel, compteurs |
+
+### Fonctionnalités
+
+- ✏️ Édition par clic sur cellule → menu déroulant des missions
+- 📊 Compteurs par personnel (Gestion uniquement)
+- 📅 Navigation ◄ ► par mois (P4S) ou par jour (Journalier)
+- 🎨 Colorisation week-ends et jours fériés français
+- 👥 Gestion du personnel (ajouter, modifier, réordonner, marquer départ)
+- 🖨️ Export PDF via impression navigateur
+- 💾 Sauvegarde via bouton « Enregistrer »
+
+### Stockage des données (pages wiki JSON)
+
+Les données sont stockées dans des pages wiki au format JSON, créées automatiquement via l'API MediaWiki :
+
+| Page wiki | Contenu |
+| --------- | ------- |
+| `Planning:Data/Personnel` | Liste des agents (id, nom, grade, statut actif/parti) |
+| `Planning:Data/P4S/YYYY-MM` | Planning mensuel (ex: `Planning:Data/P4S/2026-04`) |
+| `Planning:Data/Journalier/YYYY-MM-DD` | Service journalier (ex: `Planning:Data/Journalier/2026-04-03`) |
+
+> **Note** : Les données de planning d'un agent parti restent dans les pages JSON historiques. Seul son statut change dans la liste du personnel.
+
+### Configuration des missions
+
+Les codes missions sont définis dans des fichiers JS éditables :
+
+- `staging_area/dsfr/planning/MissionsP4S.js` — codes du planning mensuel (M, AM, R, RR, P…)
+- `staging_area/dsfr/planning/MissionsJournalier.js` — codes du service journalier (MMO, T41, PO, ID…)
+
+Chaque mission a un `code`, un `label`, et des couleurs (`bg`, `fg`).
+
+### Mise en place en production
+
+1. Créer les pages `Planning:Consultation` et `Planning:Gestion` (contenu minimal)
+2. Copier les 8 fichiers JS/CSS du planning vers les pages `MediaWiki:Dsfr/planning/*`
+3. Mettre à jour `MediaWiki:Common.js` (bloc de chargement conditionnel Planning)
 
 ---
 

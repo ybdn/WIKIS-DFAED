@@ -7,7 +7,31 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
 ## [Non publié]
 
+### Anti-FOUC — Loader complet
+
+- **`shared/Common.css`** : refonte de la section anti-FOUC.
+  - Avant : seul `.mw-parser-output` était masqué — le chrome Vector (header, sidebar, footer) restait visible pendant 1-2s.
+  - Maintenant : `body` entier masqué (`opacity: 0`) + overlay fond bleu clair (`#f5f5fe`) + spinner DSFR (`#000091`) via `html::before` / `html::after`.
+  - Révélation en 0.3s quand `html.dsfr-ready` est ajouté par `Common.js`.
+  - Failsafe CSS à 4s (animation) + failsafe JS à 5s (setTimeout) inchangés.
+- **`LocalSettings.php`** : chemin CSS corrigé de `/staging_area/Common.css` vers `/shared/Common.css`.
+
+### Architecture — Refonte en base commune partagée
+
+- **Dossier `shared/`** (à la racine du dépôt) : nouvelle base de code commune aux deux wikis.
+  - `shared/Common.css` — styles globaux communs.
+  - `shared/dsfr/Layout.js`, `Header.js`, `Footer.js`, `EditPage.js`, `Style.css` — modules core.
+  - `shared/dsfr/components/` — 36 composants disponibles (voir liste ci-dessous).
+- **`staging_area/`** réduit à l'essentiel de cette instance : `Common.js` (orchestrateur) + `dsfr/Config.js` (navigation, branding).
+- **`staging_area/Common.js`** : refonte — deux listes séparées (`localModules` pour Config, `sharedModules` pour tout le reste), chemins locaux `shared/dsfr/` en dev, pages `MediaWiki:Dsfr/` en prod.
+
 ### Ajouts
+
+- **`dsfr/components/Stepper.js`** : Composant indicateur d'étapes DSFR.
+  - Syntaxe wikitext simplifiée via `.dsfr-stepper` et attributs `data-*` : `data-current`, `data-total`, `data-title`, `data-next` (optionnel), `data-title-level` (optionnel, défaut `h2`).
+  - Génère la structure DSFR complète : `fr-stepper`, `fr-stepper__title`, `fr-stepper__state`, `fr-stepper__steps` (avec `data-fr-current-step` / `data-fr-steps`), `fr-stepper__details` (absent sur la dernière étape).
+  - Clamp automatique des valeurs hors-borne, transformation idempotente.
+- **`dsfr/EditPage.js`** : ajout de 2 entrées dans le menu "Composants DSFR" : Indicateur d'étapes (étape courante) et Indicateur d'étapes (dernière étape).
 
 - **`dsfr/components/Card.js`** : Composant carte DSFR complet.
   - Carte simple via `.dsfr-card` : titre, description, lien (interne via `mw.util.getUrl()` ou URL absolue), badge (types `new`, `info`, `success`, `warning`, `error`), détail avec icône optionnelle, image d'illustration.
@@ -18,12 +42,35 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
   - `data-horizontal` étendu : `"tier"` (⅓ image / ⅔ contenu) et `"half"` (50/50) en plus de `"true"` (défaut).
   - Déballage automatique du `<p>` injecté par le parseur MediaWiki autour du contenu des `<div>`.
 - **`dsfr/EditPage.js`** : ajout de 5 entrées dans le menu déroulant "Composants DSFR" : Carte (simple), Carte (avec badge et détail), Grille de cartes (2 colonnes), Grille de cartes (3 colonnes), Grille de cartes (4 colonnes).
-- **`Common.js`** : ajout du module `components/Card` dans la liste de chargement.
-- **`docs/composants/Card.md`** : documentation complète du composant (syntaxe wikitext, tableau des attributs, exemples, structure HTML générée, breakpoints responsives).
+
+- **Composants implémentés dans `shared/dsfr/components/`** (36 composants, disponibles pour activation via `Common.js`) :
+  - **Actifs sur ce wiki** : Accordion, Alert, Badge, Card, Stepper.
+  - **Implémentés, non encore activés** : Breadcrumb, Button, Callout, Checkbox, Download, Dropdown, Form, Highlight, Input, Link, Modal, Notice, Pagination, Quote, Radio, Search, Segmented, Select, Share, Sidemenu, Skiplink, Summary, Tab, Table, Tabnav, Tag, Tile, Toggle, Tooltip, Transcription, Upload.
+
+- **Documentation (`docs/composants/`)** : 36 fichiers Markdown — un par composant disponible dans `shared/`. Couvre la syntaxe wikitext, les attributs `data-*`, les exemples et la structure HTML générée.
 
 ### Corrections
 
-- **`dsfr/Style.css`** : fix pastilles bleues sur les listes DSFR. MediaWiki applique `list-style: disc` sur tous les `<ul>`, polluant les composants `.fr-nav__list`, `.fr-grid-row`, `.fr-btns-group`, `.fr-menu__list`, etc. Ajout d'un reset `list-style: none !important` ciblant tous les éléments `ul[class*="fr-"]` et `li[class*="fr-"]`.
+- **`dsfr/Style.css`** : fix pastilles bleues sur les listes DSFR.
+  - **Cause** : conflit entre les styles MediaWiki (`list-style: disc` global) et un reset DSFR trop restreint (ciblant uniquement les éléments portant directement une classe `fr-*`).
+  - **Reset étendu** : ciblage de tous les `ul`/`li` descendants des conteneurs DSFR (`.fr-header`, `.fr-nav`, `.fr-footer`, `.fr-menu`, `.fr-grid-row`, `.fr-btns-group`, `.fr-badges-group`, `.fr-tags-group`, `.fr-links-group`, etc.).
+  - **Restriction MediaWiki** : ajout de sélecteurs `:not()` pour empêcher l'application de `list-style: disc` aux listes dans les composants DSFR.
+  - **Toolbar éditeur** : ajout de règles explicites pour les `ul`/`li` de `#dsfr-editor-toolbar` et `#dsfr-edit-bar` neutralisant le background-image indésirable.
+- **`dsfr/Header.js`** : fix race condition — attente explicite de `DsfrConfig` avant le montage du header, évitant un affichage avec une navigation vide sur les chargements lents.
+- **`dsfr/Layout.js`** : suppression du sommaire automatique MediaWiki (`.toc`) et nettoyage des artefacts natifs MW résiduels (catégories liées, portlets, éléments MonoBook) qui persistaient dans l'interface DSFR.
+- **`dsfr/EditPage.js`** : corrections successives de l'affichage de la barre d'outils et du volet "Composants DSFR".
+
+### Améliorations
+
+- **`dsfr/EditPage.js`** — Refonte complète du sélecteur de composants DSFR :
+  - **29 composants** disponibles (auparavant 13) couvrant l'intégralité de `shared/dsfr/components/`.
+  - **16 nouveaux composants** ajoutés : Bandeau (Notice), Bouton (6 variantes), Bouton radio, Case à cocher, Champ de saisie, Citation enrichie, Contrôle segmenté, Groupe de formulaire, Interrupteur (Toggle), Lien DSFR, Liste déroulante (Select), Menu déroulant (Dropdown), Mise en exergue (Highlight), Modale, Pagination, Partage, Téléversement (Upload), Transcription, Tuile.
+  - **Composants existants enrichis** : Alerte (+avertissement, +fermable), Badge (+erreur, +avertissement, +nouveau, +petit), Carte (+horizontale, +avec image), Mise en avant (migration vers `dsfr-callout` transformable, +couleur, +bouton).
+  - **6 catégories** visuelles : Contenu, Mise en page, Formulaires, Feedback & Info, Navigation & Liens, Social.
+  - **Recherche live** : barre sticky en haut du menu filtrant en temps réel, auto-expansion des résultats, message « Aucun composant trouvé ».
+  - **Icônes emoji Unicode** : remplacement des classes `fr-icon-*` (qui dépendent de la font DSFR, avec risque d'affichage en carrés bleus) par des emojis universels.
+  - **Badge compteur** : pastille bleue indiquant le nombre de variantes sur les composants avec sous-menu.
+  - **Design compact** : espacement réduit (~30%), meilleure densité d'information, lien Documentation officielle sticky en footer.
 
 ---
 

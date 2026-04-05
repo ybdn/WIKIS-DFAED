@@ -1,0 +1,648 @@
+/* SOURCE FILE FOR: [[MediaWiki:Dsfr/oce/Style.css]] */
+
+/* ================================================================
+   OCE APP — DSFR-compatible styles
+   ================================================================ */
+
+/* --- Mode "Bord à bord" pour MediaWiki --- */
+.mw-page-container,
+.mw-workspace-container,
+.mw-content-container,
+#content.mw-body,
+#content {
+    max-width: none !important;
+}
+
+/* --- Container --- */
+.oce-app {
+    max-width: 100%;
+    margin: 0;
+    font-family: 'Marianne', arial, sans-serif;
+}
+
+
+/* --- Tabs --- */
+.oce-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid #e5e5e5;
+    margin-bottom: 1.5rem;
+}
+.oce-tab {
+    padding: 0.75rem 1.5rem;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.oce-tab:hover {
+    color: #000091;
+    background: #f6f6f6;
+}
+.oce-tab.active {
+    color: #000091;
+    border-bottom-color: #000091;
+    font-weight: 700;
+}
+.oce-panel {
+    display: none;
+}
+.oce-panel.active {
+    display: block;
+}
+
+/* --- Save bar --- */
+.oce-save-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0.25rem;
+    background: #f6f6f6;
+    border-left: 4px solid #e5e5e5;
+    transition: all 0.3s;
+}
+.oce-save-bar.dirty {
+    background: #FEF7DA;
+    border-left-color: #D64D00;
+}
+.oce-save-bar.saved {
+    background: #B8FEC9;
+    border-left-color: #18753C;
+}
+.oce-save-status {
+    flex: 1;
+    font-size: 0.875rem;
+    color: #666;
+}
+.oce-save-bar.dirty .oce-save-status {
+    color: #D64D00;
+    font-weight: 600;
+}
+.oce-save-bar.saved .oce-save-status {
+    color: #18753C;
+    font-weight: 600;
+}
+
+/* --- Dashboard --- */
+.oce-dashboard {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.oce-dash-card {
+    flex: 1;
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+}
+.oce-dash-card--echeance {
+    flex: 0 0 auto;
+    min-width: 260px;
+}
+.oce-dash-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: #f6f6f6;
+    border-bottom: 1px solid #e5e5e5;
+}
+.oce-dash-card-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #161616;
+}
+.oce-dash-total {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #000091;
+}
+.oce-dash-card-body {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+}
+
+/* Chip statut */
+.oce-dash-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.65rem;
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-size: 0.8125rem;
+    font-family: 'Marianne', arial, sans-serif;
+    transition: all 0.15s;
+    color: #3a3a3a;
+}
+.oce-dash-chip:hover {
+    background: #f0f0f0;
+    border-color: #ccc;
+}
+.oce-dash-chip.active {
+    background: #E8EDFF;
+    border-color: #000091;
+    color: #000091;
+    box-shadow: 0 0 0 1px #000091;
+}
+.oce-dash-chip-count {
+    font-weight: 800;
+    font-size: 0.95rem;
+}
+.oce-dash-chip-label {
+    font-weight: 500;
+}
+
+/* Bloc echeance */
+.oce-dash-ech {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    border: 2px solid transparent;
+    cursor: pointer;
+    font-family: 'Marianne', arial, sans-serif;
+    transition: all 0.15s;
+    min-width: 70px;
+    flex: 1;
+}
+.oce-dash-ech-count {
+    font-size: 1.3rem;
+    font-weight: 800;
+    line-height: 1.2;
+}
+.oce-dash-ech-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+.oce-dash-ech--retard {
+    background: #FEE7E6;
+    color: #CE0500;
+}
+.oce-dash-ech--retard:hover {
+    background: #FDCFCD;
+}
+.oce-dash-ech--proche {
+    background: #FEF4E6;
+    color: #D64D00;
+}
+.oce-dash-ech--proche:hover {
+    background: #FDE9CC;
+}
+.oce-dash-ech--ok {
+    background: #E6F5EC;
+    color: #18753C;
+}
+.oce-dash-ech--ok:hover {
+    background: #CDE9D7;
+}
+.oce-dash-ech.active {
+    border-color: currentColor;
+    box-shadow: 0 0 0 1px currentColor;
+}
+
+/* Responsive : stack vertical */
+@media (max-width: 700px) {
+    .oce-dashboard {
+        flex-direction: column;
+    }
+    .oce-dash-card--echeance {
+        min-width: 0;
+    }
+}
+
+/* --- Filters --- */
+.oce-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+.oce-checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+
+/* --- Groups (agent) --- */
+.oce-group {
+    margin-bottom: 1rem;
+    border: 1px solid #e5e5e5;
+    border-radius: 0.25rem;
+    overflow: hidden;
+}
+.oce-group-summary {
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 0.75rem 1rem;
+    background: #f0f0f0;
+    border-bottom: 1px solid #e5e5e5;
+    color: #161616;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    user-select: none;
+}
+.oce-group-summary::-webkit-details-marker { display: none; }
+.oce-group-summary::before {
+    content: '\25BA';
+    font-size: 0.7rem;
+    color: #666;
+    transition: transform 0.2s;
+    display: inline-block;
+}
+.oce-group[open] > .oce-group-summary::before {
+    transform: rotate(90deg);
+}
+.oce-group-summary:hover {
+    background: #e8e8e8;
+    color: #000091;
+}
+
+/* --- Table --- */
+.oce-table-wrapper {
+    overflow-x: auto;
+}
+.oce-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+}
+.oce-table th,
+.oce-table td {
+    border: 1px solid #e5e5e5;
+    border-top: none;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    /* Suppression du white-space: nowrap global pour autoriser le retour à la ligne */
+    vertical-align: middle;
+}
+/* Éviter le bug de la scrollbar de 1px dû au border-collapse = 100% + 1px */
+.oce-table th:first-child,
+.oce-table td:first-child {
+    border-left: none;
+}
+.oce-table th:last-child,
+.oce-table td:last-child {
+    border-right: none;
+}
+.oce-table thead th {
+    background: #f6f6f6;
+    color: #161616;
+    font-weight: 600;
+    border-top: none;
+    white-space: nowrap; /* On garde le texte des en-têtes sans retour à la ligne si possible */
+}
+.oce-col-numero {
+    min-width: 90px;
+    white-space: nowrap;
+}
+.oce-col-objet {
+    white-space: normal !important;
+    min-width: 150px;
+    max-width: 300px;
+    word-break: break-word; /* Évite qu'une URL ou un texte long ne force le défilement */
+}
+.oce-col-actions {
+    /* La min-width a été supprimée pour permettre à la colonne de réduire sa taille en mode consultation */
+    white-space: nowrap;
+}
+
+
+/* Actions row — inline flex */
+.oce-actions-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-wrap: nowrap;
+}
+.oce-actions-row .fr-select--sm {
+    max-width: 110px;
+    min-width: 90px;
+}
+
+
+/* Cliches column */
+.oce-col-cliches {
+    text-align: center;
+    font-weight: 600;
+    min-width: 60px;
+}
+
+/* Date missing indicator */
+.oce-date-missing {
+    color: #929292;
+    font-style: italic;
+}
+
+/* --- Echeance colors --- */
+.oce-echeance-ok {
+    color: #18753C;
+}
+.oce-echeance-proche {
+    color: #D64D00;
+    font-weight: 700;
+}
+.oce-echeance-depassee {
+    color: #CE0500;
+    font-weight: 700;
+    background: #FEE7E6 !important;
+}
+
+/* --- Row states --- */
+.oce-row-archived {
+    opacity: 0.6;
+}
+
+/* --- Historique (inline) --- */
+.oce-histo-cell {
+    background: #f9f9f9 !important;
+    white-space: normal !important;
+}
+.oce-histo-content {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    max-height: 200px;
+    overflow-y: auto;
+}
+.oce-histo-entry {
+    color: #3a3a3a;
+}
+
+/* --- Empty state --- */
+.oce-empty {
+    padding: 2rem;
+    text-align: center;
+    color: #929292;
+    font-style: italic;
+    font-size: 0.95rem;
+}
+
+/* --- Modal --- */
+.oce-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.oce-modal {
+    background: #fff;
+    border-radius: 0.5rem;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 560px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+.oce-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e5e5e5;
+}
+.oce-modal-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+.oce-modal-body {
+    padding: 1.5rem;
+}
+.oce-modal-body .fr-input-group {
+    margin-bottom: 1rem;
+}
+.oce-modal-body .fr-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+.oce-modal-body .fr-input,
+.oce-modal-body .fr-select {
+    width: 100%;
+    box-sizing: border-box;
+}
+.oce-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #e5e5e5;
+}
+
+/* --- Personnel (in OCE) --- */
+.oce-personnel {
+    margin-top: 0;
+}
+.oce-personnel-summary {
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #161616;
+    padding: 0.6rem 0.75rem;
+    background: #f0f0f0;
+    border-radius: 0.25rem;
+    border: 1px solid #e5e5e5;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    user-select: none;
+}
+.oce-personnel-summary::-webkit-details-marker { display: none; }
+.oce-personnel-summary::before {
+    content: '\25BA';
+    font-size: 0.7rem;
+    color: #666;
+    transition: transform 0.2s;
+    display: inline-block;
+}
+#oce-personnel-details[open] > .oce-personnel-summary::before {
+    transform: rotate(90deg);
+}
+.oce-personnel-summary:hover {
+    background: #e8e8e8;
+    color: #000091;
+}
+.oce-personnel-table {
+    width: 100%;
+    max-width: 600px;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+}
+.oce-personnel-table th,
+.oce-personnel-table td {
+    border: 1px solid #e5e5e5;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+}
+.oce-personnel-table th {
+    background: #f0f0f0;
+    font-weight: 600;
+}
+.oce-personnel-add {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+    max-width: 600px;
+    margin-bottom: 1.5rem;
+}
+.oce-personnel-add .fr-input {
+    flex: 1;
+    min-width: 120px;
+}
+
+/* --- Statistics --- */
+.oce-stats-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+.oce-stats-header h4 {
+    margin: 0;
+}
+.oce-stats-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.oce-stats-toggle {
+    display: inline-flex;
+    border: 1px solid #e5e5e5;
+    border-radius: 0.25rem;
+    overflow: hidden;
+}
+.oce-stats-toggle-btn {
+    padding: 0.35rem 0.85rem;
+    border: none;
+    background: #fff;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    font-family: 'Marianne', arial, sans-serif;
+    cursor: pointer;
+    color: #3a3a3a;
+    transition: all 0.15s;
+}
+.oce-stats-toggle-btn:hover {
+    background: #f0f0f0;
+}
+.oce-stats-toggle-btn.active {
+    background: #000091;
+    color: #fff;
+}
+.oce-stats-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.oce-stats-year {
+    font-size: 1.2rem;
+    font-weight: 700;
+    min-width: 60px;
+    text-align: center;
+}
+.oce-stats-table-wrapper {
+    overflow-x: auto;
+    border: 1px solid #e5e5e5;
+    border-radius: 0.25rem;
+    margin-bottom: 1rem;
+}
+.oce-stats-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+}
+.oce-stats-table th,
+.oce-stats-table td {
+    border: 1px solid #e5e5e5;
+    padding: 0.5rem 0.75rem;
+    text-align: center;
+    min-width: 45px;
+}
+.oce-stats-table thead th {
+    background: #f0f0f0;
+    font-weight: 600;
+}
+.oce-stats-agent-col {
+    text-align: left !important;
+    min-width: 160px;
+    font-weight: 600;
+    background: #f6f6f6;
+}
+.oce-stats-total-col {
+    background: #f0f0f0 !important;
+    font-weight: 700;
+    border-left: 2px solid #ccc !important;
+}
+.oce-stats-has-value {
+    background: #E8EDFF;
+    color: #000091;
+    font-weight: 700;
+}
+.oce-stats-totals-row td {
+    background: #f6f6f6 !important;
+    border-top: 2px solid #666 !important;
+}
+.oce-stats-totals-row .oce-stats-has-value {
+    background: #dde3ff !important;
+}
+.oce-stats-footnote {
+    font-size: 0.8rem;
+    color: #929292;
+    font-style: italic;
+    margin: 0;
+}
+
+/* --- Print --- */
+@media print {
+    .oce-tabs,
+    .oce-save-bar,
+    .oce-dashboard,
+    .oce-filters,
+    .oce-personnel,
+    .oce-modal-overlay,
+    .oce-col-actions,
+    #oce-add-btn {
+        display: none !important;
+    }
+    .oce-group {
+        border: none;
+        break-inside: avoid;
+    }
+    .oce-table {
+        font-size: 9pt;
+    }
+}

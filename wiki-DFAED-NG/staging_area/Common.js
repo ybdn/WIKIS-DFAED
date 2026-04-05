@@ -1,32 +1,30 @@
-/* 
+/*
  * -------------------------------------------------------------------------
  * SOURCE FILE FOR: MediaWiki:Common.js (AUTO-DETECT PATH)
+ * -------------------------------------------------------------------------
+ * Pattern : base commune + configuration d'instance
+ *   — Config.js     : navigation propre à cette instance (staging_area/dsfr/)
+ *   — Autres modules : base commune partagée (shared/dsfr/ en local)
+ *
+ * Anti-FOUC : deux failsafes garantissent que le contenu devient visible.
+ *   — JS  : setTimeout 5000ms ci-dessous
+ *   — CSS : animation différée 4s dans Common.css
  * -------------------------------------------------------------------------
  */
 
 (function () {
-    // ---------------------------------------------------------------------
-    // 0. LOADER
-    // ---------------------------------------------------------------------
-    (function() {
-        var css = '#dsfr-global-loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 90000; display: flex; align-items: center; justify-content: center; } .dsfr-loader-spinner { width: 48px; height: 48px; border: 5px solid #000091; border-bottom-color: transparent; border-radius: 50%; animation: dsfr-rotation 1s linear infinite; } @keyframes dsfr-rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
-        var s = document.createElement('style'); s.appendChild(document.createTextNode(css)); document.head.appendChild(s);
-        var div = document.createElement('div'); div.id = 'dsfr-global-loader'; div.innerHTML = '<span class="dsfr-loader-spinner"></span>';
-        if(document.body) document.body.appendChild(div);
-        
-        window.DsfrHideLoader = function() { var el=document.getElementById('dsfr-global-loader'); if(el) el.parentNode.removeChild(el); };
-        setTimeout(window.DsfrHideLoader, 5000); // Failsafe 5s
-    })();
 
-    // ---------------------------------------------------------------------
-    // 1. CHARGEMENT DES MODULES (attend jQuery ready)
-    // ---------------------------------------------------------------------
     $(function () {
         var apiPath = mw.config.get('wgScript');
         var isLocal = window.location.hostname === 'localhost';
 
-        var dsfrModules = [
-            'Config',
+        // Config est spécifique à cette instance — toujours chargé depuis staging_area/dsfr/
+        var localModules = [
+            'Config'
+        ];
+
+        // Modules de la base commune — shared/dsfr/ en local, MediaWiki:Dsfr/ en prod
+        var sharedModules = [
             'Layout',
             'Header',
             'Footer',
@@ -34,34 +32,101 @@
             'components/Accordion',
             'components/Alert',
             'components/Badge',
-            'components/Card'
+            'components/Breadcrumb',
+            'components/Button',
+            'components/Callout',
+            'components/Card',
+            'components/Checkbox',
+            'components/Download',
+            'components/Dropdown',
+            'components/Form',
+            'components/Highlight',
+            'components/Input',
+            'components/Link',
+            'components/Modal',
+            'components/Notice',
+            'components/Pagination',
+            'components/Quote',
+            'components/Radio',
+            'components/Search',
+            'components/Segmented',
+            'components/Share',
+            'components/Sidemenu',
+            'components/Skiplink',
+            'components/Stepper',
+            'components/Summary',
+            'components/Tab',
+            'components/Tabnav',
+            'components/Table',
+            'components/Tag',
+            'components/Tile',
+            'components/Toggle',
+            'components/Tooltip',
+            'components/Transcription',
+            'components/Upload',
+            'EasterEgg'
         ];
 
-        console.log('[DSFR] Loading modules from:', apiPath);
+        var allModules = localModules.concat(sharedModules);
+        var total    = allModules.length;
+        var loaded   = 0;
+        var revealed = false;
+
+        function reveal() {
+            if (revealed) return;
+            revealed = true;
+            document.documentElement.classList.add('dsfr-ready');
+            console.log('[DSFR] Ready — all modules loaded (' + total + ')');
+        }
+
+        var failsafe = setTimeout(function() {
+            console.warn('[DSFR] Failsafe triggered — revealing after timeout');
+            reveal();
+        }, 5000);
+
+        function onModuleLoaded() {
+            loaded++;
+            if (loaded >= total) {
+                clearTimeout(failsafe);
+                reveal();
+            }
+        }
+
+        console.log('[DSFR] Loading ' + total + ' modules — env: ' + (isLocal ? 'local' : 'prod'));
 
         if (isLocal) {
-            dsfrModules.forEach(function(m) {
+            // Config : depuis staging_area/dsfr/ (spécifique à cette instance)
+            localModules.forEach(function(m) {
                 var s = document.createElement('script');
                 s.src = '/staging_area/dsfr/' + m + '.js?v=' + Date.now();
+                s.onload  = onModuleLoaded;
+                s.onerror = onModuleLoaded;
+                document.head.appendChild(s);
+            });
+            // Base commune : depuis shared/dsfr/
+            sharedModules.forEach(function(m) {
+                var s = document.createElement('script');
+                s.src = '/shared/dsfr/' + m + '.js?v=' + Date.now();
+                s.onload  = onModuleLoaded;
+                s.onerror = onModuleLoaded;
                 document.head.appendChild(s);
             });
         } else {
-            // PROD : Chargement via balises manuelles
-
-            // 1. Charger le CSS via balise <link>
+            // PROD : CSS de personnalisation
             var cssLink = document.createElement('link');
-            cssLink.rel = 'stylesheet';
+            cssLink.rel  = 'stylesheet';
             cssLink.type = 'text/css';
             cssLink.href = apiPath + '?title=MediaWiki:Dsfr/Style.css&action=raw&ctype=text/css';
             document.head.appendChild(cssLink);
-            console.log('[DSFR] CSS loaded via <link>');
 
-            // 2. Charger les JS via balises <script>
-            dsfrModules.forEach(function(m) {
-                var script = document.createElement('script');
-                script.type = 'text/javascript';
-                script.src = apiPath + '?title=MediaWiki:Dsfr/' + m + '.js&action=raw&ctype=text/javascript';
-                document.head.appendChild(script);
+            // PROD : tous les modules depuis MediaWiki:Dsfr/ (inchangé)
+            allModules.forEach(function(m) {
+                var s = document.createElement('script');
+                s.type = 'text/javascript';
+                s.src  = apiPath + '?title=MediaWiki:Dsfr/' + m + '.js&action=raw&ctype=text/javascript';
+                s.onload  = onModuleLoaded;
+                s.onerror = onModuleLoaded;
+                document.head.appendChild(s);
                 console.log('[DSFR] Loading module:', m);
             });
         }
