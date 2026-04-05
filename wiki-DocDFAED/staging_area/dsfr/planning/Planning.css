@@ -4,12 +4,12 @@
    PLANNING APP — DSFR-compatible styles
    ================================================================ */
 
-/* --- Mode "Bord à bord" pour MediaWiki --- */
-.mw-page-container,
-.mw-workspace-container,
-.mw-content-container,
-#content.mw-body,
-#content {
+/* --- Mode "Bord à bord" pour MediaWiki (P4S uniquement) --- */
+body.planning-fullwidth .mw-page-container,
+body.planning-fullwidth .mw-workspace-container,
+body.planning-fullwidth .mw-content-container,
+body.planning-fullwidth #content.mw-body,
+body.planning-fullwidth #content {
     max-width: none !important;
 }
 

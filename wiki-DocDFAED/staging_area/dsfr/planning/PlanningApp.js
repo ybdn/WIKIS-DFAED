@@ -203,6 +203,9 @@
         html += '</div>';
         $content.html(html);
 
+        /* --- Pleine largeur par défaut (onglet P4S actif) --- */
+        $('body').addClass('planning-fullwidth');
+
         /* --- Init tabs --- */
         $('.planning-tab').on('click', function () {
             var targetId = $(this).data('panel');
@@ -210,6 +213,12 @@
             $(this).addClass('active');
             $('.planning-panel').removeClass('active');
             $('#' + targetId).addClass('active');
+            /* Largeur standard pour Journalier, pleine largeur pour P4S */
+            if (targetId === 'jour-panel') {
+                $('body').removeClass('planning-fullwidth');
+            } else {
+                $('body').addClass('planning-fullwidth');
+            }
         });
 
         /* --- Filter active personnel for planning views --- */
