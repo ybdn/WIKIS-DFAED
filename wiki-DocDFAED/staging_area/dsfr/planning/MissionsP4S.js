@@ -19,10 +19,10 @@ window.PlanningMissionsP4S = [
 
 /* ABSENCES */
     { code: "R",   label: "Repos",                   bg: "#dffee6", fg: "#18753c" },
-    { code: "RR",  label: "Repos retard",            bg: "#dffee6", fg: "#18753c" },
+    { code: "RR",  label: "Repos recup.",            bg: "#dffee6", fg: "#18753c" },
     { code: "P",   label: "Permissions",             bg: "#dffee6", fg: "#18753c" },
-    { code: "PM",  label: "Permission matin",        bg: "#dffee6", fg: "#18753c" },
-    { code: "PAM", label: "Permission apres-midi",   bg: "#dffee6", fg: "#18753c" },
+    { code: "PM",  label: "Perm. matin",        bg: "#dffee6", fg: "#18753c" },
+    { code: "PAM", label: "Perm. apres-midi",   bg: "#dffee6", fg: "#18753c" },
 
 /* MALADIE */
     { code: "CM",  label: "Conge maladie",           bg: "#fce8f5", fg: "#7c0059" },
